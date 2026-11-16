@@ -1,5 +1,5 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
-import type { ComponentProps, SubmitEvent } from "react";
+import { useState, type ComponentProps, type KeyboardEvent, type SubmitEvent } from "react";
 import { Link } from "react-router";
 
 import { Button } from "~/components/ui/button";
@@ -23,6 +23,10 @@ const IMAGE_FALLBACK_SIZE = 600;
 const IMAGE_WIDTHS = [96, 192, 288] as const;
 /** У товару без варіантів Shopify повертає службову опцію Title: Default Title. */
 const DEFAULT_OPTION_VALUE = "Default Title";
+
+/** Підказка, коли в полі кількості не число. */
+export const QUANTITY_HINT = "Вкажіть кількість цифрами, наприклад 2.";
+const DIGITS_ONLY = /^[0-9]+$/;
 
 /** Поля рядка кошика, які показує картка. Оптимістичний рядок може прийти без товару й фото. */
 export type CartLineData = {
@@ -93,6 +97,16 @@ export function CartLine({
   const errorId = domId("cart-line-error", line.id);
   const pendingValue = pending && "opacity-50";
 
+  // Підказка про нечислове значення живе в рядку: сервер такого запиту не бачить.
+  const [quantityHint, setQuantityHint] = useState<string | null>(null);
+  const message = error ?? quantityHint;
+
+  /** Повертає в поле останню підтверджену кількість і пояснює, що саме не так. */
+  const rejectQuantity = (input: HTMLInputElement) => {
+    input.value = String(line.quantity);
+    setQuantityHint(QUANTITY_HINT);
+  };
+
   // Рядок, що зникає, забирає з собою елемент у фокусі. Поки він ще є, переводимо фокус
   // на таку саму кнопку сусіднього рядка або на заголовок кошика.
   const moveFocusBeforeRemoval = (event: SubmitEvent<HTMLFormElement>) => {
@@ -114,6 +128,47 @@ export function CartLine({
     target?.focus();
   };
 
+  const beforeSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+    const formElement = event.currentTarget;
+    const intent = event.nativeEvent.submitter?.getAttribute("value");
+    const input = formElement.elements.namedItem("quantity");
+
+    if (intent !== "remove" && input instanceof HTMLInputElement) {
+      const raw = input.value.trim();
+      // Порожнє поле проходить перевірку pattern, тому число перевіряємо й тут.
+      if (!DIGITS_ONLY.test(raw)) {
+        event.preventDefault();
+        rejectQuantity(input);
+        return;
+      }
+      // Та сама кількість, що вже в кошику: запит не потрібен. Так відсікається й другий
+      // submit від події change, яку браузер надсилає після Enter, коли поле втрачає фокус.
+      if (intent === "set" && Number(raw) === line.quantity) {
+        event.preventDefault();
+        input.value = String(line.quantity);
+        setQuantityHint(null);
+        return;
+      }
+    }
+
+    setQuantityHint(null);
+    moveFocusBeforeRemoval(event);
+  };
+
+  // Enter у полі: браузер спершу надсилає change (Hydrogen відправляє форму), а потім ще й
+  // неявний submit. Якщо перший запит прибрав рядок (кількість 0), другий іде вже у від'єднану
+  // форму, і в консолі з'являється «Form submission canceled because the form is not connected».
+  // Тому Enter обробляємо самі: один submit кнопкою set, поки форма на місці.
+  const submitOnEnter = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    const formElement = event.currentTarget.form;
+    const setButton = formElement?.querySelector<HTMLButtonElement>(
+      'button[name="intent"][value="set"]',
+    );
+    if (formElement?.isConnected && setButton) formElement.requestSubmit(setButton);
+  };
+
   return (
     <li
       data-slot="cart-line"
@@ -124,11 +179,7 @@ export function CartLine({
       {...props}
     >
       <Item size="none" className="flex-nowrap items-start py-4">
-        <ItemMedia
-          variant="image"
-          size="lg"
-          className="sm:size-24 [&_img]:object-cover [&_img]:mix-blend-normal"
-        >
+        <ItemMedia variant="image" size="lg" fit="cover" className="sm:size-24">
           {image ? (
             <ShopImage
               src={image.url}
@@ -187,7 +238,7 @@ export function CartLine({
           </div>
 
           <form
-            {...formProps({ beforeSubmit: moveFocusBeforeRemoval })}
+            {...formProps({ beforeSubmit })}
             className="flex items-center justify-between gap-2"
           >
             <button {...register("set")} />
@@ -205,8 +256,15 @@ export function CartLine({
               <Input
                 {...register("quantity", { value: line.quantity, interactive: true })}
                 aria-label="Кількість"
-                aria-describedby={error ? errorId : undefined}
-                aria-invalid={error ? true : undefined}
+                aria-describedby={message ? errorId : undefined}
+                aria-invalid={message ? true : undefined}
+                onKeyDown={submitOnEnter}
+                onInput={() => setQuantityHint(null)}
+                onInvalid={(event) => {
+                  // Замість системної підказки браузера — наша, українською, під полем.
+                  event.preventDefault();
+                  rejectQuantity(event.currentTarget);
+                }}
                 className={cn("w-12 px-0 text-center font-semibold tabular-nums", pendingValue)}
               />
               <Button
@@ -232,7 +290,7 @@ export function CartLine({
             </ItemActions>
           </form>
 
-          <FieldError id={errorId}>{error}</FieldError>
+          <FieldError id={errorId}>{message}</FieldError>
         </ItemContent>
       </Item>
     </li>

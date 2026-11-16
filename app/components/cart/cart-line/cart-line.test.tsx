@@ -10,7 +10,7 @@ import {
   type DemoCartSubmit,
 } from "~/components/cart/cart.fixtures";
 
-import { CartLine, type CartLineProps } from "./cart-line";
+import { CartLine, QUANTITY_HINT, type CartLineProps } from "./cart-line";
 
 const text = (element: HTMLElement) => (element.textContent ?? "").replace(/\s/g, " ");
 
@@ -103,6 +103,88 @@ describe("CartLine", () => {
       lineId: DEMO_CART_LINE.id,
       quantity: "3",
     });
+  });
+
+  it("Enter відправляє форму один раз, а change після втрати фокуса вже нічого не шле", async () => {
+    const onSubmit = vi.fn();
+    const { rerender } = renderLine({}, onSubmit);
+    const user = userEvent.setup();
+    const input = screen.getByRole("textbox", { name: "Кількість" });
+
+    await user.clear(input);
+    await user.type(input, "3{Enter}");
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+
+    // Стор кошика оптимістично оновив рядок; браузер після blur надсилає change → submit.
+    rerender(
+      <MemoryRouter>
+        <h2 id="cart-title" tabIndex={-1}>
+          Кошик
+        </h2>
+        <ul>
+          <CartLine
+            line={{ ...DEMO_CART_LINE, quantity: 3 }}
+            form={createDemoCartForm(onSubmit)}
+            emptyCartFocusId="cart-title"
+          />
+        </ul>
+      </MemoryRouter>,
+    );
+    const form = input.closest("form") as HTMLFormElement;
+    form.requestSubmit(form.querySelector<HTMLButtonElement>('button[value="set"]'));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("нечислове значення: нічого не відправляє, повертає останню кількість і пояснює", async () => {
+    const onSubmit = vi.fn();
+    renderLine({}, onSubmit);
+    const user = userEvent.setup();
+    const input = screen.getByRole("textbox", { name: "Кількість" });
+
+    await user.clear(input);
+    await user.type(input, "abc{Enter}");
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(input).toHaveValue("1");
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent(QUANTITY_HINT);
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toHaveAttribute("aria-describedby", alert.id);
+
+    // Підказка зникає, щойно людина починає вводити знову.
+    await user.type(input, "2");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("порожнє поле теж не відправляється", async () => {
+    const onSubmit = vi.fn();
+    renderLine({}, onSubmit);
+    const user = userEvent.setup();
+    const input = screen.getByRole("textbox", { name: "Кількість" });
+
+    await user.clear(input);
+    await user.type(input, "{Enter}");
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(input).toHaveValue("1");
+    expect(screen.getByRole("alert")).toHaveTextContent(QUANTITY_HINT);
+  });
+
+  it("кількість 0 відправляється як set і переводить фокус на заголовок кошика", async () => {
+    const onSubmit = vi.fn();
+    renderLine({}, onSubmit);
+    const user = userEvent.setup();
+    const input = screen.getByRole("textbox", { name: "Кількість" });
+
+    await user.clear(input);
+    await user.type(input, "0{Enter}");
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ intent: "set", quantity: "0" }),
+    );
+    expect(screen.getByRole("heading", { name: "Кошик" })).toHaveFocus();
   });
 
   it("кнопки кількості мають ціль натискання 44px і підпис", () => {

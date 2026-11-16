@@ -125,6 +125,17 @@ describe("CartDrawer", () => {
     expect(dialog.querySelector("hydrogen-shop-pay-button")).not.toBeNull();
   });
 
+  it("після відкриття фокус стоїть на заголовку, а не на кнопці, що прибирає товар", async () => {
+    renderDrawer(CART_WITH_LINE);
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("link", { name: "Відкрити кошик" }));
+    const dialog = await screen.findByRole("dialog", { name: "Кошик" }, DIALOG_TIMEOUT);
+
+    await waitFor(() => expect(within(dialog).getByText("Кошик")).toHaveFocus());
+    expect(within(dialog).getByRole("button", { name: "Зменшити кількість" })).not.toHaveFocus();
+  });
+
   it("порожній кошик: запрошення до каталогу, без суми й оформлення", async () => {
     renderDrawer(EMPTY_CART);
     const user = userEvent.setup();

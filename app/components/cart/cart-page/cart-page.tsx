@@ -66,7 +66,7 @@ export function CartPage() {
           </Card>
           <Card asChild className="lg:sticky lg:top-24">
             <aside aria-labelledby="cart-summary-title">
-              <CardTitle asChild className="text-h3">
+              <CardTitle asChild size="h3">
                 <h2 id="cart-summary-title">Разом</h2>
               </CardTitle>
               <CartSummary

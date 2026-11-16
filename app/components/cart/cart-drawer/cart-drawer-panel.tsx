@@ -65,6 +65,12 @@ export function CartDrawerPanel({ open, onOpenChange }: CartDrawerPanelProps) {
         id={CART_DRAWER_ID}
         side="right"
         data-testid="cart-drawer"
+        onOpenAutoFocus={(event) => {
+          // Radix ставить фокус на перший елемент панелі, а це кнопка «мінус» першого товару:
+          // Enter одразу після відкриття прибирав би товар. Безпечна ціль — заголовок «Кошик».
+          event.preventDefault();
+          document.getElementById(TITLE_ID)?.focus();
+        }}
         onCloseAutoFocus={(event) => {
           // У панелі немає SheetTrigger, тому фокус на кнопку кошика повертаємо самі.
           event.preventDefault();
