@@ -52,7 +52,7 @@ function ReviewCard({ review }: { review: Review }) {
   return (
     <li className="min-w-0">
       {/* Плитка на ink-панелі: тло — білий 10%, такого тону в Card немає. */}
-      <Card asChild tone="ink" className="h-full justify-between gap-6 bg-on-ink-10">
+      <Card asChild tone="on-ink" className="h-full justify-between gap-6">
         <figure>
           <blockquote className="text-body">
             <p>{review.text}</p>

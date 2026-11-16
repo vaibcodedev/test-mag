@@ -87,7 +87,7 @@ export function Services({ id = "services", content, ...props }: ServicesProps) 
       <SectionHeader sectionId={id} title={content.title} description={content.description} />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card tone="blue" className="items-start gap-6 rounded-xl md:p-10">
+        <Card size="panel" tone="blue" className="items-start gap-6">
           <CardHeader className="gap-3">
             <CardTitle asChild>
               <h3 className="text-h2-panel">{tradeIn.title}</h3>
@@ -110,7 +110,7 @@ export function Services({ id = "services", content, ...props }: ServicesProps) 
           </CardFooter>
         </Card>
 
-        <Card className="items-start gap-6 rounded-xl md:p-10">
+        <Card size="panel" className="items-start gap-6">
           <CardHeader className="gap-6">
             <CardTitle asChild>
               <h3 className="flex flex-col gap-1">

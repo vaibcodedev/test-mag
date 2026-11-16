@@ -82,7 +82,7 @@ export function SeoBlock({
 
   return (
     <Section id={SECTION_ID}>
-      <Card className="gap-8 rounded-xl md:p-10">
+      <Card size="panel" className="gap-8">
         <SectionHeader sectionId={SECTION_ID} title={title} className="mb-0" />
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">

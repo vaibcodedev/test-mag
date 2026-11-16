@@ -19,13 +19,8 @@ export type FaqProps = {
 const SECTION_ID = "faq";
 
 /**
- * Відповідь змонтована завжди (`forceMount`), тому Radix її не ховає сам:
- * закритий блок прибирає з екрана цей клас на AccordionItem.
- */
-const HIDE_CLOSED_ANSWER = "[&[data-state=closed]>[data-slot=accordion-content]]:hidden";
-
-/**
- * Часті запитання на Accordion. Відповіді змонтовані примусово, тож повністю лежать
+ * Часті запитання на Accordion. Відповіді змонтовані примусово (`forceMount`; закриту
+ * відповідь ховає сам AccordionContent), тож повністю лежать
  * у серверному HTML і лишаються в DOM, поки блок згорнутий: їх бачать пошуковики.
  * Розгортання потребує JS; можна відкрити кілька відповідей одразу.
  */
@@ -44,7 +39,7 @@ export function Faq({ title = "Часті запитання", description, item
           <ul role="list">
             {items.map((item) => (
               <Card key={item.question} asChild padding="none">
-                <AccordionItem asChild value={item.question} className={HIDE_CLOSED_ANSWER}>
+                <AccordionItem asChild value={item.question}>
                   <li>
                     <AccordionTrigger className="rounded-lg px-5 md:px-6">
                       {item.question}

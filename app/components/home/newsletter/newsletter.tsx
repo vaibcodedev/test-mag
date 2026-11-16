@@ -131,10 +131,7 @@ export function Newsletter({
 
   return (
     <Section id={id} {...props}>
-      <Card
-        tone="ink"
-        className="grid gap-8 rounded-xl md:p-10 lg:grid-cols-2 lg:items-center lg:gap-10"
-      >
+      <Card size="panel" tone="ink" className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-10">
         <SectionHeader
           sectionId={id}
           title={content.title}
@@ -156,10 +153,8 @@ export function Newsletter({
           </Alert>
         ) : (
           <form noValidate onSubmit={handleSubmit} className="min-w-0">
-            <Field {...field.field}>
-              <FieldLabel {...field.label} className="text-surface">
-                {content.emailLabel}
-              </FieldLabel>
+            <Field {...field.field} onDark>
+              <FieldLabel {...field.label}>{content.emailLabel}</FieldLabel>
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Input
                   ref={inputRef}
@@ -175,8 +170,8 @@ export function Newsletter({
                   value={email}
                   onChange={(event) => handleChange(event.target.value)}
                   placeholder={content.emailPlaceholder}
-                  // Біле поле на ink: рамка зливається з полем, фокус показує lime-кільце (і на полі з помилкою).
-                  className="flex-1 border-2 border-surface hover:border-surface focus-visible:border-surface focus-visible:shadow-focus-on-ink aria-invalid:border-danger aria-invalid:focus-visible:border-danger aria-invalid:focus-visible:shadow-focus-on-ink"
+                  onDark
+                  className="flex-1"
                 />
                 <Button
                   type="submit"
@@ -187,8 +182,7 @@ export function Newsletter({
                   {content.submitLabel}
                 </Button>
               </div>
-              {/* На ink текст помилки білий: червоний danger тут не має потрібного контрасту. */}
-              <FieldError {...field.error} className="flex items-start gap-2 text-surface">
+              <FieldError {...field.error} className="flex items-start gap-2">
                 {error ? (
                   <>
                     <CircleAlert
@@ -220,9 +214,7 @@ export function Newsletter({
                   </AlertDescription>
                 </Alert>
               ) : null}
-              <FieldDescription {...field.description} className="text-on-ink-muted">
-                {content.hint}
-              </FieldDescription>
+              <FieldDescription {...field.description}>{content.hint}</FieldDescription>
             </Field>
           </form>
         )}

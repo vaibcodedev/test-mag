@@ -64,7 +64,8 @@ describe("Faq", () => {
       expect(panel).toHaveAttribute("data-state", "closed");
       expect(panel).not.toHaveAttribute("hidden");
       expect(row).toHaveAttribute("data-state", "closed");
-      expect(row).toHaveClass("[&[data-state=closed]>[data-slot=accordion-content]]:hidden");
+      // Закриту відповідь ховає сам AccordionContent (forceMount у базі).
+      expect(panel).toHaveClass("data-closed:hidden");
       expect(panel.parentElement).toBe(row);
     }
   });

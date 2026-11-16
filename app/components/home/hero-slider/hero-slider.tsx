@@ -1,4 +1,4 @@
-import { useState, type ComponentProps, type KeyboardEvent } from "react";
+import { useState, type ComponentProps } from "react";
 
 import { Card } from "~/components/ui/card";
 import {
@@ -7,7 +7,6 @@ import {
   CarouselNext,
   CarouselPrevious,
   useCarousel,
-  type CarouselApi,
 } from "~/components/ui/carousel";
 import { Progress } from "~/components/ui/progress";
 import { cn } from "~/lib/utils";
@@ -29,8 +28,7 @@ const twoDigits = (value: number) => String(value).padStart(2, "0");
  * біля краю слайда. Тому вікно на 4px ширше з кожного боку й має такі самі внутрішні поля.
  * Воно ж розтягується на всю вільну висоту банера, а слайди — на висоту вікна.
  */
-const VIEWPORT =
-  "[&>[data-slot=carousel-viewport]]:-m-1 [&>[data-slot=carousel-viewport]]:flex [&>[data-slot=carousel-viewport]]:flex-1 [&>[data-slot=carousel-viewport]]:p-1";
+const VIEWPORT = "-m-1 flex flex-1 p-1";
 
 /** Лічильник «01 / 04», смуга поступу і стрілки. */
 function HeroControls({ count }: { count: number }) {
@@ -80,7 +78,7 @@ function HeroAnnouncement({ banners }: { banners: readonly HomeBanner[] }) {
 
 /**
  * Великий ink-банер зі слайдами на Carousel. Без автопрокрутки: слайди перемикають стрілки,
- * клавіші ← → і свайп; після останнього слайда йде перший. Усі слайди є в HTML і стоять
+ * клавіші ← → (крім перемикача кольору: там вони вибирають колір, це вміє сам Carousel) і свайп; після останнього слайда йде перший. Усі слайди є в HTML і стоять
  * в один ряд однакової висоти, тому банер не стрибає, а без JS видно перший слайд.
  */
 export function HeroSlider({
@@ -89,37 +87,20 @@ export function HeroSlider({
   className,
   ...props
 }: HeroSliderProps) {
-  const [api, setApi] = useState<CarouselApi>();
-
   const count = banners.length;
   if (count === 0) return null;
 
-  /**
-   * Замінює обробник стрілок Carousel: той перехоплює ← → і в перемикачі кольору,
-   * а там ці клавіші мають вибирати колір, а не гортати слайди.
-   */
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-    if (event.target instanceof Element && event.target.closest('[role="radiogroup"]')) return;
-
-    event.preventDefault();
-    if (event.key === "ArrowLeft") api?.scrollPrev();
-    else api?.scrollNext();
-  };
-
   return (
-    <Card tone="ink" className={cn("@container h-full rounded-xl md:p-10", className)} {...props}>
+    <Card size="panel" tone="ink" className={cn("@container h-full", className)} {...props}>
       <Carousel
         aria-label={label}
         opts={{ loop: true }}
-        setApi={setApi}
-        onKeyDownCapture={handleKeyDown}
-        className={cn("flex min-w-0 flex-1 flex-col gap-6", VIEWPORT)}
+        className="flex min-w-0 flex-1 flex-col gap-6"
       >
         {count > 1 ? <HeroControls count={count} /> : null}
         <HeroAnnouncement banners={banners} />
 
-        <CarouselContent className="min-w-0 flex-1">
+        <CarouselContent viewportClassName={VIEWPORT} className="min-w-0 flex-1">
           {banners.map((banner, position) => (
             <HeroSlide
               key={banner.id}

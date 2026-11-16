@@ -48,7 +48,7 @@ export function About({
 }: AboutProps) {
   return (
     <Section id={SECTION_ID}>
-      <Card className="grid gap-8 rounded-xl md:p-10 lg:grid-cols-2 lg:gap-12">
+      <Card size="panel" className="grid gap-8 lg:grid-cols-2 lg:gap-12">
         <div className="flex min-w-0 flex-col gap-8">
           <div>
             <p className="mb-3 text-small font-semibold text-muted-foreground">Про «Сад»</p>
@@ -66,7 +66,7 @@ export function About({
                 {points.map((point) => (
                   <li key={point}>
                     <Item size="none" className="flex-nowrap gap-3">
-                      <ItemMedia variant="icon" className="size-6 rounded-pill [&>svg]:size-4">
+                      <ItemMedia variant="icon" size="sm" shape="round">
                         <Check aria-hidden="true" strokeWidth={2} />
                       </ItemMedia>
                       <ItemContent>

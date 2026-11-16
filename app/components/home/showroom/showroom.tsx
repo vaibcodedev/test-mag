@@ -54,7 +54,7 @@ function Contact({
   return (
     <li>
       <Item variant="on-dark" size="none" className="flex-nowrap gap-3">
-        <ItemMedia variant="icon" tone="dark" className="text-lime">
+        <ItemMedia variant="icon" tone="lime">
           <Icon strokeWidth={2} />
         </ItemMedia>
         <ItemContent className="gap-0">
@@ -75,7 +75,7 @@ export function Showroom({
 }: ShowroomProps) {
   return (
     <Section id={SECTION_ID}>
-      <Card tone="ink" className="grid gap-8 rounded-xl md:p-10 lg:grid-cols-2 lg:gap-10">
+      <Card size="panel" tone="ink" className="grid gap-8 lg:grid-cols-2 lg:gap-10">
         <div className="flex min-w-0 flex-col gap-8">
           <SectionHeader
             sectionId={SECTION_ID}

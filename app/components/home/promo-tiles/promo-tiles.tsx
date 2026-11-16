@@ -132,7 +132,8 @@ function TradeInTile({ tile }: { tile: PromoTradeInTile }) {
             <ItemMedia
               asChild
               variant="icon"
-              className="rounded-pill bg-surface text-blue transition-transform group-focus-within:-rotate-45 group-hover:-rotate-45"
+              shape="round"
+              className="bg-surface text-blue transition-transform group-focus-within:-rotate-45 group-hover:-rotate-45"
             >
               <span aria-hidden="true">
                 <ArrowUpRight strokeWidth={2} />

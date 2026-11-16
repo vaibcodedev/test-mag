@@ -67,7 +67,7 @@ export function UsedDevices({
   return (
     <Section id={id} {...props}>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <Card tone="ink" className="gap-0 rounded-xl md:p-10">
+        <Card size="panel" tone="ink" className="gap-0">
           <SectionHeader
             sectionId={id}
             title={content.title}

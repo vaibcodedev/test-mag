@@ -50,7 +50,7 @@ export function Deals({
 }: DealsProps) {
   return (
     <Section id={id} {...props}>
-      <Card tone="ink" padding="none" className="overflow-hidden rounded-xl">
+      <Card size="panel" tone="ink" padding="none" className="overflow-hidden">
         <DealsTicker items={tickerItems} className="border-b border-on-ink-10" />
 
         <CardContent className="p-6 md:p-10">

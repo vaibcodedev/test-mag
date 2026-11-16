@@ -1,5 +1,5 @@
-import { Scale, ShoppingCart, Truck } from "lucide-react";
-import { useState } from "react";
+import { LayoutGrid, Scale, ShoppingCart, Truck } from "lucide-react";
+import { useState, type MouseEvent } from "react";
 import { Link } from "react-router";
 
 import { ColorSwatches } from "~/components/product/color-swatches";
@@ -9,13 +9,17 @@ import { Button } from "~/components/ui/button";
 import { CarouselItem, useCarousel } from "~/components/ui/carousel";
 import { Price } from "~/components/ui/price";
 import { ShopImage } from "~/components/ui/shop-image";
+import { toast } from "~/components/ui/sonner";
+import { COMPARE_FULL_MESSAGE } from "~/hooks/use-compare";
 import { formatPrice, installmentPayment } from "~/lib/format";
+import { compareStore } from "~/lib/saved-lists";
 
 import type { HomeBanner } from "./hero-slider.types";
 
 const IMAGE_FALLBACK_SIZE = 960;
 /** Банер займає близько двох третин контейнера, фото — близько половини банера. */
-const IMAGE_SIZES = "(min-width: 64rem) 32vw, 100vw";
+// Фото в банері вужче за екран: менше значення в sizes — легший файл для LCP на телефоні.
+const IMAGE_SIZES = "(min-width: 80rem) 28vw, (min-width: 48rem) 45vw, 88vw";
 
 type HeroSlideProps = {
   banner: HomeBanner;
@@ -63,13 +67,29 @@ export function HeroSlide({ banner, index, count, priority = false }: HeroSlideP
   const active = index === selectedIndex;
 
   const colors = banner.colors ?? [];
+  // Вибір кольору має сенс, лише коли він щось змінює: фото або посилання «Купити».
+  // У метаоб'єкті home_banner є тільки назви й hex, тож зазвичай це просто перелік кольорів.
+  const selectable = colors.some((item) => item.href || item.image);
   const [colorName, setColorName] = useState(colors[0]?.name);
-  const color = colors.find((item) => item.name === colorName) ?? colors[0];
+  const color = selectable
+    ? (colors.find((item) => item.name === colorName) ?? colors[0])
+    : undefined;
 
   const image = color?.image ?? banner.image;
   const href = color?.href ?? banner.href;
   const months = banner.installmentMonths ?? DEFAULT_INSTALLMENT_MONTHS;
   const payment = banner.price ? installmentPayment(banner.price, months) : null;
+
+  const productHandle = banner.productHandle;
+  /** Додає товар банера до порівняння. Якщо список повний, лишаємося на місці й пояснюємо. */
+  const addToCompare = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!productHandle) return;
+    // add, а не toggle: повторний клік не має прибирати товар зі списку.
+    if (compareStore.add(productHandle) === "full") {
+      event.preventDefault();
+      toast.warning(COMPARE_FULL_MESSAGE);
+    }
+  };
 
   return (
     <CarouselItem
@@ -108,6 +128,15 @@ export function HeroSlide({ banner, index, count, priority = false }: HeroSlideP
                   </li>
                 ))}
               </ul>
+            ) : null}
+
+            {!selectable && colors.length > 0 ? (
+              <div className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1">
+                <p aria-hidden="true" className="text-small text-on-ink-muted">
+                  Кольори
+                </p>
+                <ColorSwatches colors={colors} label={`Кольори ${banner.title}`} onDark />
+              </div>
             ) : null}
 
             {color ? (
@@ -150,11 +179,20 @@ export function HeroSlide({ banner, index, count, priority = false }: HeroSlideP
                     <span className="sr-only">: {banner.title}</span>
                   </Link>
                 </Button>
-                {banner.compareHref ? (
+                {productHandle ? (
                   <Button asChild variant="on-dark" size="lg">
-                    <Link to={banner.compareHref} prefetch="intent">
+                    {/* Посилання веде на /compare; перед переходом товар банера потрапляє у список. */}
+                    <Link to="/compare" onClick={addToCompare}>
                       <Scale aria-hidden="true" strokeWidth={2} />
                       Порівняти
+                      <span className="sr-only">: {banner.title}</span>
+                    </Link>
+                  </Button>
+                ) : banner.compareHref ? (
+                  <Button asChild variant="on-dark" size="lg">
+                    <Link to={banner.compareHref} prefetch="intent">
+                      <LayoutGrid aria-hidden="true" strokeWidth={2} />
+                      Усі моделі
                       <span className="sr-only">: {banner.title}</span>
                     </Link>
                   </Button>

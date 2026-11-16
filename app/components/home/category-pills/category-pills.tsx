@@ -45,11 +45,7 @@ export function CategoryPills({ categories, className, ...props }: CategoryPills
               >
                 <Link to={category.to} prefetch="intent">
                   {category.image ? (
-                    <ItemMedia
-                      asChild
-                      variant="image"
-                      className="size-8 rounded-pill [&_img]:object-cover [&_img]:mix-blend-normal"
-                    >
+                    <ItemMedia asChild variant="image" fit="cover" className="size-8 rounded-pill">
                       <span>
                         <ShopImage
                           src={category.image.url}

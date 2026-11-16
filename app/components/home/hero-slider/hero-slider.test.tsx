@@ -1,7 +1,9 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { COMPARE_LIMIT, compareStore } from "~/lib/saved-lists";
 
 import { HeroSlider } from "./hero-slider";
 import { DEMO_HOME_BANNERS } from "./hero-slider.demo";
@@ -58,8 +60,28 @@ const embla = vi.hoisted(() => {
 });
 
 vi.mock("embla-carousel-react", () => ({ default: embla.hook }));
+vi.mock("~/components/ui/sonner", () => ({
+  toast: Object.assign(vi.fn(), { success: vi.fn(), warning: vi.fn(), error: vi.fn() }),
+}));
 
-beforeEach(() => embla.reset());
+beforeEach(() => {
+  embla.reset();
+  act(() => compareStore.clear());
+  localStorage.clear();
+});
+
+/** Банер, у якого вибір кольору справді щось змінює: у кольору є власне посилання. */
+function bannerWithColorLinks(): HomeBanner {
+  const [first] = DEMO_HOME_BANNERS;
+  if (!first) throw new Error("Немає демо-банера");
+  return {
+    ...first,
+    colors: [
+      { name: "Темно-синій", hex: "#32374a" },
+      { name: "Сріблястий", hex: "#e3e4e5", href: "/products/iphone-17-pro-256-silver" },
+    ],
+  };
+}
 
 function renderSlider(banners: HomeBanner[] = DEMO_HOME_BANNERS) {
   return render(
@@ -85,10 +107,12 @@ describe("HeroSlider", () => {
       "href",
       "/products/iphone-17-pro-256-blue",
     );
-    expect(within(slide).getByRole("link", { name: "Порівняти: iPhone 17 Pro" })).toHaveAttribute(
+    // Демо-банер не прив'язаний до товару: друга кнопка чесно веде до всіх моделей.
+    expect(within(slide).getByRole("link", { name: "Усі моделі: iPhone 17 Pro" })).toHaveAttribute(
       "href",
       "/collections/iphone",
     );
+    expect(within(slide).queryByRole("link", { name: /Порівняти/ })).toBeNull();
     expect(text(slide)).toContain("Доставимо завтра");
     expect(text(counter())).toBe("01 / 04");
   });
@@ -161,9 +185,55 @@ describe("HeroSlider", () => {
     expect(progress).toHaveAttribute("aria-valuenow", "2");
   });
 
+  it("без даних для окремих кольорів показує їх переліком, а не перемикачем", () => {
+    renderSlider();
+    const slide = screen.getByRole("group", { name: "Слайд 1 з 4" });
+
+    expect(within(slide).queryByRole("radiogroup")).toBeNull();
+    expect(
+      within(slide).getByRole("img", {
+        name: "Кольори iPhone 17 Pro: Космічний помаранчевий, Темно-синій, Сріблястий",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("«Порівняти» в банері з товаром додає його до порівняння і веде на /compare", async () => {
+    const user = userEvent.setup();
+    const [first] = DEMO_HOME_BANNERS;
+    if (!first) throw new Error("Немає демо-банера");
+    renderSlider([{ ...first, productHandle: "iphone-17-pro" }]);
+
+    const link = screen.getByRole("link", { name: "Порівняти: iPhone 17 Pro" });
+    expect(link).toHaveAttribute("href", "/compare");
+    expect(screen.queryByRole("link", { name: /Усі моделі/ })).toBeNull();
+
+    await user.click(link);
+    expect(compareStore.getSnapshot()).toEqual(["iphone-17-pro"]);
+
+    // Повторний клік не прибирає товар зі списку.
+    await user.click(link);
+    expect(compareStore.getSnapshot()).toEqual(["iphone-17-pro"]);
+  });
+
+  it("коли порівняння повне, «Порівняти» лишає на сторінці й пояснює чому", async () => {
+    const user = userEvent.setup();
+    const { toast } = await import("~/components/ui/sonner");
+    const [first] = DEMO_HOME_BANNERS;
+    if (!first) throw new Error("Немає демо-банера");
+    act(() => {
+      for (let index = 0; index < COMPARE_LIMIT; index += 1) compareStore.toggle(`item-${index}`);
+    });
+    renderSlider([{ ...first, productHandle: "iphone-17-pro" }]);
+
+    await user.click(screen.getByRole("link", { name: "Порівняти: iPhone 17 Pro" }));
+
+    expect(compareStore.getSnapshot()).not.toContain("iphone-17-pro");
+    expect(toast.warning).toHaveBeenCalled();
+  });
+
   it("у перемикачі кольору клавіші ← → не гортають слайди", async () => {
     const user = userEvent.setup();
-    renderSlider();
+    renderSlider([bannerWithColorLinks(), ...DEMO_HOME_BANNERS.slice(1)]);
 
     const [radio] = screen.getAllByRole("radio");
     if (!radio) throw new Error("У першому банері немає кольорів");
@@ -176,17 +246,7 @@ describe("HeroSlider", () => {
 
   it("вибір кольору підміняє посилання «Купити», якщо в кольору є своє", async () => {
     const user = userEvent.setup();
-    const [first] = DEMO_HOME_BANNERS;
-    if (!first) throw new Error("Немає демо-банера");
-    renderSlider([
-      {
-        ...first,
-        colors: [
-          { name: "Темно-синій", hex: "#32374a" },
-          { name: "Сріблястий", hex: "#e3e4e5", href: "/products/iphone-17-pro-256-silver" },
-        ],
-      },
-    ]);
+    renderSlider([bannerWithColorLinks()]);
 
     const silver = screen.getByRole("radio", { name: "Сріблястий" });
     expect(silver).toHaveAttribute("aria-checked", "false");

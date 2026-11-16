@@ -6,8 +6,11 @@ import { CategoryBentoTile, productCountLabel, type BentoCategory } from "./cate
 export type CategoryBentoProps = Omit<SectionProps, "id" | "children"> & {
   /** Перша категорія (iPhone) стає ink-плиткою на дві колонки. */
   categories: readonly BentoCategory[];
-  /** Кількість товарів у всьому каталозі для посилання «Увесь каталог». */
-  totalProducts: number;
+  /**
+   * Кількість товарів у всьому каталозі для посилання «Увесь каталог». Число показуємо,
+   * лише коли воно пораховане з магазину; без нього (null) посилання лишається без лічильника.
+   */
+  totalProducts?: number | null;
   id?: string;
   title?: string;
   /** Куди веде «Увесь каталог». */
@@ -45,7 +48,13 @@ export function CategoryBento({
       <SectionHeader
         sectionId={id}
         title={title}
-        link={{ title: `Увесь каталог: ${productCountLabel(totalProducts)}`, to: catalogTo }}
+        link={{
+          title:
+            typeof totalProducts === "number" && totalProducts > 0
+              ? `Увесь каталог: ${productCountLabel(totalProducts)}`
+              : "Увесь каталог",
+          to: catalogTo,
+        }}
       />
       <ul className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         {categories.map((category, index) => {

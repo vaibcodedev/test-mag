@@ -92,7 +92,8 @@ export function CategoryBentoTile({
           asChild
           variant="icon"
           tone={featured ? "dark" : "light"}
-          className="size-10 rounded-pill transition-[background-color,color,transform] group-focus-within:-rotate-45 group-focus-within:bg-blue group-focus-within:text-surface group-hover:-rotate-45 group-hover:bg-blue group-hover:text-surface"
+          shape="round"
+          className="size-10 transition-[background-color,color,transform] group-focus-within:-rotate-45 group-focus-within:bg-blue group-focus-within:text-surface group-hover:-rotate-45 group-hover:bg-blue group-hover:text-surface"
         >
           <span aria-hidden="true">
             <ArrowRight strokeWidth={2} />
