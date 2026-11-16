@@ -280,6 +280,8 @@ describe("mapHomeBanners", () => {
         installmentMonths: 10,
         image: MEDIA_REFERENCE.image,
         href: "/collections/iphone",
+        // Handle товару з поля product: з ним кнопка «Порівняти» додає товар до порівняння.
+        productHandle: "one-smartphone",
         compareHref: "/collections/iphone?sort=price",
         delivery: "Доставимо завтра",
       },
@@ -304,6 +306,7 @@ describe("mapHomeBanners", () => {
       id: "airpods",
       title: "AirPods Pro 3",
       href: "/products/one-smartphone",
+      productHandle: "one-smartphone",
       price: { amount: "64999.0", currencyCode: "UAH" },
       image: IMAGE,
       compareHref: null,

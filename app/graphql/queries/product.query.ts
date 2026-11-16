@@ -37,6 +37,53 @@ const PRODUCT_VARIANT_FRAGMENT = gql(`
 `);
 
 /**
+ * Медіа товару для галереї: фото, відео Shopify, відео з YouTube чи Vimeo та 3D-модель.
+ * Дати завантаження Storefront API для медіа не віддає.
+ */
+const PRODUCT_MEDIA_FRAGMENT = gql(`
+  fragment ProductMediaFields on Media {
+    __typename
+    id
+    alt
+    previewImage {
+      url
+      altText
+      width
+      height
+    }
+    ... on MediaImage {
+      image {
+        url
+        altText
+        width
+        height
+      }
+    }
+    ... on Video {
+      sources {
+        url
+        mimeType
+        format
+        height
+        width
+      }
+    }
+    ... on ExternalVideo {
+      host
+      embedUrl
+      originUrl
+    }
+    ... on Model3d {
+      sources {
+        url
+        mimeType
+        format
+      }
+    }
+  }
+`);
+
+/**
  * Сторінка товару. Поля encodedVariant*, options, selectedOrFirstAvailableVariant
  * та adjacentVariants потрібні формі товару Hydrogen (useProductForm).
  */
@@ -70,13 +117,9 @@ export const PRODUCT_QUERY = gql(
           width
           height
         }
-        images(first: 10) {
+        media(first: 20) {
           nodes {
-            id
-            url
-            altText
-            width
-            height
+            ...ProductMediaFields
           }
         }
         priceRange {
@@ -138,7 +181,7 @@ export const PRODUCT_QUERY = gql(
       }
     }
   `,
-  [PRODUCT_VARIANT_FRAGMENT],
+  [PRODUCT_VARIANT_FRAGMENT, PRODUCT_MEDIA_FRAGMENT],
 );
 
 /** «Схожі товари»: рекомендації Shopify для товару. */

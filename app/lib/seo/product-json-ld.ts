@@ -4,12 +4,29 @@ import { organizationId, type JsonLdObject } from "./json-ld";
 
 const CONTEXT = "https://schema.org";
 
+export type ProductJsonLdVideo = {
+  name: string;
+  /** Обкладинка відео. */
+  thumbnailUrl: string;
+  /** Пряма адреса файла: відео, завантажене в Shopify. */
+  contentUrl?: string | null;
+  /** Адреса плеєра: відео з YouTube чи Vimeo. */
+  embedUrl?: string | null;
+  /**
+   * Дата завантаження (ISO 8601). Storefront API її для медіа не віддає, тож поки поле порожнє;
+   * дату товару сюди не підставляємо — це була б вигадана дата відео.
+   */
+  uploadDate?: string | null;
+};
+
 export type ProductJsonLdInput = {
   handle: string;
   title: string;
   description?: string | null;
-  /** Адреси фото товару. */
+  /** Адреси всіх фото товару. */
   images?: readonly string[];
+  /** Відео товару. Без обкладинки (thumbnailUrl) VideoObject не додається. */
+  video?: ProductJsonLdVideo | null;
   sku?: string | null;
   brand?: string | null;
   price: Money;
@@ -36,11 +53,41 @@ export function productCanonicalUrl(handle: string, origin: string): string {
   return `${baseUrl(origin)}/products/${handle}`;
 }
 
-/** Product + Offer, а за наявності справжнього рейтингу — ще й AggregateRating. */
+/**
+ * VideoObject для товару. Google для розширеного результату з відео вимагає name, thumbnailUrl
+ * та uploadDate; дати в нас немає, тому розмітка лише описує відео для пошуковиків і сама
+ * розширеного результату не дасть.
+ */
+function videoObject(
+  video: ProductJsonLdVideo,
+  description: string | null | undefined,
+): Record<string, unknown> | null {
+  const source = video.contentUrl
+    ? { contentUrl: video.contentUrl }
+    : video.embedUrl
+      ? { embedUrl: video.embedUrl }
+      : null;
+  if (!source || !video.thumbnailUrl) return null;
+
+  return {
+    "@type": "VideoObject",
+    name: video.name,
+    ...(description ? { description } : {}),
+    thumbnailUrl: [video.thumbnailUrl],
+    ...source,
+    ...(video.uploadDate ? { uploadDate: video.uploadDate } : {}),
+  };
+}
+
+/**
+ * Product + Offer; за наявності справжнього рейтингу — AggregateRating, за наявності відео
+ * з обкладинкою — VideoObject у subjectOf.
+ */
 export function productJsonLd(product: ProductJsonLdInput, origin: string): JsonLdObject {
   const url = productCanonicalUrl(product.handle, origin);
   const images = product.images ?? [];
   const rating = product.rating && product.rating.count > 0 ? product.rating : null;
+  const video = product.video ? videoObject(product.video, product.description) : null;
 
   return {
     "@context": CONTEXT,
@@ -63,6 +110,7 @@ export function productJsonLd(product: ProductJsonLdInput, origin: string): Json
           },
         }
       : {}),
+    ...(video ? { subjectOf: video } : {}),
     offers: {
       "@type": "Offer",
       url,

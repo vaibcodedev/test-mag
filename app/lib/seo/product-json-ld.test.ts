@@ -80,6 +80,68 @@ describe("productJsonLd", () => {
     });
   });
 
+  it("перелічує всі фото товару", () => {
+    const images = ["https://cdn.shopify.com/a.png", "https://cdn.shopify.com/b.png"];
+
+    expect(productJsonLd({ ...PRODUCT, images }, ORIGIN).image).toEqual(images);
+  });
+
+  it("описує відео Shopify як VideoObject з прямою адресою, без вигаданої дати", () => {
+    const data = productJsonLd(
+      {
+        ...PRODUCT,
+        video: {
+          name: "Огляд камери",
+          thumbnailUrl: "https://cdn.shopify.com/poster.jpg",
+          contentUrl: "https://cdn.shopify.com/videos/c/vp/1/1.HD-1080p-7.2Mbps.mp4",
+        },
+      },
+      ORIGIN,
+    );
+
+    expect(data.subjectOf).toEqual({
+      "@type": "VideoObject",
+      name: "Огляд камери",
+      description: "Смартфон з дисплеєм 6,3 дюйма.",
+      thumbnailUrl: ["https://cdn.shopify.com/poster.jpg"],
+      contentUrl: "https://cdn.shopify.com/videos/c/vp/1/1.HD-1080p-7.2Mbps.mp4",
+    });
+    expect(data.subjectOf).not.toHaveProperty("uploadDate");
+  });
+
+  it("відео з YouTube описує через embedUrl; дата додається, лише коли її передали", () => {
+    const video = {
+      name: "Розпакування",
+      thumbnailUrl: "https://cdn.shopify.com/poster.jpg",
+      embedUrl: "https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ",
+    };
+
+    expect(productJsonLd({ ...PRODUCT, description: "", video }, ORIGIN).subjectOf).toEqual({
+      "@type": "VideoObject",
+      name: "Розпакування",
+      thumbnailUrl: ["https://cdn.shopify.com/poster.jpg"],
+      embedUrl: "https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ",
+    });
+    expect(
+      productJsonLd({ ...PRODUCT, video: { ...video, uploadDate: "2026-09-01T10:00:00Z" } }, ORIGIN)
+        .subjectOf,
+    ).toMatchObject({ uploadDate: "2026-09-01T10:00:00Z" });
+  });
+
+  it("не додає VideoObject без відео, без обкладинки чи без адреси", () => {
+    const noPoster = {
+      name: "Відео",
+      thumbnailUrl: "",
+      contentUrl: "https://cdn.shopify.com/v.mp4",
+    };
+    const noSource = { name: "Відео", thumbnailUrl: "https://cdn.shopify.com/p.jpg" };
+
+    expect(productJsonLd(PRODUCT, ORIGIN)).not.toHaveProperty("subjectOf");
+    expect(productJsonLd({ ...PRODUCT, video: null }, ORIGIN)).not.toHaveProperty("subjectOf");
+    expect(productJsonLd({ ...PRODUCT, video: noPoster }, ORIGIN)).not.toHaveProperty("subjectOf");
+    expect(productJsonLd({ ...PRODUCT, video: noSource }, ORIGIN)).not.toHaveProperty("subjectOf");
+  });
+
   it("пропускає порожні необов'язкові поля", () => {
     const data = productJsonLd(
       { ...PRODUCT, description: "", images: [], sku: null, brand: null },

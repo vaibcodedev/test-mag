@@ -1,18 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { DEMO_IMAGES } from "~/components/home/home.fixtures";
-
 import { ProductGallery } from "./product-gallery";
+import { DEMO_MIXED_MEDIA, DEMO_VIDEO, DEMO_YOUTUBE, demoPhotos } from "./product-gallery.fixtures";
 
 const meta = {
   title: "Product/ProductGallery",
   component: ProductGallery,
   tags: ["autodocs"],
   parameters: { surface: "page" },
-  args: { title: "iPhone 17 Pro 256 ГБ, синій титан", images: DEMO_IMAGES },
+  args: { title: "iPhone 17 Pro 256 ГБ, синій титан", media: demoPhotos(5) },
   decorators: [
     (Story) => (
-      <div className="max-w-xl">
+      <div className="max-w-2xl">
         <Story />
       </div>
     ),
@@ -22,15 +21,32 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Кілька фото: стрілки й мініатюри на десктопі, крапки на мобільному. */
+/** Кілька фото: стрілки, лічильник на телефоні, мініатюри (на десктопі — стовпчик ліворуч). */
 export const Default: Story = {};
 
-export const SingleImage: Story = { args: { images: DEMO_IMAGES.slice(0, 1) } };
+/** Одне фото: без каруселі, стрілок і мініатюр. */
+export const SingleImage: Story = { args: { media: demoPhotos(1) } };
 
-export const NoImages: Story = { args: { images: [] } };
+/** 12 фото: стрічка мініатюр гортається й тримає відкриту мініатюру в полі зору. */
+export const TwelveImages: Story = { args: { media: demoPhotos(12) } };
 
-/** Вузька колонка, як на телефоні. */
+/**
+ * Фото, відео Shopify, відео з YouTube і 3D-модель. Плеєр з'являється після «Відтворити»;
+ * інший слайд ставить відео на паузу, а плеєр YouTube прибирає.
+ */
+export const MixedMedia: Story = { args: { media: DEMO_MIXED_MEDIA } };
+
+/** Єдине медіа товару — відео. */
+export const SingleVideo: Story = { args: { media: [DEMO_VIDEO] } };
+
+/** Єдине медіа товару — відео з YouTube: <iframe> немає, доки не натиснуто «Відтворити». */
+export const SingleExternalVideo: Story = { args: { media: [DEMO_YOUTUBE] } };
+
+export const NoMedia: Story = { args: { media: [] } };
+
+/** Вузька колонка, як на телефоні: мініатюри під головним фото, лічильник замість крапок. */
 export const Narrow: Story = {
+  args: { media: DEMO_MIXED_MEDIA },
   decorators: [
     (Story) => (
       <div className="w-80">

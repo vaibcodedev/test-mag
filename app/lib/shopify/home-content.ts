@@ -251,6 +251,7 @@ export function mapHomeBanners(
       installmentMonths: integer(fields, "installment_months"),
       image: toImage(ownImage) ?? toImage(product?.featuredImage),
       href,
+      productHandle: product?.handle || undefined,
       compareHref: link(text(fields, "compare_link")),
       delivery: text(fields, "delivery"),
     };
@@ -429,7 +430,7 @@ export function buildHomeContent(
     usps: orBase(mapUsps(metaobjects?.usps?.nodes), base.usps),
     bento:
       categories.length >= MIN_BENTO_CATEGORIES
-        ? { categories, totalProducts: countCatalogProducts(collections) }
+        ? { categories, totalProducts: countCatalogProducts(collections) || null }
         : base.bento,
     about: {
       ...base.about,

@@ -22,7 +22,7 @@ import { toggleWishlist, useIsWishlisted } from "~/hooks/use-wishlist";
 import { ProductProvider } from "~/lib/product";
 import {
   productBreadcrumbs,
-  productGalleryImages,
+  productGalleryMedia,
   productVariantUrl,
   toProductDetails,
   type ProductPageData,
@@ -50,7 +50,7 @@ function ProductPageContent({ product, related }: ProductPageProps) {
 
   const variant = buy.selectedVariant;
   const details = useMemo(() => toProductDetails(product), [product]);
-  const images = useMemo(() => productGalleryImages(product, variant), [product, variant]);
+  const media = useMemo(() => productGalleryMedia(product, variant), [product, variant]);
   const breadcrumbs = useMemo(() => productBreadcrumbs(product), [product]);
 
   // Ціну й наявність завжди віддає сервер: вибраного варіанта або найдешевшого.
@@ -71,7 +71,7 @@ function ProductPageContent({ product, related }: ProductPageProps) {
 
           <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-6">
             <div className="relative min-w-0 lg:sticky lg:top-22">
-              <ProductGallery images={images} title={product.title} />
+              <ProductGallery media={media} title={product.title} />
               <div className="absolute end-3 top-3 z-10 flex flex-col gap-2">
                 <WishlistButton
                   productTitle={product.title}

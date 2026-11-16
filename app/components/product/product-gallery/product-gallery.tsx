@@ -1,155 +1,115 @@
 import { ImageOff } from "lucide-react";
-import { useEffect, useState, type ComponentProps } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentProps,
+  type KeyboardEvent,
+} from "react";
 
 import { AspectRatio } from "~/components/ui/aspect-ratio";
+import { Badge } from "~/components/ui/badge";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  useCarousel,
   type CarouselApi,
+  type CarouselProps,
 } from "~/components/ui/carousel";
-import { ShopImage } from "~/components/ui/shop-image";
-import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+import type { ProductMedia, ProductPageImage } from "~/lib/shopify/product";
 import { cn } from "~/lib/utils";
 
-const IMAGE_FALLBACK_SIZE = 1200;
-const MAIN_SIZES = "(min-width: 64rem) 50vw, 100vw";
-const THUMB_SIZES = "5rem";
-const THUMB_WIDTHS = [96, 160, 240] as const;
+import { GallerySlide } from "./gallery-slide";
+import { GalleryThumbs } from "./gallery-thumbs";
+import { slideLabel } from "./product-gallery.utils";
 
-export type ProductGalleryImage = {
-  url: string;
-  altText?: string | null;
-  width?: number | null;
-  height?: number | null;
-};
+export type ProductGalleryImage = ProductPageImage;
 
 export type ProductGalleryProps = Omit<ComponentProps<"div">, "children" | "title"> & {
-  /** Перше фото — головне: воно вантажиться одразу, решта — ліниво. */
-  images: readonly ProductGalleryImage[];
+  /**
+   * Медіа товару: фото, відео, 3D-моделі. Перший елемент — головний: він вантажиться одразу,
+   * решта — ліниво. Готовий список дає productGalleryMedia з ~/lib/shopify/product.
+   */
+  media?: readonly ProductMedia[];
+  /** Лише фото. Лишився для місць, що ще не передають media; з media не поєднується. */
+  images?: readonly ProductGalleryImage[];
   /** Назва товару: підпис галереї та запасний alt. */
   title: string;
 };
 
-function MainImage({
-  image,
-  title,
-  priority,
-}: {
-  image: ProductGalleryImage;
-  title: string;
-  priority: boolean;
-}) {
-  return (
-    <AspectRatio ratio={1} className="bg-photo">
-      <ShopImage
-        src={image.url}
-        alt={image.altText || title}
-        width={image.width ?? IMAGE_FALLBACK_SIZE}
-        height={image.height ?? IMAGE_FALLBACK_SIZE}
-        sizes={MAIN_SIZES}
-        priority={priority}
-        className="size-full object-cover"
-      />
-    </AspectRatio>
-  );
+const PLAYER = '[data-slot="product-video-player"]';
+
+/**
+ * Поки грає відео, жест по ньому належить плеєру (перемотування, гучність), а не каруселі.
+ * Гортати далі можна стрілками та мініатюрами. Об'єкт сталий: інакше Embla перезапускалась би.
+ */
+const CAROUSEL_OPTIONS: CarouselProps["opts"] = {
+  watchDrag: (_, event) => !isInsidePlayer(event.target),
+};
+
+/** Запущений плеєр (обкладинка з кнопкою ще не він: її можна гортати пальцем). */
+function isInsidePlayer(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest(PLAYER) !== null;
 }
 
-/** Крапки на мобільному: показують, скільки фото і яке відкрите. */
-function GalleryDots({ count }: { count: number }) {
-  const { selectedIndex } = useCarousel();
-
-  return (
-    <>
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5 lg:hidden"
-      >
-        {Array.from({ length: count }, (_, index) => (
-          <span
-            key={index}
-            data-active={index === selectedIndex}
-            className={cn(
-              "size-2 rounded-pill bg-ink transition-opacity duration-150",
-              index === selectedIndex ? "opacity-100" : "opacity-25",
-            )}
-          />
-        ))}
-      </div>
-      <p className="sr-only" aria-live="polite">
-        Фото {selectedIndex + 1} з {count}
-      </p>
-    </>
-  );
-}
-
-/** Рамка мініатюри поверх Toggle: у базі немає варіанта під фото 80px. */
-const THUMB =
-  "size-20 overflow-hidden rounded-md border-2 border-transparent bg-photo p-0 hover:border-line hover:bg-photo data-[state=on]:border-blue";
-
-/** Мініатюри на десктопі: група перемикачів, що відкривають відповідне фото. */
-function GalleryThumbs({
-  images,
-  title,
-  api,
-}: {
-  images: readonly ProductGalleryImage[];
-  title: string;
-  api: CarouselApi;
-}) {
-  const { selectedIndex } = useCarousel();
-
-  return (
-    <ToggleGroup
-      type="single"
-      variant="icon"
-      aria-label="Фото товару"
-      value={String(selectedIndex)}
-      // Повторне натискання на відкрите фото дає порожнє значення: лишаємо фото відкритим.
-      onValueChange={(next) => {
-        if (next) api?.scrollTo(Number(next));
-      }}
-      className="hidden gap-2 lg:flex"
-    >
-      {images.map((image, index) => (
-        <ToggleGroupItem
-          key={image.url}
-          value={String(index)}
-          aria-label={`Показати фото ${index + 1} з ${images.length}: ${image.altText || title}`}
-          className={THUMB}
-        >
-          <ShopImage
-            src={image.url}
-            alt=""
-            width={image.width ?? IMAGE_FALLBACK_SIZE}
-            height={image.height ?? IMAGE_FALLBACK_SIZE}
-            sizes={THUMB_SIZES}
-            widths={THUMB_WIDTHS}
-            className="size-full object-cover"
-          />
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
-  );
+function imageMedia(image: ProductGalleryImage): ProductMedia {
+  return { type: "image", id: `image:${image.url}`, alt: image.altText ?? null, image };
 }
 
 /**
- * Галерея товару. На мобільному — рядок фото, що гортається пальцем, із крапками;
- * на десктопі — головне фото зі стрілками та мініатюрами. Стрілки ← → гортають із клавіатури.
+ * Галерея товару: фото, відео з Shopify, відео з YouTube чи Vimeo та 3D-моделі.
+ * Головна область завжди квадратна, тож верстка не стрибає, яким би не було медіа.
+ * Гортається пальцем, стрілками на екрані та клавішами ← →; мініатюри — стрічкою, що гортається
+ * (на десктопі — вертикальною ліворуч). Плеєр YouTube/Vimeo створюється лише після натискання
+ * «Відтворити» і зникає, щойно відкрито інший слайд; відео Shopify тоді ставиться на паузу.
  */
-export function ProductGallery({ images, title, className, ...props }: ProductGalleryProps) {
+export function ProductGallery({ media, images, title, className, ...props }: ProductGalleryProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const [api, setApi] = useState<CarouselApi>();
-  const firstUrl = images[0]?.url;
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [embedId, setEmbedId] = useState<string | null>(null);
+
+  const items = useMemo(() => media ?? (images ?? []).map(imageMedia), [media, images]);
+  const count = items.length;
+  const firstId = items[0]?.id;
+  const active = items[selectedIndex];
 
   // Вибрали інший варіант — його фото стало першим: повертаємо галерею на початок.
   useEffect(() => {
     api?.scrollTo(0, true);
-  }, [api, firstUrl]);
+  }, [api, firstId]);
 
-  const [first] = images;
+  useEffect(() => {
+    if (!api) return;
+
+    const sync = () => setSelectedIndex(api.selectedScrollSnap());
+    const stopPlayers = () => {
+      sync();
+      setEmbedId(null);
+      rootRef.current?.querySelectorAll("video").forEach((video) => video.pause());
+    };
+
+    api.on("reInit", sync);
+    api.on("select", stopPlayers);
+    return () => {
+      api.off("reInit", sync);
+      api.off("select", stopPlayers);
+    };
+  }, [api]);
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (isInsidePlayer(event.target)) return;
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+
+    event.preventDefault();
+    if (event.key === "ArrowLeft") api?.scrollPrev();
+    else api?.scrollNext();
+  };
+
+  const [first] = items;
 
   if (!first) {
     return (
@@ -166,50 +126,89 @@ export function ProductGallery({ images, title, className, ...props }: ProductGa
     );
   }
 
-  if (images.length === 1) {
+  if (count === 1) {
     return (
       <div
         data-slot="product-gallery"
         className={cn("overflow-hidden rounded-xl", className)}
         {...props}
       >
-        <MainImage image={first} title={title} priority />
+        <GallerySlide
+          media={first}
+          title={title}
+          priority
+          embedPlaying={embedId === first.id}
+          onPlayEmbed={() => setEmbedId(first.id)}
+        />
       </div>
     );
   }
 
+  const hasOnlyPhotos = items.every((item) => item.type === "image");
+
   return (
-    <div data-slot="product-gallery" className={className} {...props}>
+    <div ref={rootRef} data-slot="product-gallery" className={className} {...props}>
       <Carousel
-        aria-label={`Фото товару: ${title}`}
+        // Замінює обробник клавіш самої каруселі: він спрацьовує раніше за плеєр і забирав би
+        // ← → у відео, де ці клавіші перемотують.
+        onKeyDownCapture={handleKeyDown}
+        aria-label={`${hasOnlyPhotos ? "Фото товару" : "Фото та відео товару"}: ${title}`}
+        opts={CAROUSEL_OPTIONS}
         setApi={setApi}
         tabIndex={0}
-        className="flex flex-col gap-3 rounded-xl focus-ring"
+        className="flex flex-col gap-3 rounded-xl focus-ring lg:grid lg:grid-cols-[5rem_minmax(0,1fr)]"
       >
-        <div className="relative overflow-hidden rounded-xl bg-photo">
+        <div className="relative overflow-hidden rounded-xl bg-photo lg:col-start-2 lg:row-start-1">
           <CarouselContent className="ms-0">
-            {images.map((image, index) => (
+            {items.map((item, index) => (
               <CarouselItem
-                key={image.url}
+                key={item.id}
                 className="ps-0"
-                aria-label={`Фото ${index + 1} з ${images.length}`}
+                aria-label={slideLabel(item, index, count)}
+                // Сусідні слайди є в розмітці, але фокус і читач екрана їх минають.
+                aria-hidden={index === selectedIndex ? undefined : true}
+                inert={index !== selectedIndex}
               >
-                <MainImage image={image} title={title} priority={index === 0} />
+                <GallerySlide
+                  media={item}
+                  title={title}
+                  priority={index === 0}
+                  embedPlaying={index === selectedIndex && embedId === item.id}
+                  onPlayEmbed={() => setEmbedId(item.id)}
+                />
               </CarouselItem>
             ))}
           </CarouselContent>
 
-          <div className="absolute inset-y-0 start-3 hidden items-center lg:flex">
+          <div className="absolute start-3 top-1/2 -translate-y-1/2">
             <CarouselPrevious className="bg-surface" />
           </div>
-          <div className="absolute inset-y-0 end-3 hidden items-center lg:flex">
+          <div className="absolute end-3 top-1/2 -translate-y-1/2">
             <CarouselNext className="bg-surface" />
           </div>
 
-          <GalleryDots count={images.length} />
+          {/* На телефоні замість крапок — лічильник: його видно і з 3, і з 20 медіа. */}
+          <Badge
+            variant="outline"
+            aria-hidden="true"
+            data-slot="product-gallery-counter"
+            className="absolute start-3 top-3 tabular-nums lg:hidden"
+          >
+            {selectedIndex + 1} / {count}
+          </Badge>
+          <p className="sr-only" aria-live="polite">
+            {active ? slideLabel(active, selectedIndex, count) : null}
+          </p>
         </div>
 
-        <GalleryThumbs images={images} title={title} api={api} />
+        <div className="relative lg:col-start-1 lg:row-start-1">
+          <GalleryThumbs
+            media={items}
+            title={title}
+            selectedIndex={selectedIndex}
+            onSelect={(index) => api?.scrollTo(index)}
+          />
+        </div>
       </Carousel>
     </div>
   );
