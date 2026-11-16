@@ -19,7 +19,7 @@ export function Section({ id, contained = true, className, children, ...props }:
       id={id}
       aria-labelledby={`${id}-title`}
       data-slot="section"
-      className={cn("scroll-mt-24", className)}
+      className={cn("scroll-mt-3", className)}
       {...props}
     >
       {contained ? <Container>{children}</Container> : children}

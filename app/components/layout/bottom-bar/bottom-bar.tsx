@@ -20,7 +20,11 @@ const ITEMS: Item[] = [
 const ITEM =
   "relative flex h-full flex-col items-center justify-center gap-1 rounded-sm text-caption font-semibold transition-colors duration-150 focus-ring";
 
-/** Нижня панель на мобільному: Головна / Каталог / Пошук / Обране / Кошик. */
+/**
+ * Нижня панель на мобільному: Головна / Каталог / Пошук / Обране / Кошик.
+ * Висота — токен --bottom-bar-height: від нього ж рахуються тости, панель «Купити»,
+ * відступ футера і scroll-padding сторінки (app.css).
+ */
 export function BottomBar() {
   const totalQuantity = useCart((state) => state.data.totalQuantity);
 
@@ -30,7 +34,7 @@ export function BottomBar() {
       data-slot="bottom-bar"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
-      <ul className="grid h-16 grid-cols-5">
+      <ul className="grid h-bottom-bar grid-cols-5">
         {ITEMS.map(({ title, to, icon: Icon, end }) => (
           <li key={to}>
             <NavLink

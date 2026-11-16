@@ -40,10 +40,7 @@ export function MegaMenu({ categories }: { categories: readonly MegaMenuCategory
                       <NavigationMenuLink asChild className="rounded-md p-2 pe-3">
                         <Item asChild variant="muted" size="sm">
                           <Link to={category.to} prefetch="intent">
-                            <ItemMedia
-                              variant="image"
-                              className="size-12 [&_img]:object-cover [&_img]:mix-blend-normal"
-                            >
+                            <ItemMedia variant="image" size="sm" fit="cover">
                               {category.image ? (
                                 <ShopImage
                                   src={category.image.url}

@@ -5,7 +5,7 @@ import {
   ABOUT_DEMO_TEAM,
 } from "~/components/home/about";
 import { ARTICLES_DEMO, ARTICLES_DEMO_CONTENT } from "~/components/home/articles";
-import { DEMO_BENTO_CATEGORIES, DEMO_BENTO_TOTAL_PRODUCTS } from "~/components/home/category-bento";
+import { DEMO_BENTO_CATEGORIES } from "~/components/home/category-bento";
 import { DEALS_DEMO_CONTENT } from "~/components/home/deals";
 import { DEALS_TICKER_DEMO_ITEMS } from "~/components/home/deals-ticker";
 import { FAQ_DEMO_DESCRIPTION, FAQ_DEMO_ITEMS } from "~/components/home/faq";
@@ -49,7 +49,8 @@ export const HOME_CONTENT = {
   banners: DEMO_HOME_BANNERS,
   promo: { newProduct: DEMO_PROMO_NEW, saleProduct: DEMO_PROMO_SALE, tradeIn: DEMO_PROMO_TRADE_IN },
   usps: DEMO_USPS,
-  bento: { categories: DEMO_BENTO_CATEGORIES, totalProducts: DEMO_BENTO_TOTAL_PRODUCTS },
+  // Демо-сітка не знає, скільки товарів у магазині: вигаданого числа не показуємо.
+  bento: { categories: DEMO_BENTO_CATEGORIES, totalProducts: null as number | null },
   deals: { content: DEALS_DEMO_CONTENT, tickerItems: DEALS_TICKER_DEMO_ITEMS },
   popular: { content: POPULAR_PRODUCTS_DEMO_CONTENT, tabs: POPULAR_PRODUCTS_DEMO_TABS },
   used: { content: USED_DEVICES_DEMO_CONTENT },

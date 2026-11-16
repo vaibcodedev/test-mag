@@ -1,7 +1,7 @@
 import { handleShopifyRedirects, handleShopifyRoutes } from "@shopify/hydrogen";
 import { ShopifyScripts } from "@shopify/hydrogen/react";
 import { TriangleAlert } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -12,6 +12,7 @@ import {
   useLocation,
   useNavigate,
   useRouteLoaderData,
+  UNSAFE_useScrollRestoration as useScrollRestoration,
   type ShouldRevalidateFunctionArgs,
 } from "react-router";
 
@@ -34,6 +35,7 @@ import {
 } from "~/components/ui/empty";
 import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
+import { registerAppNavigate } from "~/lib/app-navigate";
 import { CartProvider } from "~/lib/cart";
 import { cartHandlers } from "~/lib/cart-handlers";
 import { useNonce } from "~/lib/csp";
@@ -143,18 +145,42 @@ export function shouldRevalidate(args: ShouldRevalidateFunctionArgs) {
   return shouldRevalidateRoot(args);
 }
 
+/**
+ * Документ уже був у браузері. React Router малює <Layout> окремо довкола сторінки й довкола
+ * ErrorBoundary, тому коли loader викидає 404 під час переходу без перезавантаження (і коли
+ * з такої сторінки йдуть далі), увесь <html> монтується наново — вже в браузері. Скрипти, які
+ * мають сенс лише в HTML із сервера (ShopifyScripts, скрипт відновлення прокрутки), React тоді
+ * створив би як елементи, що ніколи не виконаються, і попередив би в консолі: «Encountered a
+ * script tag while rendering React component». Вони вже відпрацювали під час першого
+ * завантаження, тож на повторному монтуванні їх не рендеримо.
+ * JSON-LD це не стосується: <script type="application/ld+json"> — блок даних, React його
+ * дозволяє й на клієнті.
+ */
+let documentMounted = false;
+
+/** Відновлення прокрутки без серверного скрипта: лише логіка ScrollRestoration. */
+function ClientScrollRestoration() {
+  useScrollRestoration();
+  return null;
+}
+
 export function Layout({ children }: { children: ReactNode }) {
   const nonce = useNonce();
   const navigate = useNavigate();
   // Absent when the root loader failed (error page only).
   const rootData = useRouteLoaderData<typeof loader>("root");
+  // Значення фіксується на першому рендері цього екземпляра: гідратація бачить те саме, що сервер.
+  const [remounted] = useState(() => documentMounted);
+  useEffect(() => {
+    documentMounted = true;
+  }, []);
 
   return (
     <html lang="uk">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {rootData ? (
+        {rootData && !remounted ? (
           <ShopifyScripts
             nonce={nonce}
             i18n={{ ...rootData.locale, currency: rootData.currency }}
@@ -177,7 +203,7 @@ export function Layout({ children }: { children: ReactNode }) {
           Перейти до вмісту
         </a>
         {children}
-        <ScrollRestoration nonce={nonce} />
+        {remounted ? <ClientScrollRestoration /> : <ScrollRestoration nonce={nonce} />}
         <Scripts nonce={nonce} />
       </body>
     </html>
@@ -185,6 +211,10 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
+  // Дії в тостах («Відкрити порівняння») переходять через роутер, без перезавантаження.
+  const navigate = useNavigate();
+  useEffect(() => registerAppNavigate((to) => navigate(to)), [navigate]);
+
   return (
     <CartProvider initialData={loaderData.cartData}>
       <TooltipProvider>

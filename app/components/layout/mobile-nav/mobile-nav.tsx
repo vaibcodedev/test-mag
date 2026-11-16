@@ -1,11 +1,13 @@
-import { MapPin, Menu, Phone, Send } from "lucide-react";
+import { MapPin, Menu, Phone, Scale, Send, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
 import type { MegaMenuCategory } from "~/components/layout/mega-menu";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   Item,
+  ItemActions,
   ItemContent,
   ItemDescription,
   ItemGroup,
@@ -23,6 +25,7 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 import { Wordmark } from "~/components/ui/wordmark";
+import { useCompare } from "~/hooks/use-compare";
 import { BUYER_LINKS, STORE_INFO, storeAddress, type StoreInfo } from "~/lib/content/site";
 
 type MobileNavProps = {
@@ -30,10 +33,14 @@ type MobileNavProps = {
   store?: StoreInfo;
 };
 
-/** Бургер-меню на мобільному: каталог, сторінки для покупців, контакти. */
+/**
+ * Бургер-меню на мобільному: каталог, порівняння й кабінет (у шапці вони є лише на
+ * десктопі, а в нижній панелі для них немає місця), сторінки для покупців, контакти.
+ */
 export function MobileNav({ categories, store = STORE_INFO }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
+  const { count: compareCount } = useCompare();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -68,6 +75,45 @@ export function MobileNav({ categories, store = STORE_INFO }: MobileNavProps) {
                     </Item>
                   </li>
                 ))}
+              </ul>
+            </ItemGroup>
+          </nav>
+          <Separator />
+          <nav aria-label="Порівняння і кабінет">
+            <ItemGroup asChild className="gap-0">
+              <ul>
+                <li>
+                  <Item asChild size="sm">
+                    <Link to="/compare" onClick={close}>
+                      <ItemMedia>
+                        <Scale aria-hidden="true" strokeWidth={2} />
+                      </ItemMedia>
+                      <ItemContent>
+                        <ItemTitle>Порівняння</ItemTitle>
+                      </ItemContent>
+                      {compareCount > 0 ? (
+                        <ItemActions>
+                          <Badge variant="count">
+                            <span className="sr-only">Товарів у порівнянні: </span>
+                            {compareCount}
+                          </Badge>
+                        </ItemActions>
+                      ) : null}
+                    </Link>
+                  </Item>
+                </li>
+                <li>
+                  <Item asChild size="sm">
+                    <Link to="/account" onClick={close}>
+                      <ItemMedia>
+                        <User aria-hidden="true" strokeWidth={2} />
+                      </ItemMedia>
+                      <ItemContent>
+                        <ItemTitle>Кабінет</ItemTitle>
+                      </ItemContent>
+                    </Link>
+                  </Item>
+                </li>
               </ul>
             </ItemGroup>
           </nav>

@@ -27,7 +27,7 @@ export function Header({ categories }: { categories: readonly MegaMenuCategory[]
 
   return (
     <header data-slot="header" className="sticky top-0 z-40 border-b border-line bg-surface">
-      <Container className="flex h-18 items-center gap-3 lg:gap-6">
+      <Container className="flex h-header items-center gap-3 lg:gap-6">
         <div className="lg:hidden">
           <MobileNav categories={categories} />
         </div>

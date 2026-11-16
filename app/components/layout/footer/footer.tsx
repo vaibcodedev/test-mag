@@ -24,7 +24,7 @@ import {
 } from "~/lib/content/site";
 
 const LINK =
-  "inline-flex min-h-11 items-center gap-2 rounded-sm text-small text-on-ink-muted transition-colors duration-150 hover:text-surface focus-ring-on-ink";
+  "inline-flex min-h-11 min-w-11 items-center gap-2 rounded-sm text-small text-on-ink-muted transition-colors duration-150 hover:text-surface focus-ring-on-ink";
 
 function FooterColumn({ id, title, links }: { id: string; title: string; links: NavLink[] }) {
   return (
@@ -52,7 +52,7 @@ export function Footer({ store = STORE_INFO }: { store?: StoreInfo }) {
   return (
     <footer
       data-slot="footer"
-      className="mt-section overflow-hidden bg-ink pb-16 text-surface lg:pb-0"
+      className="mt-section overflow-hidden bg-ink pb-(--bottom-nav-space) text-surface"
     >
       <Container className="flex flex-col gap-12 pt-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
@@ -66,8 +66,8 @@ export function Footer({ store = STORE_INFO }: { store?: StoreInfo }) {
                 <li>
                   <Item asChild variant="on-dark" size="sm">
                     <a href={store.phoneHref}>
-                      <ItemMedia>
-                        <Phone aria-hidden="true" strokeWidth={2} className="text-lime" />
+                      <ItemMedia tone="lime">
+                        <Phone aria-hidden="true" strokeWidth={2} />
                       </ItemMedia>
                       <ItemContent>
                         <ItemTitle>{store.phone}</ItemTitle>
@@ -78,8 +78,8 @@ export function Footer({ store = STORE_INFO }: { store?: StoreInfo }) {
                 <li>
                   <Item asChild variant="on-dark" size="sm">
                     <a href={store.telegramUrl} rel="noopener noreferrer" target="_blank">
-                      <ItemMedia>
-                        <Send aria-hidden="true" strokeWidth={2} className="text-lime" />
+                      <ItemMedia tone="lime">
+                        <Send aria-hidden="true" strokeWidth={2} />
                       </ItemMedia>
                       <ItemContent>
                         <ItemDescription>
@@ -92,8 +92,8 @@ export function Footer({ store = STORE_INFO }: { store?: StoreInfo }) {
                 </li>
                 <li>
                   <Item variant="on-dark" size="sm">
-                    <ItemMedia>
-                      <MapPin aria-hidden="true" strokeWidth={2} className="text-lime" />
+                    <ItemMedia tone="lime">
+                      <MapPin aria-hidden="true" strokeWidth={2} />
                     </ItemMedia>
                     <ItemContent>
                       <ItemDescription>{storeAddress(store)}</ItemDescription>
@@ -102,8 +102,8 @@ export function Footer({ store = STORE_INFO }: { store?: StoreInfo }) {
                 </li>
                 <li>
                   <Item variant="on-dark" size="sm">
-                    <ItemMedia>
-                      <Clock aria-hidden="true" strokeWidth={2} className="text-lime" />
+                    <ItemMedia tone="lime">
+                      <Clock aria-hidden="true" strokeWidth={2} />
                     </ItemMedia>
                     <ItemContent>
                       <ItemDescription>{store.hours}</ItemDescription>

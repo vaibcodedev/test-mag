@@ -1,4 +1,5 @@
 import { toast } from "~/components/ui/sonner";
+import { appNavigate } from "~/lib/app-navigate";
 import { plural } from "~/lib/format";
 import { WISHLIST_LIMIT, wishlistStore, type SavedListToggleResult } from "~/lib/saved-lists";
 
@@ -10,11 +11,17 @@ export const WISHLIST_FULL_MESSAGE = `В обраному вже ${WISHLIST_LIMI
   many: "товарів",
 })}. Приберіть один, щоб додати новий.`;
 
+/** Кнопка в тості «Додано в обране». */
+export const OPEN_WISHLIST_ACTION = {
+  label: "Відкрити обране",
+  onClick: () => appNavigate("/wishlist"),
+};
+
 /** Додає товар в обране або прибирає його й показує сповіщення. */
 export function toggleWishlist(handle: string): SavedListToggleResult {
   const result = wishlistStore.toggle(handle);
 
-  if (result === "added") toast.success("Додано в обране");
+  if (result === "added") toast.success("Додано в обране", { action: OPEN_WISHLIST_ACTION });
   else if (result === "removed") toast("Прибрано з обраного");
   else if (result === "full") toast.warning(WISHLIST_FULL_MESSAGE);
 

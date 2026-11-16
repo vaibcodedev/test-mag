@@ -4,10 +4,16 @@ import { renderToString } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { toast } from "~/components/ui/sonner";
+import { registerAppNavigate } from "~/lib/app-navigate";
 import { COMPARE_LIMIT, compareStore, wishlistStore } from "~/lib/saved-lists";
 
-import { COMPARE_FULL_MESSAGE, useCompare, useIsCompared } from "./use-compare";
-import { useIsWishlisted, useWishlist } from "./use-wishlist";
+import {
+  COMPARE_FULL_MESSAGE,
+  OPEN_COMPARE_ACTION,
+  useCompare,
+  useIsCompared,
+} from "./use-compare";
+import { OPEN_WISHLIST_ACTION, useIsWishlisted, useWishlist } from "./use-wishlist";
 
 vi.mock("~/components/ui/sonner", () => ({
   toast: Object.assign(vi.fn(), { success: vi.fn(), warning: vi.fn(), error: vi.fn() }),
@@ -32,7 +38,9 @@ describe("useWishlist", () => {
     });
     expect(result.current.handles).toEqual(["iphone-17"]);
     expect(result.current.count).toBe(1);
-    expect(toast.success).toHaveBeenCalledWith("Додано в обране");
+    expect(toast.success).toHaveBeenCalledWith("Додано в обране", {
+      action: expect.objectContaining({ label: "Відкрити обране" }),
+    });
     expect(localStorage.getItem(wishlistStore.key)).toBe('["iphone-17"]');
 
     act(() => {
@@ -110,7 +118,9 @@ describe("useCompare", () => {
     });
     expect(result.current.count).toBe(COMPARE_LIMIT);
     expect(result.current.isFull).toBe(true);
-    expect(toast.success).toHaveBeenCalledWith("Додано до порівняння");
+    expect(toast.success).toHaveBeenCalledWith("Додано до порівняння", {
+      action: expect.objectContaining({ label: "Відкрити порівняння" }),
+    });
 
     let outcome: string | undefined;
     act(() => {
@@ -138,5 +148,19 @@ describe("useCompare", () => {
     });
     expect(compared.result.current).toBe(false);
     expect(toast).toHaveBeenCalledWith("Прибрано з порівняння");
+  });
+});
+
+describe("дії в тостах", () => {
+  it("«Відкрити порівняння» і «Відкрити обране» ведуть на свої сторінки через роутер", () => {
+    const navigate = vi.fn();
+    const unregister = registerAppNavigate(navigate);
+
+    OPEN_COMPARE_ACTION.onClick();
+    OPEN_WISHLIST_ACTION.onClick();
+
+    expect(navigate).toHaveBeenNthCalledWith(1, "/compare");
+    expect(navigate).toHaveBeenNthCalledWith(2, "/wishlist");
+    unregister();
   });
 });

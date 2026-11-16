@@ -178,7 +178,7 @@ export function CompareTable({
       </Table>
 
       {filtering && visibleRows.length === 0 ? (
-        <Alert variant="info" className="bg-surface">
+        <Alert variant="surface">
           <Info aria-hidden="true" strokeWidth={2} />
           <AlertDescription>
             За цими характеристиками товари однакові. Вимкніть «Лише відмінності», щоб побачити всі

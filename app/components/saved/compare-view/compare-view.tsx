@@ -83,7 +83,7 @@ export function CompareView() {
       </div>
 
       {count === 1 ? (
-        <Alert variant="info" className="bg-surface">
+        <Alert variant="surface">
           <Info aria-hidden="true" strokeWidth={2} />
           <AlertTitle>Додайте ще один товар</AlertTitle>
           <AlertDescription className="flex flex-col items-start gap-3">

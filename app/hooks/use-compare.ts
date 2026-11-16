@@ -1,4 +1,5 @@
 import { toast } from "~/components/ui/sonner";
+import { appNavigate } from "~/lib/app-navigate";
 import { plural } from "~/lib/format";
 import { COMPARE_LIMIT, compareStore, type SavedListToggleResult } from "~/lib/saved-lists";
 
@@ -10,11 +11,17 @@ export const COMPARE_FULL_MESSAGE = `У порівнянні вже ${COMPARE_LI
   many: "товарів",
 })}. Приберіть один, щоб додати новий.`;
 
+/** Кнопка в тості «Додано до порівняння»: на мобільному це найкоротший шлях до сторінки. */
+export const OPEN_COMPARE_ACTION = {
+  label: "Відкрити порівняння",
+  onClick: () => appNavigate("/compare"),
+};
+
 /** Додає товар до порівняння або прибирає його й показує сповіщення. */
 export function toggleCompare(handle: string): SavedListToggleResult {
   const result = compareStore.toggle(handle);
 
-  if (result === "added") toast.success("Додано до порівняння");
+  if (result === "added") toast.success("Додано до порівняння", { action: OPEN_COMPARE_ACTION });
   else if (result === "removed") toast("Прибрано з порівняння");
   else if (result === "full") toast.warning(COMPARE_FULL_MESSAGE);
 
