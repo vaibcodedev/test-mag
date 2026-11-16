@@ -151,7 +151,9 @@ describe("ProductCard: обране й порівняння без пропсі�
     await userEvent.click(wishlistButton("Додати в обране"));
     expect(wishlistButton("Прибрати з обраного")).toHaveAttribute("aria-pressed", "true");
     expect(wishlistStore.getSnapshot()).toEqual([PRODUCT.handle]);
-    expect(toast.success).toHaveBeenCalledWith("Додано в обране");
+    expect(toast.success).toHaveBeenCalledWith("Додано в обране", {
+      action: expect.objectContaining({ label: "Відкрити обране" }),
+    });
 
     await userEvent.click(wishlistButton("Прибрати з обраного"));
     expect(wishlistButton("Додати в обране")).toHaveAttribute("aria-pressed", "false");
@@ -165,7 +167,9 @@ describe("ProductCard: обране й порівняння без пропсі�
     await userEvent.click(compareButton("Додати до порівняння"));
     expect(compareButton("Прибрати з порівняння")).toHaveAttribute("aria-pressed", "true");
     expect(compareStore.getSnapshot()).toEqual([PRODUCT.handle]);
-    expect(toast.success).toHaveBeenCalledWith("Додано до порівняння");
+    expect(toast.success).toHaveBeenCalledWith("Додано до порівняння", {
+      action: expect.objectContaining({ label: "Відкрити порівняння" }),
+    });
 
     await userEvent.click(compareButton("Прибрати з порівняння"));
     expect(compareStore.getSnapshot()).toEqual([]);

@@ -12,6 +12,7 @@ import { SortSelect } from "~/components/collection/sort-select";
 import { Container } from "~/components/layout/container";
 import { Pagination, useLoadMore } from "~/components/layout/pagination";
 import { ProductGrid, ProductGridSkeleton } from "~/components/product/product-grid";
+import { Card } from "~/components/ui/card";
 import { useAddToCart } from "~/hooks/use-add-to-cart";
 import {
   activeFilterChips,
@@ -115,15 +116,18 @@ export function CollectionPage({ data, crumbs }: CollectionPageProps) {
         {hasFilters ? (
           // На телефоні фільтри живуть у шухляді; без JavaScript шухляда не відкриється,
           // тому тоді (noscript:) колонка показується одразу над товарами.
-          <aside
-            aria-labelledby={filtersTitleId}
-            className="hidden rounded-lg bg-surface px-5 py-1 lg:sticky lg:top-28 lg:block lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto noscript:block"
+          <Card
+            asChild
+            padding="none"
+            className="hidden px-5 py-1 lg:sticky lg:top-28 lg:block lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto noscript:block"
           >
-            <h2 id={filtersTitleId} className="sr-only">
-              Фільтри
-            </h2>
-            {filtersForm}
-          </aside>
+            <aside aria-labelledby={filtersTitleId}>
+              <h2 id={filtersTitleId} className="sr-only">
+                Фільтри
+              </h2>
+              {filtersForm}
+            </aside>
+          </Card>
         ) : null}
 
         <div className="flex min-w-0 flex-col gap-4">

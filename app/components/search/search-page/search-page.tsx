@@ -55,6 +55,7 @@ export function SearchPage({ data, onAddToCart, addingHandle }: SearchPageProps)
           key={searchTerm}
           defaultTerm={searchTerm}
           initialFocus={!performed}
+          actions
           label="Запит для пошуку"
           className="max-w-2xl"
           fieldClassName="h-14"

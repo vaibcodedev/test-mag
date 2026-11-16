@@ -60,7 +60,7 @@ export function CollectionCard({
         </div>
         <CardContent className="flex flex-1 items-end justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1">
-            <CardTitle asChild className="text-h3 wrap-anywhere">
+            <CardTitle asChild size="h3" className="wrap-anywhere">
               <Heading>
                 <Link
                   to={`/collections/${collection.handle}`}

@@ -45,7 +45,12 @@ function renderFilters(props: Partial<FiltersProps> = {}) {
     />,
   );
 
-  return { ...view, submitted, form: view.container.querySelector("form") as HTMLFormElement };
+  return {
+    ...view,
+    submitted,
+    onSubmit,
+    form: view.container.querySelector("form") as HTMLFormElement,
+  };
 }
 
 const filtersOf = (search: string) => parseCollectionParams(new URLSearchParams(search)).filters;
@@ -91,26 +96,65 @@ describe("Filters", () => {
     );
   });
 
-  it("кольори показує зразками з назвою", () => {
+  it("прапорець — shadcn Checkbox із підписом: клік по підпису вмикає його", async () => {
+    renderFilters();
+    const checkbox = screen.getByRole("checkbox", { name: /256 ГБ/ });
+
+    expect(checkbox).toHaveAttribute("data-slot", "checkbox");
+    expect(checkbox).toHaveAccessibleName(/^256 ГБ.*товар/);
+    expect(checkbox).not.toBeChecked();
+
+    await userEvent.click(screen.getByText("256 ГБ"));
+
+    expect(checkbox).toBeChecked();
+  });
+
+  it("кольори показує перемикачами зі зразком і назвою", () => {
     const { container } = renderFilters();
     const colors = screen.getByRole("group", { name: "Колір" });
 
-    expect(within(colors).getAllByRole("checkbox")).toHaveLength(4);
+    expect(within(colors).getAllByRole("button")).toHaveLength(4);
     expect(container.querySelectorAll("[data-slot=filter-swatch]")).toHaveLength(4);
     expect(within(colors).getByText("Синій титан")).toBeInTheDocument();
+    expect(within(colors).getByRole("button", { name: /Синій титан/ })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    expect(colors.querySelectorAll("[data-slot=toggle-swatch]")).toHaveLength(4);
+  });
+
+  it("перемикач кольору відправляє той самий параметр, що й прапорець, і знімається повторним кліком", async () => {
+    const { submitted, form } = renderFilters();
+    const silver = screen.getByRole("button", { name: /Срібний/ });
+
+    await userEvent.click(silver);
+
+    expect(silver).toHaveAttribute("aria-pressed", "true");
+    expect(filtersOf(submitted[0] ?? "")).toEqual([
+      { variantOption: { name: "Колір", value: "Срібний" } },
+    ]);
+    const hidden = [...form.querySelectorAll<HTMLInputElement>('input[type="hidden"]')];
+    expect(hidden.map((input) => input.value)).toEqual(["Срібний"]);
+
+    await userEvent.click(silver);
+
+    expect(silver).toHaveAttribute("aria-pressed", "false");
+    expect(submitted[1]).toBe("");
   });
 
   it("назви полів беруться з FilterValue.input", () => {
     renderFilters();
 
-    expect(screen.getByRole("checkbox", { name: /^В наявності/ })).toHaveAttribute(
-      "name",
-      "filter.v.availability",
-    );
-    expect(screen.getByRole("checkbox", { name: /Відмінний/ })).toHaveAttribute(
-      "name",
-      "filter.p.m.custom.condition_grade",
-    );
+    // Назву й значення несе поле форми, яке Radix Checkbox тримає поруч із кнопкою-прапорцем.
+    const fieldOf = (name: RegExp) =>
+      screen
+        .getByRole("checkbox", { name })
+        .parentElement?.querySelector<HTMLInputElement>('input[type="checkbox"]');
+
+    expect(fieldOf(/^В наявності/)).toHaveAttribute("name", "filter.v.availability");
+    expect(fieldOf(/^В наявності/)).toHaveAttribute("value", "1");
+    expect(fieldOf(/Відмінний/)).toHaveAttribute("name", "filter.p.m.custom.condition_grade");
+    expect(fieldOf(/Відмінний/)).toHaveAttribute("value", "Відмінний");
   });
 
   it("клік по прапорцю одразу відправляє форму з потрібним параметром", async () => {
@@ -131,8 +175,11 @@ describe("Filters", () => {
     ];
     const { submitted } = renderFilters({ activeFilters });
 
-    expect(screen.getByRole("checkbox", { name: /Чорний/ })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: /Срібний/ })).not.toBeChecked();
+    expect(screen.getByRole("button", { name: /Чорний/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /Срібний/ })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
     expect(screen.getByRole("spinbutton", { name: "Мінімальна ціна, UAH" })).toHaveValue(30000);
     expect(screen.getByRole("spinbutton", { name: "Максимальна ціна, UAH" })).toHaveValue(70000);
     expect(screen.getByRole("button", { name: /Колір/ })).toHaveTextContent("вибрано: 1");
@@ -200,7 +247,7 @@ describe("Filters", () => {
       "false",
     );
 
-    await userEvent.click(screen.getByRole("checkbox", { name: /Срібний/ }));
+    await userEvent.click(screen.getByRole("button", { name: /Срібний/ }));
 
     expect(filtersOf(submitted[0] ?? "")).toEqual(
       expect.arrayContaining([
@@ -208,6 +255,27 @@ describe("Filters", () => {
         { variantOption: { name: "Колір", value: "Срібний" } },
       ]),
     );
+  });
+
+  it("зміна адреси (чип, «назад») оновлює прапорець на місці й форму не відправляє", () => {
+    const { submitted, onSubmit, rerender } = renderFilters({
+      activeFilters: [{ variantOption: { name: "Пам'ять", value: "256 ГБ" } }],
+    });
+    expect(screen.getByRole("checkbox", { name: /256 ГБ/ })).toBeChecked();
+
+    rerender(
+      <Filters
+        filters={DEMO_FILTERS}
+        activeFilters={[]}
+        action="/collections/iphone"
+        currencyCode="UAH"
+        priceCeiling={DEMO_PRICE_CEILING}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    expect(screen.getByRole("checkbox", { name: /256 ГБ/ })).not.toBeChecked();
+    expect(submitted).toHaveLength(0);
   });
 
   it("без фільтрів нічого не рендерить", () => {

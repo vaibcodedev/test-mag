@@ -26,7 +26,7 @@ export type CollectionListProps = Omit<ComponentProps<"ul">, "children"> & {
 export function CollectionList({ collections, className, ...props }: CollectionListProps) {
   if (collections.length === 0) {
     return (
-      <Empty size="sm" data-slot="collection-list-empty" className="md:p-10">
+      <Empty size="panel" titleSize="h3" data-slot="collection-list-empty">
         <EmptyHeader>
           <EmptyMedia>
             <LayoutGrid strokeWidth={2} />

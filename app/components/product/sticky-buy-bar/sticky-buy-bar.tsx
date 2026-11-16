@@ -22,7 +22,7 @@ export type StickyBuyBarProps = Omit<ComponentProps<"div">, "children" | "title"
 
 /**
  * Липка панель «Купити» на мобільному. Стоїть над нижньою навігацією сайту
- * (64px + межа + safe-area) і показується, коли головна кнопка зникла з екрана.
+ * (змінна --bottom-nav-space з app.css) і показується, коли головна кнопка зникла з екрана.
  */
 export function StickyBuyBar({
   visible,
@@ -41,13 +41,13 @@ export function StickyBuyBar({
       data-visible={visible}
       inert={!visible}
       className={cn(
-        "fixed inset-x-0 bottom-[calc(4rem+1px+env(safe-area-inset-bottom))] z-30 border-t border-line bg-surface transition-[translate,opacity] duration-200 ease-soft lg:hidden",
+        "fixed inset-x-0 bottom-(--bottom-nav-space) z-30 border-t border-line bg-surface transition-[translate,opacity] duration-200 ease-soft lg:hidden",
         visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-full opacity-0",
         className,
       )}
       {...props}
     >
-      <div className="flex items-center gap-3 px-gutter py-2">
+      <div className="flex h-sticky-buy-bar items-center gap-3 px-gutter">
         <div className="flex min-w-0 flex-1 flex-col">
           <p className="truncate text-caption text-ink-2">{title}</p>
           <Price price={price} compareAt={compareAt} showSavings={false} />

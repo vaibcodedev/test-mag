@@ -1,13 +1,31 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, useLocation } from "react-router";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DEMO_PREDICTIVE_EMPTY, DEMO_PREDICTIVE_RESULT } from "~/components/search/search.fixtures";
+import { Command } from "~/components/ui/command";
 
-import { PredictiveList } from "./predictive-list";
+import { PredictiveList, type PredictiveListProps } from "./predictive-list";
 import { buildPredictiveOptions } from "./predictive-options";
 import { PredictiveSearch, type PredictiveSearchProps } from "./predictive-search";
+
+// Radix Popover і cmdk міряють себе через ResizeObserver і прокручують вибраний рядок у видиму
+// область; у jsdom цього немає.
+beforeAll(() => {
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.setPointerCapture ??= () => {};
+  Element.prototype.releasePointerCapture ??= () => {};
+  Element.prototype.scrollIntoView ??= () => {};
+});
 
 /** Адреси, на які ходив стор підказок. */
 let requests: URL[] = [];
@@ -250,48 +268,110 @@ describe("PredictiveList", () => {
     typedTerm: "iph",
   });
 
-  it("під час першого завантаження показує «Шукаємо…» і рядок усіх результатів", () => {
-    render(
+  /** Список живе всередині Command: саме він знає, який рядок вибрано. */
+  function renderList(props: PredictiveListProps, active = "-") {
+    return (
       <MemoryRouter>
-        <PredictiveList listId="list" status="loading" options={noOptions} />
-      </MemoryRouter>,
+        <Command shouldFilter={false} value={active}>
+          <PredictiveList {...props} />
+        </Command>
+      </MemoryRouter>
     );
+  }
+
+  it("під час першого завантаження показує «Шукаємо…» і рядок усіх результатів", () => {
+    render(renderList({ status: "loading", options: noOptions }));
 
     expect(screen.getByText("Шукаємо…")).toBeInTheDocument();
     expect(screen.getAllByRole("option")).toHaveLength(1);
   });
 
   it("поки вантажиться новий запит, попередні підказки лишаються тьмяними", () => {
-    render(
-      <MemoryRouter>
-        <PredictiveList listId="list" status="loading" options={options} />
-      </MemoryRouter>,
-    );
+    render(renderList({ status: "loading", options }));
 
     expect(screen.getByRole("listbox")).toHaveAttribute("aria-busy", "true");
-    expect(screen.getByRole("group", { name: "Товари" })).toHaveClass("opacity-60");
+    expect(screen.getByRole("group", { name: "Товари" }).closest("[data-group]")).toHaveClass(
+      "opacity-60",
+    );
     expect(screen.queryByText("Шукаємо…")).not.toBeInTheDocument();
   });
 
+  it("рядки — CommandItem поверх посилань із власними id опцій", () => {
+    render(renderList({ status: "success", options }));
+    const option = screen.getByRole("option", { name: /iPhone 17 128 ГБ/ });
+
+    expect(option.tagName).toBe("A");
+    expect(option).toHaveAttribute("id", "test-product-1");
+    expect(option).toHaveAttribute("data-slot", "command-item");
+    expect(option).toHaveAttribute("tabindex", "-1");
+    // cmdk без вибраного значення сам підсвітив би перший рядок; тут вибору немає.
+    expect(screen.queryByRole("option", { selected: true })).not.toBeInTheDocument();
+  });
+
   it("позначає активну опцію й нічого не рендерить у стані idle", () => {
-    const { rerender } = render(
-      <MemoryRouter>
-        <PredictiveList
-          listId="list"
-          status="success"
-          options={options}
-          activeId="test-product-1"
-        />
-      </MemoryRouter>,
-    );
+    const { rerender } = render(renderList({ status: "success", options }, "test-product-1"));
 
     expect(screen.getByRole("option", { selected: true })).toHaveTextContent("iPhone 17 128 ГБ");
 
-    rerender(
-      <MemoryRouter>
-        <PredictiveList listId="list" status="idle" options={options} />
-      </MemoryRouter>,
-    );
+    rerender(renderList({ status: "idle", options }));
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
+
+  it("клік по рядку повідомляє про вибір", async () => {
+    const onSelect = vi.fn();
+    render(renderList({ status: "success", options, onSelect }));
+
+    await userEvent.setup().click(screen.getByRole("option", { name: "iPhone" }));
+
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ kind: "collection" }));
+  });
+});
+
+describe("PredictiveSearch з кнопками (сторінка /search)", () => {
+  beforeEach(() => {
+    requests = [];
+    failNext = false;
+  });
+
+  it("у шапці кнопок немає, на сторінці пошуку є видима «Шукати»", () => {
+    const header = renderSearch();
+    expect(screen.queryByRole("button", { name: "Шукати" })).not.toBeInTheDocument();
+    header.unmount();
+
+    renderSearch({ actions: true });
+    const submit = screen.getByRole("button", { name: "Шукати" });
+
+    expect(submit).toHaveAttribute("type", "submit");
+    expect(submit).toHaveClass("size-11");
+    // Порожнє поле очищати нема чого.
+    expect(screen.queryByRole("button", { name: "Очистити запит" })).not.toBeInTheDocument();
+  });
+
+  it("«Шукати» відкриває сторінку результатів за введеним запитом", async () => {
+    renderSearch({ actions: true });
+    const user = userEvent.setup();
+
+    await user.type(input(), "airpods");
+    await user.click(screen.getByRole("button", { name: "Шукати" }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("location")).toHaveTextContent("/search?q=airpods"),
+    );
+  });
+
+  it("«Очистити запит» з'являється з текстом, стирає його й повертає фокус у поле", async () => {
+    renderSearch({ actions: true, defaultTerm: "mac" });
+    const user = userEvent.setup();
+    const clear = screen.getByRole("button", { name: "Очистити запит" });
+
+    expect(clear).toHaveAttribute("type", "button");
+    await user.click(clear);
+
+    expect(input()).toHaveValue("");
+    expect(input()).toHaveFocus();
+    expect(screen.queryByRole("button", { name: "Очистити запит" })).not.toBeInTheDocument();
+
+    await user.type(input(), "i");
+    expect(screen.getByRole("button", { name: "Очистити запит" })).toBeInTheDocument();
   });
 });

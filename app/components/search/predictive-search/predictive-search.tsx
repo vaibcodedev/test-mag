@@ -5,15 +5,15 @@ import {
   usePredictiveSearchForm,
   type PredictiveSearchProviderProps,
 } from "@shopify/hydrogen/react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router";
 
+import { Button } from "~/components/ui/button";
 import { Command } from "~/components/ui/command";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
 import { Popover, PopoverAnchor, PopoverContent } from "~/components/ui/popover";
 import { describeSuggestions, PREDICTIVE_SEARCH_TYPES } from "~/lib/predictive-search";
-import { cn } from "~/lib/utils";
 
 import { hasPredictiveOptions, PredictiveList } from "./predictive-list";
 import {
@@ -46,6 +46,11 @@ export type PredictiveSearchProps = {
    * іконка пошуку на мобільному, і поле — єдине, заради чого сторінку відкрили.
    */
   initialFocus?: boolean;
+  /**
+   * Видимі кнопки в полі: «Шукати» і, коли є текст, «Очистити запит». Для сторінки /search,
+   * де поле — головний елемент; у шапці досить Enter і лупи-прикраси.
+   */
+  actions?: boolean;
 } & Pick<PredictiveSearchProviderProps, "fetch" | "debounceInMs">;
 
 /**
@@ -78,6 +83,7 @@ function PredictiveSearchField({
   placeholder = "Шукати iPhone, MacBook, AirPods",
   label = "Пошук товарів",
   initialFocus = false,
+  actions = false,
 }: Omit<PredictiveSearchProps, "fetch" | "debounceInMs">) {
   const state = usePredictiveSearch();
   const { clear } = usePredictiveSearchActions();
@@ -91,6 +97,8 @@ function PredictiveSearchField({
 
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  /** Поле некероване, тому наявність тексту для кнопки «Очистити» відстежуємо окремо. */
+  const [hasText, setHasText] = useState(defaultTerm.length > 0);
 
   // Нові підказки — нові рядки під тими самими id: клавіатурний вибір починається спочатку.
   const [seenResult, setSeenResult] = useState(state.result);
@@ -126,8 +134,18 @@ function PredictiveSearchField({
   };
 
   const select = (option: PredictiveOption) => {
-    if (option.kind === "query" && inputRef.current) inputRef.current.value = option.title;
+    if (option.kind === "query" && inputRef.current) {
+      inputRef.current.value = option.title;
+      setHasText(true);
+    }
     finish();
+  };
+
+  const clearField = () => {
+    if (inputRef.current) inputRef.current.value = "";
+    setHasText(false);
+    finish();
+    inputRef.current?.focus();
   };
 
   // Стрілки у відкритому списку спливають до Command: вибір по колу веде cmdk.
@@ -192,11 +210,9 @@ function PredictiveSearchField({
         loop
         value={activeOption?.id ?? NO_ACTIVE}
         onValueChange={(value) => setActiveId(value && value !== NO_ACTIVE ? value : null)}
-        // Command тут — обгортка довкола поля, а не панель: без власного тла, рамки й обрізання.
-        className={cn(
-          "relative h-auto overflow-visible rounded-none bg-transparent outline-none",
-          className,
-        )}
+        // Command тут — обгортка довкола поля, а не панель.
+        unstyled
+        className={className}
       >
         <PopoverAnchor asChild>
           <form
@@ -211,9 +227,12 @@ function PredictiveSearchField({
             })}
           >
             <InputGroup className={fieldClassName}>
-              <InputGroupAddon>
-                <Search aria-hidden="true" strokeWidth={2} />
-              </InputGroupAddon>
+              {/* З кнопкою «Шукати» лупа-прикраса зайва: іконка вже є на кнопці. */}
+              {actions ? null : (
+                <InputGroupAddon>
+                  <Search aria-hidden="true" strokeWidth={2} />
+                </InputGroupAddon>
+              )}
               <InputGroupInput
                 ref={inputRef}
                 {...register("query", {
@@ -228,14 +247,34 @@ function PredictiveSearchField({
                   "aria-expanded": expanded,
                   "aria-controls": expanded ? list?.id : undefined,
                   "aria-activedescendant": activeOption?.id,
-                  onChange: () => {
+                  onChange: (event) => {
                     setOpen(true);
                     setActiveId(null);
+                    setHasText(event.currentTarget.value.length > 0);
                   },
                   onFocus: () => setOpen(true),
                   onKeyDown: handleKeyDown,
                 })}
+                // Своя кнопка «Очистити» замість хрестика, який Chromium малює в type="search".
+                className={
+                  actions ? "ps-4 [&::-webkit-search-cancel-button]:appearance-none" : undefined
+                }
               />
+              {/* Після поля в DOM: Tab іде поле → «Очистити» → «Шукати». */}
+              {actions ? (
+                <InputGroupAddon align="end" className="gap-1">
+                  {hasText ? (
+                    <Button type="button" variant="ghost" size="icon" onClick={clearField}>
+                      <X aria-hidden="true" strokeWidth={2} />
+                      <span className="sr-only">Очистити запит</span>
+                    </Button>
+                  ) : null}
+                  <Button type="submit" size="icon">
+                    <Search aria-hidden="true" strokeWidth={2} />
+                    <span className="sr-only">Шукати</span>
+                  </Button>
+                </InputGroupAddon>
+              ) : null}
             </InputGroup>
           </form>
         </PopoverAnchor>

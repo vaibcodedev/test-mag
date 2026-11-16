@@ -18,7 +18,7 @@ import type { PredictiveOption, PredictiveOptions } from "./predictive-options";
 const THUMB_FALLBACK_SIZE = 96;
 const THUMB_WIDTHS = [48, 96, 144] as const;
 /** Фото товару заповнює мініатюру цілком, без полів і змішування з тлом. */
-const THUMB = "size-12 rounded-sm [&_img]:object-cover [&_img]:mix-blend-normal";
+const THUMB = "rounded-sm";
 
 export type PredictiveListProps = Omit<ComponentProps<"div">, "children" | "onSelect"> & {
   /** Елемент listbox: його id поле пошуку ставить в aria-controls. */
@@ -43,7 +43,7 @@ function OptionVisual({ option }: { option: PredictiveOption }) {
   if (option.kind === "product" || option.kind === "collection") {
     if (option.image) {
       return (
-        <ItemMedia variant="image" className={THUMB}>
+        <ItemMedia variant="image" size="sm" fit="cover" className={THUMB}>
           <ShopImage
             src={option.image.url}
             alt=""

@@ -22,42 +22,49 @@ function withSelect(onSelect: () => void): VariantPickerOption[] {
 }
 
 describe("VariantPicker", () => {
-  it("позначає вибране значення через aria-current і показує його в підписі", () => {
+  it("кожна опція — радіогрупа, вибране значення позначене й показане в підписі", () => {
     renderPicker();
 
-    expect(screen.getByRole("link", { name: "256 ГБ" })).toHaveAttribute("aria-current", "true");
-    expect(screen.getByRole("link", { name: "Срібний" })).not.toHaveAttribute("aria-current");
+    expect(screen.getByRole("radiogroup", { name: "Колір" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "256 ГБ" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "256 ГБ" })).toHaveAttribute("data-state", "on");
+    expect(screen.getByRole("radio", { name: "Срібний" })).not.toBeChecked();
     expect(screen.getByRole("group", { name: "Пам'ять: 256 ГБ" })).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Колір: Синій титан" })).toBeInTheDocument();
   });
 
   it("кожне наявне значення — посилання на адресу варіанта", () => {
     renderPicker();
+    const silver = screen.getByRole("radio", { name: "Срібний" });
 
-    expect(screen.getByRole("link", { name: "Срібний" }).getAttribute("href")).toContain(
-      "/products/iphone-17-pro?",
-    );
+    expect(silver.tagName).toBe("A");
+    expect(silver.getAttribute("href")).toContain("/products/iphone-17-pro?");
+    // Посилання не отримує type="button" від перемикача й лишається досяжним клавішею Tab.
+    expect(silver).not.toHaveAttribute("type");
+    expect(silver).not.toHaveAttribute("tabindex", "-1");
   });
 
   it("розпроданий варіант лишається посиланням із поясненням", () => {
     renderPicker();
-    const soldOut = screen.getByRole("link", { name: "512 ГБ, немає в наявності" });
+    const soldOut = screen.getByRole("radio", { name: "512 ГБ, немає в наявності" });
 
+    expect(soldOut.tagName).toBe("A");
     expect(soldOut).toHaveAttribute("data-available", "false");
     expect(soldOut.className).toContain("line-through");
     expect(
-      screen.getByRole("link", { name: "Космічний помаранчевий, немає в наявності" }),
+      screen.getByRole("radio", { name: "Космічний помаранчевий, немає в наявності" }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Немає в наявності: 512 ГБ\./)).toBeInTheDocument();
   });
 
   it("неіснуюча комбінація — вимкнена кнопка з поясненням", () => {
     renderPicker();
-    const missing = screen.getByRole("button", { name: "1 ТБ: такої комбінації немає" });
+    const missing = screen.getByRole("radio", { name: "1 ТБ: такої комбінації немає" });
 
+    expect(missing.tagName).toBe("BUTTON");
     expect(missing).toBeDisabled();
-    expect(missing).toHaveAttribute("aria-pressed", "false");
-    expect(screen.queryByRole("link", { name: /1 ТБ/ })).toBeNull();
+    expect(missing).not.toBeChecked();
+    expect(missing).not.toHaveAttribute("href");
     expect(
       screen.getByText(/Немає такої комбінації з вибраними опціями: 1 ТБ\./),
     ).toBeInTheDocument();
@@ -67,23 +74,42 @@ describe("VariantPicker", () => {
     const onSelect = vi.fn();
     renderPicker(withSelect(onSelect));
 
-    await userEvent.click(screen.getByRole("link", { name: "Срібний" }));
+    await userEvent.click(screen.getByRole("radio", { name: "Срібний" }));
 
     expect(onSelect).toHaveBeenCalledOnce();
+  });
+
+  it("пробіл вибирає значення, як у радіогрупі", async () => {
+    const onSelect = vi.fn();
+    renderPicker(withSelect(onSelect));
+
+    screen.getByRole("radio", { name: "Срібний" }).focus();
+    await userEvent.keyboard(" ");
+
+    expect(onSelect).toHaveBeenCalledOnce();
+  });
+
+  it("повторний клік по вибраному значенню не знімає вибір", async () => {
+    renderPicker(withSelect(() => {}));
+    const selected = screen.getByRole("radio", { name: "256 ГБ" });
+
+    await userEvent.click(selected);
+
+    expect(selected).toBeChecked();
   });
 
   it("Ctrl-клік лишається браузеру й вибір не змінює", () => {
     const onSelect = vi.fn();
     renderPicker(withSelect(onSelect));
 
-    fireEvent.click(screen.getByRole("link", { name: "Срібний" }), { ctrlKey: true });
+    fireEvent.click(screen.getByRole("radio", { name: "Срібний" }), { ctrlKey: true });
 
     expect(onSelect).not.toHaveBeenCalled();
   });
 
   it("кружечок кольору отримує колір із даних товару", () => {
     renderPicker();
-    const dot = screen.getByRole("link", { name: "Срібний" }).querySelector("span");
+    const dot = screen.getByRole("radio", { name: "Срібний" }).querySelector("span");
 
     expect(dot?.style.getPropertyValue("--swatch")).toBe("#e3e4e5");
   });

@@ -1,9 +1,7 @@
-import { ToggleGroup as ToggleGroupPrimitive } from "radix-ui";
 import type { ComponentProps, KeyboardEvent, MouseEvent } from "react";
 import { Link } from "react-router";
 
 import { FieldDescription, FieldLegend, FieldSet } from "~/components/ui/field";
-import { ToggleSwatch, toggleVariants } from "~/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
 import { cn } from "~/lib/utils";
 
@@ -52,13 +50,6 @@ function isPlainClick(event: MouseEvent<HTMLAnchorElement>): boolean {
   );
 }
 
-/**
- * Стан «немає в наявності» чи «немає такої комбінації» поверх Toggle: у базі такого варіанта
- * немає. Пігулка закреслена й приглушена, крапка кольору — напівпрозора.
- */
-const UNAVAILABLE =
-  "data-[available=false]:text-muted-foreground data-[available=false]:line-through data-[available=false]:data-[state=on]:text-surface data-[available=false]:[&_[data-slot=toggle-swatch]]:opacity-30";
-
 /** Пробіл вибирає радіокнопку; у посилання цю клавішу браузер сам не обробляє. */
 function activateOnSpace(event: KeyboardEvent<HTMLAnchorElement>) {
   if (event.key !== " ") return;
@@ -78,10 +69,9 @@ function PickerValue({ value }: { value: VariantPickerValue }) {
         disabled
         variant={swatch ? "swatch" : "pill"}
         swatch={swatch}
-        data-available="false"
+        unavailable
         aria-label={`${value.name}: такої комбінації немає`}
         title="Такої комбінації немає"
-        className={UNAVAILABLE}
       >
         {swatch ? null : value.name}
       </ToggleGroupItem>
@@ -92,19 +82,23 @@ function PickerValue({ value }: { value: VariantPickerValue }) {
   const variant = swatch ? "swatch" : "pill";
 
   return (
-    // Елемент групи з Radix напряму: ToggleGroupItem із бази додає крапку кольору окремою
-    // дитиною, а asChild приймає рівно одну. Вигляд той самий — toggleVariants і ToggleSwatch.
-    <ToggleGroupPrimitive.Item asChild value={value.name}>
+    // Стан «немає в наявності» (закреслення, приглушена крапка) дає база за data-available.
+    <ToggleGroupItem
+      asChild
+      value={value.name}
+      variant={variant}
+      swatch={swatch}
+      data-available={value.available}
+    >
       {/* Посилання лишається посиланням: адреса варіанта працює без JavaScript і в новій вкладці. */}
       <Link
         to={value.to}
         replace={Boolean(onSelect)}
         preventScrollReset
-        data-slot="toggle-group-item"
-        data-variant={variant}
+        // Radix передає кнопці type="button"; посиланню цей атрибут не потрібен.
+        type={undefined}
         aria-label={swatch ? `${value.name}${soldOut ? ", немає в наявності" : ""}` : undefined}
         title={swatch ? value.name : undefined}
-        data-available={value.available}
         onKeyDown={activateOnSpace}
         onClick={
           onSelect
@@ -116,18 +110,15 @@ function PickerValue({ value }: { value: VariantPickerValue }) {
               }
             : undefined
         }
-        className={cn(toggleVariants({ variant }), UNAVAILABLE)}
       >
-        {swatch ? (
-          <ToggleSwatch color={swatch} />
-        ) : (
+        {swatch ? null : (
           <>
             {value.name}
             {soldOut ? <span className="sr-only">, немає в наявності</span> : null}
           </>
         )}
       </Link>
-    </ToggleGroupPrimitive.Item>
+    </ToggleGroupItem>
   );
 }
 

@@ -8,7 +8,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { cn } from "~/lib/utils";
 
 export type ProductGridEmptyProps = Omit<ComponentProps<"div">, "title"> & {
   /** Іконка lucide зі strokeWidth 1.75. */
@@ -34,8 +33,14 @@ export function ProductGridEmpty({
   ...props
 }: ProductGridEmptyProps) {
   return (
-    // size="sm": заголовок на крок менший за h1 сторінки; поля лишаються як у панелі сторінки.
-    <Empty size="sm" className={cn("md:p-10", className)} {...props} data-slot="product-grid-empty">
+    // Заголовок на крок менший за h1 сторінки; поля — як у панелі сторінки.
+    <Empty
+      size="panel"
+      titleSize="h3"
+      className={className}
+      {...props}
+      data-slot="product-grid-empty"
+    >
       <EmptyHeader>
         <EmptyMedia>{icon}</EmptyMedia>
         <EmptyTitle as={headingLevel}>{title}</EmptyTitle>

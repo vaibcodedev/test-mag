@@ -84,7 +84,7 @@ export function ProductDetails({
           {hasDescription ? (
             <Card asChild padding="lg" className={cn(specs.length === 0 && "lg:col-span-2")}>
               <section aria-labelledby="product-description-title">
-                <CardTitle asChild className="text-h2-panel">
+                <CardTitle asChild size="h2-panel">
                   <h2 id="product-description-title">Опис</h2>
                 </CardTitle>
                 <CardContent className="max-w-3xl">
@@ -104,7 +104,7 @@ export function ProductDetails({
           {specs.length > 0 ? (
             <Card asChild padding="lg" className={cn(!hasDescription && "lg:col-span-2")}>
               <section aria-labelledby="product-specs-title">
-                <CardTitle asChild className="text-h2-panel">
+                <CardTitle asChild size="h2-panel">
                   <h2 id="product-specs-title">Характеристики</h2>
                 </CardTitle>
                 <CardContent>

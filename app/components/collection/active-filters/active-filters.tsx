@@ -28,7 +28,7 @@ export function ActiveFilters({ chips, clearHref, className, ...props }: ActiveF
       <ul role="list" className="contents">
         {chips.map((chip) => (
           <li key={chip.key} className="min-w-0">
-            <Button asChild variant="surface" size="sm" className="max-w-full font-medium">
+            <Button asChild variant="surface" size="sm" className="h-11 max-w-full font-medium">
               <Link
                 to={chip.href}
                 preventScrollReset

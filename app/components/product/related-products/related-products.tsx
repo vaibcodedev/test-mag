@@ -37,7 +37,10 @@ export function RelatedProducts({
   return (
     <Section id={id} {...props}>
       <SectionHeader sectionId={id} title={title} />
-      <Carousel aria-label={title} opts={{ align: "start", containScroll: "trimSnaps" }}>
+      <Carousel
+        aria-label={`${title}: добірка`}
+        opts={{ align: "start", containScroll: "trimSnaps" }}
+      >
         {/* py-2: місце для hover-підйому картки всередині обрізаної області каруселі. */}
         <CarouselContent className="-ms-3 py-2">
           {products.map((product, index) => (
