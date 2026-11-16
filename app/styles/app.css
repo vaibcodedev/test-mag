@@ -1,0 +1,300 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@import "@fontsource-variable/onest/wght.css";
+@import "@fontsource-variable/unbounded/wght.css";
+
+@import "./tokens.css";
+
+@theme inline {
+  /* Кольори «Сад» */
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-photo: var(--photo);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-blue: var(--blue);
+  --color-blue-hover: var(--blue-hover);
+  --color-blue-active: var(--blue-active);
+  --color-lime: var(--lime);
+  --color-lime-hover: var(--lime-hover);
+  --color-lime-active: var(--lime-active);
+  --color-ink-hover: var(--ink-hover);
+  --color-page-hover: var(--page-hover);
+  --color-page-active: var(--page-active);
+  --color-sale: var(--sale);
+  --color-success: var(--success);
+  --color-star: var(--star);
+  --color-danger: var(--danger);
+  --color-on-ink-10: var(--on-ink-10);
+  --color-on-ink-12: var(--on-ink-12);
+  --color-on-ink-20: var(--on-ink-20);
+  --color-on-ink-muted: var(--on-ink-muted);
+  --color-scrim: var(--scrim);
+
+  /* Кольори shadcn (посилаються на токени через tokens.css) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Шрифти */
+  --font-display: var(--font-display-family);
+  --font-sans: var(--font-sans-family);
+
+  /* Радіуси: sm 8 / md 14 / lg 20 / xl 24 / pill */
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+  --radius-pill: var(--r-pill);
+
+  /* Розкладка */
+  --container-page: var(--page-max);
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section-gap);
+  --spacing-touch: var(--touch);
+
+  /* Тіні */
+  --shadow-focus: var(--focus-ring);
+  --shadow-focus-offset: var(--focus-ring-offset);
+  --shadow-focus-on-ink: var(--focus-ring-on-ink);
+  --shadow-lift: var(--lift-shadow);
+
+  /* Рух */
+  --ease-soft: var(--ease-out-soft);
+  --default-transition-duration: var(--duration-base);
+  --default-transition-timing-function: var(--ease-out-soft);
+
+  --animate-ticker: ticker var(--ticker-duration, 40s) linear infinite;
+  --animate-pulse-dot: pulse-dot 2s var(--ease-out-soft) infinite;
+
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes pulse-dot {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+}
+
+/* Типографічна шкала. Кожна утиліта задає гарнітуру, розмір, насиченість,
+   інтерліньяж і трекінг разом, щоб у компонентах не було розрізнених значень. */
+@utility text-display {
+  font-family: var(--font-display-family);
+  font-size: var(--size-display);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: var(--tracking-hero);
+}
+@utility text-h2 {
+  font-family: var(--font-display-family);
+  font-size: var(--size-h2);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-heading);
+}
+@utility text-h2-panel {
+  font-family: var(--font-display-family);
+  font-size: var(--size-h2-panel);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: var(--tracking-heading);
+}
+@utility text-h3 {
+  font-family: var(--font-display-family);
+  font-size: var(--size-h3);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: var(--tracking-heading);
+}
+@utility text-price {
+  font-family: var(--font-sans-family);
+  font-size: var(--size-price);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+@utility text-body {
+  font-family: var(--font-sans-family);
+  font-size: var(--size-body);
+  font-weight: 500;
+  line-height: 1.55;
+}
+@utility text-card-title {
+  font-family: var(--font-sans-family);
+  font-size: var(--size-card-title);
+  font-weight: 600;
+  line-height: 1.35;
+}
+@utility text-small {
+  font-family: var(--font-sans-family);
+  font-size: var(--size-small);
+  font-weight: 500;
+  line-height: 1.45;
+}
+@utility text-caption {
+  font-family: var(--font-sans-family);
+  font-size: var(--size-caption);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+/* Фокус: 0 0 0 3px blue. Прозорий outline лишається для режиму forced-colors. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: var(--focus-ring);
+  }
+}
+@utility focus-ring-offset {
+  &:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: var(--focus-ring-offset);
+  }
+}
+@utility focus-ring-on-ink {
+  &:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: var(--focus-ring-on-ink);
+  }
+}
+/* Те саме кільце на елементі, що йде після прихованого .peer (label після sr-only input). */
+@utility focus-ring-peer {
+  .peer:focus-visible ~ & {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: var(--focus-ring);
+  }
+}
+/* Те саме кільце на обгортці, коли фокус на елементі всередині неї. */
+@utility focus-ring-within {
+  &:has(:focus-visible) {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: var(--focus-ring);
+  }
+}
+
+/* Смуга прокрутки для областей на ink-тлі. */
+@utility scrollbar-on-ink {
+  scrollbar-color: var(--scrollbar-thumb-on-ink) var(--scrollbar-track-on-ink);
+}
+/* Область прокрутки, вміст якої не зсувається, коли смуга з'являється. */
+@utility scrollbar-stable {
+  scrollbar-gutter: stable;
+}
+
+/* Hover-підйом карток і плиток: −4px і м'яка тінь; фото всередині — scale 1.04. */
+@utility lift {
+  transition:
+    transform var(--duration-base) var(--ease-out-soft),
+    box-shadow var(--duration-base) var(--ease-out-soft);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(var(--lift-distance));
+      box-shadow: var(--lift-shadow);
+    }
+  }
+}
+@utility lift-photo {
+  transition: transform var(--duration-base) var(--ease-out-soft);
+  @media (hover: hover) {
+    :where(.group):hover & {
+      transform: scale(var(--photo-zoom));
+    }
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Тло потрібне жолобу смуги прокрутки: він лишається видимим і під час блокування. */
+    background: var(--page);
+    /* Смуга прокрутки сторінки є завжди, тому верстка не зсувається ні на коротких
+       сторінках, ні коли відкривається модальне вікно чи шухляда. Прокручується саме
+       html: overflow, який блокувальник ставить на body, більше не прибирає смугу. */
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    /* Кольори успадковуються всіма вкладеними областями прокрутки. */
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  /* Radix (Dialog, Sheet, Select, DropdownMenu) під час блокування прокрутки додає body
+     відступ на ширину смуги. Смуга нікуди не зникає, тож відступ дав би зсув. Саму
+     прокрутку Radix блокує обробниками подій, а не overflow. */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-sans-family);
+    font-size: var(--size-body);
+    font-weight: 500;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--blue);
+    color: var(--surface);
+  }
+
+  /* Увесь рух вимикається за prefers-reduced-motion. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .lift:hover,
+    .group:hover .lift-photo {
+      transform: none;
+    }
+  }
+}

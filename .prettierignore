@@ -1,0 +1,10 @@
+storybook-static/
+.playwright-mcp/
+dist/
+build/
+node_modules/
+.react-router/
+.agents/
+.claude/
+package-lock.json
+*-graphql-env.d.ts

@@ -1,0 +1,113 @@
+/*
+  Дизайн-токени «Сад». Єдине джерело правди для кольорів, шрифтів, розмірів і руху.
+  У Tailwind вони потрапляють через `@theme inline` у app.css; змінні shadcn
+  (--background, --primary …) нижче лише посилаються на ці токени.
+*/
+
+:root {
+  /* ── Кольори: правило 60 / 30 / 10 ─────────────────────────────────────── */
+  --page: #f3f4f8; /* тло сторінки, чипи, пігулки */
+  --surface: #ffffff; /* картки, плитки, секції */
+  --photo: #fafafc; /* тло під фото товарів */
+  --line: #e7e8ee; /* межі, розділювачі, поля */
+  --ink: #0b0b14; /* текст, темні секції */
+  --ink-2: #3e4250; /* вторинний текст */
+  /* У макеті токен називається --muted. Тут він --muted-ink, бо shadcn займає
+     ім'я --muted під тло (= --page), а --muted-foreground посилається сюди. */
+  --muted-ink: #5e6272; /* підписи */
+  --blue: #2e4bff; /* усі дії: кнопки, кошик, вкладки, посилання, «Новинка» */
+  --lime: #c6ff3d; /* ТІЛЬКИ на ink: CTA й цифри на темному */
+  --sale: #d6146a; /* ТІЛЬКИ знижки: −%, нова ціна, «Економія» */
+  --success: #0b7a45; /* наявність */
+  --star: #e59a00; /* рейтинг */
+  --danger: #d12f2f; /* помилки форм */
+
+  /* Похідні стани. Окремих hex немає: усе рахується від базових токенів. */
+  --blue-hover: color-mix(in oklab, var(--blue) 88%, var(--ink));
+  --blue-active: color-mix(in oklab, var(--blue) 76%, var(--ink));
+  --lime-hover: color-mix(in oklab, var(--lime) 88%, var(--surface));
+  --lime-active: color-mix(in oklab, var(--lime) 86%, var(--ink));
+  --ink-hover: color-mix(in oklab, var(--ink) 86%, var(--surface));
+  --page-hover: color-mix(in oklab, var(--page) 94%, var(--ink));
+  --page-active: color-mix(in oklab, var(--page) 88%, var(--ink));
+  /* Білий поверх ink: кнопка on-dark, IconTile dark, межі на темному. */
+  --on-ink-10: color-mix(in oklab, var(--surface) 10%, transparent);
+  --on-ink-12: color-mix(in oklab, var(--surface) 12%, transparent);
+  --on-ink-20: color-mix(in oklab, var(--surface) 20%, transparent);
+  --on-ink-muted: color-mix(in oklab, var(--surface) 68%, var(--ink));
+  --scrim: color-mix(in oklab, var(--ink) 55%, transparent);
+
+  /* ── Шрифти ────────────────────────────────────────────────────────────── */
+  --font-display-family: "Unbounded Variable", "Unbounded", system-ui, sans-serif;
+  --font-sans-family: "Onest Variable", "Onest", system-ui, -apple-system, sans-serif;
+  --tracking-heading: -0.02em;
+  --tracking-hero: -0.035em;
+
+  /* Шкала: display 76 / h2 40 / h2-panel 32 / h3 26 / price 22 / body 16 /
+     card-title 15 / small 14 / caption 12. На мобільному display 38, h2 28. */
+  --size-display: clamp(2.375rem, 5.28vw, 4.75rem);
+  --size-h2: clamp(1.75rem, 2.78vw, 2.5rem);
+  --size-h2-panel: clamp(1.5rem, 2.23vw, 2rem);
+  --size-h3: clamp(1.25rem, 1.81vw, 1.625rem);
+  --size-price: 1.375rem;
+  --size-body: 1rem;
+  --size-card-title: 0.9375rem;
+  --size-small: 0.875rem;
+  --size-caption: 0.75rem;
+  --size-wordmark-giant: clamp(6rem, 24vw, 22rem); /* вордмарк у футері */
+
+  /* ── Розміри ───────────────────────────────────────────────────────────── */
+  --r-sm: 8px; /* бейджі, чипи */
+  --r-md: 14px; /* кнопки, поля */
+  --r-lg: 20px; /* картки, плитки */
+  --r-xl: 24px; /* банери, секції */
+  --r-pill: 9999px;
+
+  --page-max: 90rem; /* контейнер 1440 */
+  --gutter: 1.5rem; /* поля 24 */
+  --section-gap: 5rem; /* 80 між секціями */
+  --touch: 2.75rem; /* мінімальна ціль натискання 44 */
+
+  /* ── Тіні: лише фокус і hover-підйом карток ────────────────────────────── */
+  --focus-ring: 0 0 0 3px var(--blue);
+  /* Для елементів, залитих blue: біла прокладка, щоб кільце не зливалося. */
+  --focus-ring-offset: 0 0 0 2px var(--surface), 0 0 0 5px var(--blue);
+  /* На ink blue-кільце має слабкий контраст, тому там воно lime. */
+  --focus-ring-on-ink: 0 0 0 3px var(--lime);
+  --lift-shadow: 0 16px 32px -16px color-mix(in oklab, var(--ink) 28%, transparent);
+
+  /* ── Смуга прокрутки ───────────────────────────────────────────────────── */
+  --scrollbar-thumb: color-mix(in oklab, var(--ink-2) 45%, var(--page));
+  --scrollbar-thumb-hover: var(--ink-2);
+  --scrollbar-track: var(--page);
+  /* Усередині темних секцій і панелей. */
+  --scrollbar-thumb-on-ink: var(--on-ink-20);
+  --scrollbar-track-on-ink: var(--ink);
+
+  /* ── Рух ───────────────────────────────────────────────────────────────── */
+  --ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-base: 250ms;
+  --lift-distance: -4px;
+  --photo-zoom: 1.04;
+
+  /* ── Мапінг shadcn → токени «Сад» ──────────────────────────────────────── */
+  --background: var(--page);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--blue);
+  --primary-foreground: var(--surface);
+  --secondary: var(--page);
+  --secondary-foreground: var(--ink);
+  --muted: var(--page);
+  --muted-foreground: var(--muted-ink);
+  --accent: var(--page);
+  --accent-foreground: var(--ink);
+  --destructive: var(--danger);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--blue);
+  --radius: var(--r-md);
+}
