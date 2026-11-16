@@ -12,3 +12,15 @@ Until a store is connected, this project reads [mock.shop](https://mock.shop): a
 - To build against a different store, set `PUBLIC_STORE_DOMAIN` in `.env` to that store's host (for example `pets.mock.shop`) and leave `PRIVATE_STOREFRONT_API_TOKEN` empty. Each store describes its own catalog at `https://<store>.mock.shop/llms.txt`.
 - Carts work; checkout is mocked (no payment, no real order), and the Customer Account API isn't available.
 - To connect a real store, run `npx shopify hydrogen link`, then `npx shopify hydrogen env pull` to pull its environment into `.env`. Fill in any secret values the command reports it couldn't pull. On Oxygen, a linked storefront injects `PUBLIC_STORE_DOMAIN`, `PUBLIC_STOREFRONT_ID`, and `PRIVATE_STOREFRONT_API_TOKEN` for you. `PUBLIC_STOREFRONT_ID` is optional for Storefront API access; it enables Hydrogen analytics, and no other analytics IDs are needed.
+
+## Git
+
+- Commit in small, meaningful steps: one logical change per commit, so each commit can be read and reverted on its own.
+- Commit messages follow Conventional Commits: `<type>: <short summary>` in the imperative, lower case, no trailing period, about 70 characters at most. Types: `feat`, `fix`, `refactor`, `style`, `test`, `docs`, `chore`, `perf`, `build`, `ci`. Example: `fix: keep filters when sorting a collection`.
+- The repository owner is the only author. Do not add `Co-Authored-By`, `Generated with` or any other attribution lines, and do not change `user.name` / `user.email`.
+- Never commit `.env`, tokens or other secrets. Do not push, force-push or open pull requests unless asked.
+
+## UI components
+
+- Almost every component must be a shadcn/ui component restyled to the project theme (`app/components/ui/<name>/`). Before writing a component, check the shadcn registry and build on the matching base.
+- Hand-rolled components are allowed only where shadcn has no equivalent: `Price`, `Rating`, `ShopImage`, `Wordmark`, `Countdown`, `DealsTicker`, the showroom map drawing, `StockStatus`, and the layout wrappers `Container` / `Section`.
