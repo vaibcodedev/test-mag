@@ -56,7 +56,7 @@ export function ArticleCard({
 
         <CardContent className="flex flex-1 flex-col gap-3 px-6 pt-6">
           <PublishedDate value={article.publishedAt} className="text-small text-muted-foreground" />
-          <CardTitle asChild className="text-h3 wrap-break-word">
+          <CardTitle asChild size="h3" className="wrap-break-word">
             <Heading>
               {/* Псевдоелемент розтягує посилання на всю картку; фокус обводить її цілком. */}
               <Link

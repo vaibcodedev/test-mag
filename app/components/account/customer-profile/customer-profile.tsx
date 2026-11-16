@@ -40,7 +40,7 @@ export function CustomerProfile({
           <AvatarFallback>{letters || <User strokeWidth={2} className="size-6" />}</AvatarFallback>
         </Avatar>
         <CardHeader>
-          <CardTitle asChild className="text-h3 wrap-anywhere">
+          <CardTitle asChild size="h3" className="wrap-anywhere">
             <h2 id={titleId}>{name || "Ваш профіль"}</h2>
           </CardTitle>
           {email ? <CardDescription className="wrap-anywhere">{email}</CardDescription> : null}

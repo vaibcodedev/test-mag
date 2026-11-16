@@ -8,6 +8,7 @@ import {
   productBreadcrumbs,
   productMetaDescription,
   productMetaTitle,
+  productOgVideo,
   toProductJsonLdInput,
 } from "~/lib/shopify/product";
 import { storefrontClientContext } from "~/lib/storefront";
@@ -30,6 +31,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   const variant = product.selectedOrFirstAvailableVariant;
   const price = variant?.price ?? product.priceRange.minVariantPrice;
   const image = product.featuredImage;
+  const video = productOgVideo(product);
 
   return [
     { title },
@@ -52,6 +54,19 @@ export function meta({ loaderData }: Route.MetaArgs) {
           },
           { property: "og:image:alt", content: image.altText || product.title },
           { name: "twitter:card", content: "summary_large_image" },
+        ]
+      : []),
+    // Лише відео, завантажене в Shopify: у нього є пряма адреса файла.
+    ...(video
+      ? [
+          { property: "og:video", content: video.url },
+          { property: "og:video:type", content: video.mimeType },
+          ...(video.width && video.height
+            ? [
+                { property: "og:video:width", content: String(video.width) },
+                { property: "og:video:height", content: String(video.height) },
+              ]
+            : []),
         ]
       : []),
   ];

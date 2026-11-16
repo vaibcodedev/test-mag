@@ -92,14 +92,24 @@ export function BlogView({
           <PaginationContent className="w-full justify-between">
             {newerHref ? (
               <PaginationItem>
-                <PaginationPrevious asChild text="Новіші статті" aria-label="Новіші статті">
+                <PaginationPrevious
+                  asChild
+                  showText="always"
+                  text="Новіші статті"
+                  aria-label="Новіші статті"
+                >
                   <Link to={newerHref} />
                 </PaginationPrevious>
               </PaginationItem>
             ) : null}
             {olderHref ? (
               <PaginationItem className="ms-auto">
-                <PaginationNext asChild text="Старіші статті" aria-label="Старіші статті">
+                <PaginationNext
+                  asChild
+                  showText="always"
+                  text="Старіші статті"
+                  aria-label="Старіші статті"
+                >
                   <Link to={olderHref} />
                 </PaginationNext>
               </PaginationItem>

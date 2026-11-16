@@ -45,7 +45,7 @@ export function PageNav({
                   <Item
                     asChild
                     size="sm"
-                    variant={active ? "muted" : "default"}
+                    variant={active ? "active" : "default"}
                     className="whitespace-nowrap"
                   >
                     <Link to={link.to} prefetch="intent" aria-current={active ? "page" : undefined}>

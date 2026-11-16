@@ -38,7 +38,7 @@ export function ContactCard({
     <Card asChild className={className}>
       <section aria-labelledby={titleId} data-slot="contact-card" {...props}>
         <CardHeader>
-          <CardTitle asChild className="text-h3">
+          <CardTitle asChild size="h3">
             <h2 id={titleId}>{title}</h2>
           </CardTitle>
           <CardDescription>{description}</CardDescription>

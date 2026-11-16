@@ -39,7 +39,7 @@ export function ArticleView({ breadcrumbs, blog, article, related }: ArticleView
           authorName={article.authorName}
           image={article.image}
         />
-        <Card padding="none" className="p-6 md:p-10">
+        <Card padding="panel">
           <CardContent>
             <ContentBodyView body={article.body} />
           </CardContent>

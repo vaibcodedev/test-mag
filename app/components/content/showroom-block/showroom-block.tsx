@@ -32,8 +32,8 @@ function ContactParts({
 }) {
   return (
     <>
-      <ItemMedia variant="icon" tone="dark">
-        <Icon aria-hidden="true" strokeWidth={2} className="text-lime" />
+      <ItemMedia variant="icon" tone="lime">
+        <Icon aria-hidden="true" strokeWidth={2} />
       </ItemMedia>
       <ItemContent>
         <ItemDescription>{label}</ItemDescription>
@@ -61,7 +61,7 @@ export function ShowroomBlock({
     >
       <section aria-labelledby={titleId} data-slot="showroom-block" {...props}>
         <div className="flex min-w-0 flex-col gap-8">
-          <CardTitle asChild className="text-h2-panel">
+          <CardTitle asChild size="h2-panel">
             <h2 id={titleId}>{title}</h2>
           </CardTitle>
 

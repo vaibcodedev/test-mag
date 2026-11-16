@@ -152,14 +152,24 @@ export function OrdersList({
           <PaginationContent className="w-full justify-between">
             {newerHref ? (
               <PaginationItem>
-                <PaginationPrevious asChild text="Новіші замовлення" aria-label="Новіші замовлення">
+                <PaginationPrevious
+                  asChild
+                  showText="always"
+                  text="Новіші замовлення"
+                  aria-label="Новіші замовлення"
+                >
                   <Link to={newerHref} preventScrollReset />
                 </PaginationPrevious>
               </PaginationItem>
             ) : null}
             {olderHref ? (
               <PaginationItem className="ms-auto">
-                <PaginationNext asChild text="Старіші замовлення" aria-label="Старіші замовлення">
+                <PaginationNext
+                  asChild
+                  showText="always"
+                  text="Старіші замовлення"
+                  aria-label="Старіші замовлення"
+                >
                   <Link to={olderHref} preventScrollReset />
                 </PaginationNext>
               </PaginationItem>
