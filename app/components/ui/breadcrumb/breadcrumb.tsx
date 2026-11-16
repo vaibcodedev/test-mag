@@ -44,7 +44,8 @@ export function BreadcrumbLink({
     <Comp
       data-slot="breadcrumb-link"
       className={cn(
-        "inline-flex min-h-11 items-center rounded-sm focus-ring transition-colors duration-150 hover:text-ink",
+        // min-w-11: коротка крихта («Блог», «Mac») теж має ціль натискання 44px завширшки.
+        "inline-flex min-h-11 min-w-11 items-center rounded-sm focus-ring transition-colors duration-150 hover:text-ink",
         className,
       )}
       {...props}

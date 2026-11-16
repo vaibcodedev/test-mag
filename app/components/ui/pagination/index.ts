@@ -7,4 +7,5 @@ export {
   PaginationNext,
   PaginationPrevious,
   type PaginationLinkProps,
+  type PaginationStepProps,
 } from "./pagination";

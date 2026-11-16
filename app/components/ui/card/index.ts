@@ -7,5 +7,11 @@ export {
   CardHeader,
   CardTitle,
   type CardProps,
+  type CardTitleProps,
 } from "./card";
-export { cardVariants, type CardVariants } from "./card.variants";
+export {
+  cardTitleVariants,
+  cardVariants,
+  type CardTitleVariants,
+  type CardVariants,
+} from "./card.variants";

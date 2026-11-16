@@ -45,6 +45,13 @@ export type CarouselProps = ComponentProps<"div"> & {
   "aria-label": string;
 };
 
+/**
+ * Елементи, у яких ← → мають власне значення: перемикачі (radiogroup), вкладки, повзунки,
+ * меню, поля вводу. Подію звідти карусель не чіпає.
+ */
+const OWN_ARROW_KEYS =
+  'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="radiogroup"], [role="tablist"], [role="slider"], [role="menu"], [role="menubar"], [role="listbox"], [role="combobox"]';
+
 /** Горизонтальна карусель на Embla. Без автопрокрутки. */
 export function Carousel({ opts, plugins, setApi, className, children, ...props }: CarouselProps) {
   // Embla прокручує через JS, тож глобальне CSS-правило для reduced motion на неї не діє.
@@ -74,6 +81,9 @@ export function Carousel({ opts, plugins, setApi, className, children, ...props 
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      if (event.target instanceof Element && event.target.closest(OWN_ARROW_KEYS)) return;
+
       if (event.key === "ArrowLeft") {
         event.preventDefault();
         scrollPrev();
@@ -116,11 +126,23 @@ export function Carousel({ opts, plugins, setApi, className, children, ...props 
   );
 }
 
-export function CarouselContent({ className, ...props }: ComponentProps<"div">) {
+export type CarouselContentProps = ComponentProps<"div"> & {
+  /**
+   * Класи вікна каруселі (елемент з overflow-hidden довкола стрічки слайдів): висота,
+   * запас під кільця фокуса (-m-1 p-1) тощо. className іде на саму стрічку.
+   */
+  viewportClassName?: string;
+};
+
+export function CarouselContent({ className, viewportClassName, ...props }: CarouselContentProps) {
   const { carouselRef } = useCarousel();
 
   return (
-    <div ref={carouselRef} data-slot="carousel-viewport" className="overflow-hidden">
+    <div
+      ref={carouselRef}
+      data-slot="carousel-viewport"
+      className={cn("overflow-hidden", viewportClassName)}
+    >
       <div data-slot="carousel-content" className={cn("-ms-4 flex", className)} {...props} />
     </div>
   );

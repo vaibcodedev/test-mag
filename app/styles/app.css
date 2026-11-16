@@ -70,6 +70,9 @@
   --spacing-gutter: var(--gutter);
   --spacing-section: var(--section-gap);
   --spacing-touch: var(--touch);
+  --spacing-header: var(--header-height);
+  --spacing-bottom-bar: var(--bottom-bar-height);
+  --spacing-sticky-buy-bar: var(--sticky-buy-bar-height);
 
   /* Тіні */
   --shadow-focus: var(--focus-ring);
@@ -251,11 +254,41 @@
     scrollbar-gutter: stable;
     /* Кольори успадковуються всіма вкладеними областями прокрутки. */
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+
+    /* Скільки місця внизу екрана займають закріплені смуги. Нижня навігація є лише до lg,
+       панель «Купити» — лише коли показана. Від цих змінних залежать тости (ui/sonner),
+       сама панель «Купити», відступ футера і scroll-padding нижче. */
+    --bottom-nav-space: calc(var(--bottom-bar-height) + 1px + env(safe-area-inset-bottom, 0px));
+    --sticky-buy-space: 0px;
+    --bottom-fixed-space: calc(var(--bottom-nav-space) + var(--sticky-buy-space));
+
+    /* Елемент у фокусі не ховається під липкою шапкою (Shift+Tab) чи нижніми смугами (Tab). */
+    scroll-padding-top: calc(var(--header-height) + 1px + var(--fixed-edge-gap));
+    scroll-padding-bottom: calc(var(--bottom-fixed-space) + var(--fixed-edge-gap));
+  }
+
+  @media (width < 64rem) {
+    html:has([data-slot="sticky-buy-bar"][data-visible="true"]) {
+      --sticky-buy-space: calc(var(--sticky-buy-bar-height) + 1px);
+    }
+  }
+
+  @media (width >= 64rem) {
+    html {
+      --bottom-nav-space: 0px;
+    }
   }
 
   /* Radix (Dialog, Sheet, Select, DropdownMenu) під час блокування прокрутки додає body
      відступ на ширину смуги. Смуга нікуди не зникає, тож відступ дав би зсув. Саму
      прокрутку Radix блокує обробниками подій, а не overflow. */
+  /* Поки відкрите модальне вікно чи шухляда, сторінку не можна прокрутити нічим:
+     ні колесом, ні клавіатурою, ні перетягуванням смуги. Жолоб смуги (scrollbar-gutter)
+     лишається зарезервованим, тому верстка не зсувається. */
+  html:has(body[data-scroll-locked]) {
+    overflow-y: hidden;
+  }
+
   html body[data-scroll-locked] {
     margin-right: 0 !important;
     padding-right: 0 !important;

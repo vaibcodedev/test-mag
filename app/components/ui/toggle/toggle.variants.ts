@@ -3,9 +3,13 @@ import { cva, type VariantProps } from "class-variance-authority";
 /**
  * Кнопка з двома станами. Увімкнений стан завжди blue (на ink — lime для кільця кольору).
  * Кожен варіант має ціль натискання 44px.
+ *
+ * Стан «недоступно» (`data-available="false"` або проп `unavailable`): значення є, але його
+ * немає в наявності чи такої комбінації не існує. Текст закреслений і приглушений, крапка
+ * кольору й мініатюра — напівпрозорі. Це не disabled: елемент лишається натискним.
  */
 export const toggleVariants = cva(
-  "group/toggle relative inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 text-small font-semibold whitespace-nowrap transition-colors duration-150 outline-none select-none disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+  "group/toggle relative inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 text-small font-semibold whitespace-nowrap transition-colors duration-150 outline-none select-none disabled:pointer-events-none disabled:opacity-45 data-[available=false]:text-muted-foreground data-[available=false]:line-through data-[available=false]:data-[state=on]:text-surface data-[available=false]:[&_[data-slot=toggle-swatch]]:opacity-30 data-[available=false]:[&_img]:opacity-45 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
   {
     variants: {
       variant: {
@@ -15,6 +19,9 @@ export const toggleVariants = cva(
         icon: "size-11 rounded-pill data-[state=on]:[&_svg]:fill-current",
         /** Крапка кольору 28px у цілі 44px; увімкнена — з кільцем. Колір задає проп swatch. */
         swatch: "size-11 rounded-pill",
+        /** Мініатюра 80px: фото в галереї товару. Увімкнена — з межею. Усередині <img>. */
+        thumbnail:
+          "size-20 overflow-hidden rounded-md border-2 border-transparent bg-photo p-0 [&_img]:size-full [&_img]:object-cover",
       },
       onDark: {
         true: "",
@@ -45,6 +52,16 @@ export const toggleVariants = cva(
       },
       { variant: "swatch", onDark: false, class: "focus-ring" },
       { variant: "swatch", onDark: true, class: "focus-ring-on-ink" },
+      {
+        variant: "thumbnail",
+        onDark: false,
+        class: "focus-ring-offset hover:border-line data-[state=on]:border-blue",
+      },
+      {
+        variant: "thumbnail",
+        onDark: true,
+        class: "focus-ring-on-ink hover:border-on-ink-20 data-[state=on]:border-lime",
+      },
     ],
     defaultVariants: {
       variant: "pill",

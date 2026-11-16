@@ -16,6 +16,8 @@ export function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
+        // Область прокрутки має бути досяжна з клавіатури: Tab ставить фокус, стрілки гортають.
+        tabIndex={0}
         className="size-full rounded-[inherit] focus-ring"
       >
         {children}

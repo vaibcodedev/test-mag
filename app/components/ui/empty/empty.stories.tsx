@@ -43,7 +43,7 @@ export const Cart: Story = {
       </EmptyHeader>
       <EmptyContent>
         <Button asChild>
-          <Link to="/collections/all">Перейти в каталог</Link>
+          <Link to="/collections">Перейти в каталог</Link>
         </Button>
         <Button asChild variant="secondary">
           <Link to="/collections/deals">Подивитися знижки</Link>
@@ -69,7 +69,7 @@ export const Centered: Story = {
       </EmptyHeader>
       <EmptyContent>
         <Button asChild>
-          <Link to="/collections/all">Увесь каталог</Link>
+          <Link to="/collections">Увесь каталог</Link>
         </Button>
       </EmptyContent>
     </Empty>
@@ -91,5 +91,18 @@ export const Small: Story = {
         </EmptyHeader>
       </Empty>
     </div>
+  ),
+};
+
+/** Порожній стан під h1 сторінки: поля панелі, заголовок на крок менший. */
+export const InPage: Story = {
+  args: { size: "panel", titleSize: "h3" },
+  render: (args) => (
+    <Empty {...args}>
+      <EmptyHeader>
+        <EmptyTitle as="h2">За цими фільтрами товарів немає</EmptyTitle>
+        <EmptyDescription>Зніміть один із фільтрів або скиньте всі.</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   ),
 };

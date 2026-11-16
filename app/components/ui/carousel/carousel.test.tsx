@@ -1,4 +1,4 @@
-import { act, render } from "@testing-library/react";
+import { act, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Carousel, CarouselContent, CarouselItem } from "./carousel";
@@ -82,5 +82,68 @@ describe("Carousel", () => {
 
     act(() => setReducedMotion(false));
     expect(lastOptions()).not.toHaveProperty("duration");
+  });
+
+  describe("клавіші ← →", () => {
+    function renderWithApi() {
+      const api = {
+        scrollPrev: vi.fn(),
+        scrollNext: vi.fn(),
+        canScrollPrev: () => true,
+        canScrollNext: () => true,
+        selectedScrollSnap: () => 0,
+        scrollSnapList: () => [0, 1],
+        on: vi.fn(),
+        off: vi.fn(),
+      };
+      useEmblaCarousel.mockReturnValue([vi.fn(), api]);
+      const view = render(
+        <Carousel aria-label="Товари">
+          <CarouselContent viewportClassName="-m-1 p-1" className="gap-2">
+            <CarouselItem>
+              <button type="button">Кнопка</button>
+              <div role="radiogroup" aria-label="Колір">
+                <button type="button" role="radio" aria-checked="true">
+                  Синій
+                </button>
+              </div>
+              <input aria-label="Кількість" defaultValue="1" />
+            </CarouselItem>
+          </CarouselContent>
+        </Carousel>,
+      );
+      return { api, ...view };
+    }
+
+    it("гортають слайди зі звичайних елементів", () => {
+      const { api, getByRole } = renderWithApi();
+
+      fireEvent.keyDown(getByRole("button", { name: "Кнопка" }), { key: "ArrowRight" });
+      fireEvent.keyDown(getByRole("button", { name: "Кнопка" }), { key: "ArrowLeft" });
+
+      expect(api.scrollNext).toHaveBeenCalledTimes(1);
+      expect(api.scrollPrev).toHaveBeenCalledTimes(1);
+    });
+
+    it("не перехоплюються в radiogroup і в полі вводу", () => {
+      const { api, getByRole } = renderWithApi();
+
+      fireEvent.keyDown(getByRole("radio", { name: "Синій" }), { key: "ArrowRight" });
+      fireEvent.keyDown(getByRole("textbox", { name: "Кількість" }), { key: "ArrowLeft" });
+
+      expect(api.scrollNext).not.toHaveBeenCalled();
+      expect(api.scrollPrev).not.toHaveBeenCalled();
+    });
+
+    it("viewportClassName потрапляє на вікно, className — на стрічку", () => {
+      const { container } = renderWithApi();
+
+      expect(container.querySelector('[data-slot="carousel-viewport"]')).toHaveClass(
+        "overflow-hidden",
+        "-m-1",
+        "p-1",
+      );
+      expect(container.querySelector('[data-slot="carousel-content"]')).toHaveClass("gap-2");
+    });
   });
 });

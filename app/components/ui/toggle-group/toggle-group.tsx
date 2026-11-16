@@ -1,4 +1,4 @@
-import { ToggleGroup as ToggleGroupPrimitive } from "radix-ui";
+import { Slot, ToggleGroup as ToggleGroupPrimitive } from "radix-ui";
 import { createContext, useContext, type ComponentProps } from "react";
 
 import {
@@ -47,12 +47,18 @@ export type ToggleGroupItemProps = ComponentProps<typeof ToggleGroupPrimitive.It
   ToggleVariants &
   ToggleSwatchProps;
 
+/**
+ * Елемент групи. З `asChild` коренем стає дитина — наприклад, посилання на варіант товару:
+ * `<ToggleGroupItem asChild value="…" swatch="#…"><Link to="…" /></ToggleGroupItem>`.
+ * Крапка кольору потрапляє всередину цієї дитини (children загорнуті в Slottable).
+ */
 export function ToggleGroupItem({
   className,
   children,
   variant,
   onDark,
   swatch,
+  unavailable,
   ...props
 }: ToggleGroupItemProps) {
   const context = useContext(ToggleGroupContext);
@@ -63,6 +69,7 @@ export function ToggleGroupItem({
     <ToggleGroupPrimitive.Item
       data-slot="toggle-group-item"
       data-variant={resolvedVariant}
+      data-available={unavailable ? "false" : undefined}
       className={cn(
         toggleVariants({ variant: resolvedVariant, onDark: resolvedOnDark }),
         "focus-visible:z-10",
@@ -71,7 +78,7 @@ export function ToggleGroupItem({
       {...props}
     >
       {swatch ? <ToggleSwatch color={swatch} onDark={resolvedOnDark} /> : null}
-      {children}
+      <Slot.Slottable>{children}</Slot.Slottable>
     </ToggleGroupPrimitive.Item>
   );
 }

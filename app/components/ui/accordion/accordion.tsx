@@ -4,7 +4,10 @@ import type { ComponentProps } from "react";
 
 import { cn } from "~/lib/utils";
 
-/** Для фільтрів каталогу. FAQ верстається на нативних details/summary заради SEO. */
+/**
+ * Акордеон: фільтри каталогу і «Часті запитання» на головній. У FAQ відповіді змонтовані
+ * примусово (`<AccordionContent forceMount>`), щоб лежати в серверному HTML.
+ */
 export function Accordion({ className, ...props }: ComponentProps<typeof AccordionPrimitive.Root>) {
   return (
     <AccordionPrimitive.Root
@@ -54,15 +57,27 @@ export function AccordionTrigger({
   );
 }
 
+/**
+ * Вміст секції; className іде на внутрішній блок із полями.
+ * Із `forceMount` вміст лишається в DOM і в закритому стані (текст бачать пошукові роботи
+ * та пошук на сторінці). Radix такий блок сам не ховає, тому закритий корінь отримує
+ * `data-closed:hidden`; анімації згортання в цьому режимі немає.
+ */
 export function AccordionContent({
   className,
   children,
+  forceMount,
   ...props
 }: ComponentProps<typeof AccordionPrimitive.Content>) {
   return (
     <AccordionPrimitive.Content
       data-slot="accordion-content"
-      className="overflow-hidden text-body text-ink-2 data-open:animate-accordion-down data-closed:animate-accordion-up"
+      data-force-mount={forceMount ? "true" : undefined}
+      forceMount={forceMount}
+      className={cn(
+        "overflow-hidden text-body text-ink-2 data-open:animate-accordion-down",
+        forceMount ? "data-closed:hidden" : "data-closed:animate-accordion-up",
+      )}
       {...props}
     >
       <div className={cn("pb-4", className)}>{children}</div>

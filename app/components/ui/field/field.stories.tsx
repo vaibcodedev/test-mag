@@ -38,6 +38,7 @@ const name = fieldProps("story-field-name");
 const phone = fieldProps("story-field-phone", { description: true });
 const phoneInvalid = fieldProps("story-field-phone-invalid", { invalid: true });
 const city = fieldProps("story-field-city");
+const darkEmail = fieldProps("story-field-dark-email", { invalid: true, description: true });
 
 export const Default: Story = {
   render: () => (
@@ -101,6 +102,23 @@ export const Horizontal: Story = {
         <FieldDescription>Один лист щоп&apos;ятниці, без спаму.</FieldDescription>
       </FieldContent>
       <Switch id="story-field-news" defaultChecked />
+    </Field>
+  ),
+};
+
+/** Поле на ink (розсилка): `onDark` на Field і на Input. */
+export const OnInk: Story = {
+  parameters: { surface: "ink" },
+  render: () => (
+    <Field {...darkEmail.field} onDark>
+      <FieldLabel {...darkEmail.label}>Email для розсилки</FieldLabel>
+      <Input type="email" defaultValue="olena@" onDark {...darkEmail.control} />
+      <FieldError {...darkEmail.error}>
+        В адресі бракує домену. Приклад: olena@example.com.
+      </FieldError>
+      <FieldDescription {...darkEmail.description}>
+        Пишемо раз на тиждень: новинки та знижки.
+      </FieldDescription>
     </Field>
   ),
 };

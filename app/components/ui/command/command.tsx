@@ -5,13 +5,24 @@ import type { ComponentProps } from "react";
 import { menuItemClassName, menuSeparatorClassName } from "~/components/ui/popover-surface";
 import { cn } from "~/lib/utils";
 
+export type CommandProps = ComponentProps<typeof CommandPrimitive> & {
+  /**
+   * Без вигляду панелі: ні тла, ні радіуса, ні обрізання. Для випадку, коли Command лише
+   * обгортає стороннє поле (пошук у шапці), а список живе окремо в Popover.
+   */
+  unstyled?: boolean;
+};
+
 /** Основа predictive search: поле, список підказок, навігація стрілками. */
-export function Command({ className, ...props }: ComponentProps<typeof CommandPrimitive>) {
+export function Command({ className, unstyled = false, ...props }: CommandProps) {
   return (
     <CommandPrimitive
       data-slot="command"
+      data-unstyled={unstyled || undefined}
       className={cn(
-        "flex size-full flex-col overflow-hidden rounded-md bg-surface text-ink",
+        unstyled
+          ? "relative text-ink outline-none"
+          : "flex size-full flex-col overflow-hidden rounded-md bg-surface text-ink",
         className,
       )}
       {...props}
@@ -62,6 +73,18 @@ export function CommandEmpty({
       className={cn("px-3 py-8 text-center text-small text-muted-foreground", className)}
       {...props}
     />
+  );
+}
+
+/** Рядок «шукаємо…» у списку, поки підказки вантажаться. Має role="progressbar" від cmdk. */
+export function CommandLoading({
+  className,
+  ...props
+}: ComponentProps<typeof CommandPrimitive.Loading> & { className?: string }) {
+  return (
+    <div data-slot="command-loading" className={cn("text-small text-muted-foreground", className)}>
+      <CommandPrimitive.Loading {...props} />
+    </div>
   );
 }
 

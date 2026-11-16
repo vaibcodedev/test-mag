@@ -21,7 +21,7 @@ export function StyleguideSection({
     <section
       id={id}
       aria-labelledby={`${id}-title`}
-      className={cn("flex min-w-0 scroll-mt-24 flex-col gap-6", className)}
+      className={cn("flex min-w-0 scroll-mt-3 flex-col gap-6", className)}
       {...props}
     >
       <header className="flex max-w-3xl flex-col gap-2">

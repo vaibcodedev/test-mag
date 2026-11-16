@@ -56,15 +56,28 @@ export function FieldGroup({ className, ...props }: ComponentProps<"div">) {
   );
 }
 
-export type FieldProps = ComponentProps<"div"> & FieldVariants;
+export type FieldProps = ComponentProps<"div"> &
+  FieldVariants & {
+    /**
+     * Поле на ink: підпис і текст помилки білі (червоний danger на темному не має контрасту),
+     * підказка — on-ink-muted. Самому Input теж передайте `onDark`.
+     */
+    onDark?: boolean;
+  };
 
 /** Одне поле. Стан помилки: `data-invalid="true"` (його дає `fieldProps`). */
-export function Field({ className, orientation = "vertical", ...props }: FieldProps) {
+export function Field({
+  className,
+  orientation = "vertical",
+  onDark = false,
+  ...props
+}: FieldProps) {
   return (
     <div
       role="group"
       data-slot="field"
       data-orientation={orientation}
+      data-on-dark={onDark ? "true" : undefined}
       className={cn(fieldVariants({ orientation }), className)}
       {...props}
     />
@@ -87,7 +100,7 @@ export function FieldLabel({ className, ...props }: ComponentProps<typeof Label>
     <Label
       data-slot="field-label"
       className={cn(
-        "group/field-label peer/field-label group-data-[disabled=true]/field:opacity-45",
+        "group/field-label peer/field-label group-data-[disabled=true]/field:opacity-45 group-data-[on-dark=true]/field:text-surface",
         className,
       )}
       {...props}
@@ -101,7 +114,7 @@ export function FieldTitle({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="field-label"
       className={cn(
-        "flex w-fit items-center gap-2 text-small font-semibold text-ink group-data-[disabled=true]/field:opacity-45",
+        "flex w-fit items-center gap-2 text-small font-semibold text-ink group-data-[disabled=true]/field:opacity-45 group-data-[on-dark=true]/field:text-surface",
         className,
       )}
       {...props}
@@ -115,7 +128,7 @@ export function FieldDescription({ className, ...props }: ComponentProps<"p">) {
     <p
       data-slot="field-description"
       className={cn(
-        "text-start text-small text-muted-foreground [&>a]:text-blue [&>a]:underline [&>a]:underline-offset-4",
+        "text-start text-small text-muted-foreground group-data-[on-dark=true]/field:text-on-ink-muted [&>a]:text-blue [&>a]:underline [&>a]:underline-offset-4 group-data-[on-dark=true]/field:[&>a]:text-surface",
         className,
       )}
       {...props}
@@ -179,7 +192,10 @@ export function FieldError({ className, children, errors, ...props }: FieldError
     <div
       role="alert"
       data-slot="field-error"
-      className={cn("text-small text-danger", className)}
+      className={cn(
+        "text-small text-danger group-data-[on-dark=true]/field:text-surface",
+        className,
+      )}
       {...props}
     >
       {content}

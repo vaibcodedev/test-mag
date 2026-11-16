@@ -13,6 +13,8 @@ export const itemVariants = cva(
           "border-line bg-surface text-ink focus-ring [a]:hover:border-ink-2 [button]:hover:border-ink-2",
         /** На page-тлі всередині білої картки. */
         muted: "bg-page text-ink focus-ring [a]:hover:bg-page-hover [button]:hover:bg-page-hover",
+        /** Поточний пункт навігації (разом з aria-current): page-тло і blue-текст. */
+        active: "bg-page text-blue focus-ring [a]:hover:bg-page-hover [button]:hover:bg-page-hover",
         /** На ink. */
         "on-dark":
           "text-surface focus-ring-on-ink [a]:hover:bg-on-ink-10 [button]:hover:bg-on-ink-10",
@@ -33,7 +35,9 @@ export const itemVariants = cva(
 
 /**
  * Медіа рядка. `icon` — плитка під іконкою lucide (той самий вигляд, що в IconTile):
- * md 44, lg 52, тон light на світлому і dark на ink. `image` — мініатюра фото на bg-photo.
+ * sm 24 (позначка-галочка), md 44, lg 52; тон light на світлому, dark і lime на ink;
+ * `shape="round"` — кругла (стрілки-індикатори, позначки). `image` — мініатюра фото на
+ * bg-photo: `fit="contain"` для вирізаних фото на білому, `fit="cover"` для звичайних.
  */
 export const itemMediaVariants = cva(
   "shrink-0 items-center justify-center group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none",
@@ -41,31 +45,55 @@ export const itemMediaVariants = cva(
     variants: {
       variant: {
         default: "flex gap-2 [&_svg:not([class*='size-'])]:size-5",
-        icon: "inline-flex rounded-md [&>svg]:shrink-0",
-        image:
-          "flex overflow-hidden rounded-md bg-photo [&_img]:size-full [&_img]:object-contain [&_img]:mix-blend-multiply",
+        icon: "inline-flex [&>svg]:shrink-0",
+        image: "flex overflow-hidden rounded-md bg-photo [&_img]:size-full",
       },
       size: {
+        sm: "",
         md: "",
         lg: "",
       },
       tone: {
         light: "",
         dark: "",
+        /** Lime-іконка на ink: контакти у футері, блок шоуруму. */
+        lime: "",
+      },
+      shape: {
+        tile: "",
+        round: "",
+      },
+      fit: {
+        contain: "",
+        cover: "",
       },
     },
     compoundVariants: [
+      { variant: "icon", shape: "tile", class: "rounded-md" },
+      { variant: "icon", shape: "round", class: "rounded-pill" },
+      { variant: "icon", size: "sm", class: "size-6 [&>svg]:size-4" },
       { variant: "icon", size: "md", class: "size-11 [&>svg]:size-5" },
       { variant: "icon", size: "lg", class: "size-13 [&>svg]:size-6" },
       { variant: "icon", tone: "light", class: "bg-page text-ink" },
       { variant: "icon", tone: "dark", class: "bg-on-ink-10 text-surface" },
+      { variant: "icon", tone: "lime", class: "bg-on-ink-10 text-lime" },
+      { variant: "default", tone: "lime", class: "text-lime" },
+      { variant: "image", size: "sm", class: "size-12" },
       { variant: "image", size: "md", class: "size-14" },
       { variant: "image", size: "lg", class: "size-18" },
+      {
+        variant: "image",
+        fit: "contain",
+        class: "[&_img]:object-contain [&_img]:mix-blend-multiply",
+      },
+      { variant: "image", fit: "cover", class: "[&_img]:object-cover" },
     ],
     defaultVariants: {
       variant: "default",
       size: "md",
       tone: "light",
+      shape: "tile",
+      fit: "contain",
     },
   },
 );

@@ -21,8 +21,9 @@ const meta = {
   parameters: { surface: "page" },
   args: { tone: "surface", padding: "md", interactive: false },
   argTypes: {
-    tone: { control: "inline-radio", options: ["surface", "page", "ink", "blue"] },
-    padding: { control: "inline-radio", options: ["none", "sm", "md", "lg"] },
+    size: { control: "inline-radio", options: ["card", "panel"] },
+    tone: { control: "inline-radio", options: ["surface", "page", "ink", "on-ink", "blue"] },
+    padding: { control: "inline-radio", options: ["none", "sm", "md", "lg", "panel"] },
     interactive: { control: "boolean" },
   },
   decorators: [
@@ -130,6 +131,35 @@ export const PageTone: Story = {
     <Card {...args}>
       <CardTitle>Оплата частинами</CardTitle>
       <CardDescription>До 25 платежів без переплат.</CardDescription>
+    </Card>
+  ),
+};
+
+/** Панель-секція: радіус xl і поля 24 → 40. Так зібрані секції головної. */
+export const Panel: Story = {
+  args: { size: "panel", padding: undefined },
+  render: (args) => (
+    <Card {...args}>
+      <CardTitle asChild size="h2-panel">
+        <h2>Про «Сад»</h2>
+      </CardTitle>
+      <CardDescription className="text-body">
+        Шоурум у центрі Вінниці: техніку можна потримати в руках, перш ніж купити.
+      </CardDescription>
+    </Card>
+  ),
+};
+
+/** Картка всередині ink-секції (відгуки): білий 10%. */
+export const OnInk: Story = {
+  args: { tone: "on-ink" },
+  parameters: { surface: "ink" },
+  render: (args) => (
+    <Card {...args}>
+      <CardTitle asChild size="h3">
+        <h3>Олена, Вінниця</h3>
+      </CardTitle>
+      <CardDescription>Допомогли перенести дані зі старого телефона.</CardDescription>
     </Card>
   ),
 };

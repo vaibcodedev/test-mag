@@ -6,14 +6,28 @@ import { cn } from "~/lib/utils";
 
 import { emptyVariants, type EmptyVariants } from "./empty.variants";
 
-export type EmptyProps = ComponentProps<"div"> & EmptyVariants;
+export type EmptyProps = ComponentProps<"div"> &
+  EmptyVariants & {
+    /**
+     * Розмір заголовка незалежно від полів. Типово h2, для size="sm" — h3. Під h1 сторінки
+     * (порожній каталог, порожній список колекцій) беріть size="panel" titleSize="h3".
+     */
+    titleSize?: "h2" | "h3";
+  };
 
 /** Порожній стан: що тут буде і що зробити далі. */
-export function Empty({ className, size = "md", centered = false, ...props }: EmptyProps) {
+export function Empty({
+  className,
+  size = "md",
+  centered = false,
+  titleSize,
+  ...props
+}: EmptyProps) {
   return (
     <div
       data-slot="empty"
       data-size={size}
+      data-title-size={titleSize ?? (size === "sm" ? "h3" : "h2")}
       data-centered={centered ? "true" : "false"}
       className={cn(emptyVariants({ size, centered }), className)}
       {...props}
@@ -71,7 +85,7 @@ export function EmptyTitle({ className, as = "h2", asChild = false, ...props }: 
   return (
     <Comp
       data-slot="empty-title"
-      className={cn("text-h2 text-ink group-data-[size=sm]/empty:text-h3", className)}
+      className={cn("text-h2 text-ink group-data-[title-size=h3]/empty:text-h3", className)}
       {...props}
     />
   );
@@ -82,7 +96,8 @@ export function EmptyDescription({ className, ...props }: ComponentProps<"p">) {
     <p
       data-slot="empty-description"
       className={cn(
-        "text-body text-ink-2 [&>a]:text-blue [&>a]:underline-offset-4 [&>a:hover]:underline",
+        // Посилання в тексті підкреслене завжди: сам колір не відрізняє його від тексту (WCAG 1.4.1).
+        "text-body text-ink-2 [&>a]:text-blue [&>a]:underline [&>a]:underline-offset-4",
         className,
       )}
       {...props}

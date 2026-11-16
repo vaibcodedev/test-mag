@@ -119,10 +119,19 @@ export function PaginationLink({
   );
 }
 
-type PaginationStepProps = Omit<PaginationLinkProps, "page" | "isActive"> & {
-  /** Видимий текст від sm і вище; на телефоні лишається стрілка з aria-label. */
+export type PaginationStepProps = Omit<PaginationLinkProps, "page" | "isActive"> & {
+  /** Видимий текст поруч зі стрілкою. */
   text?: string;
+  /**
+   * Коли текст видно. `sm` (типово) — від sm і вище, на телефоні лишається стрілка з
+   * aria-label: так кнопки вміщаються поруч із номерами сторінок. `always` — завжди:
+   * для пари «новіші / старіші» без номерів (блог, замовлення).
+   */
+  showText?: "sm" | "always";
 };
+
+const stepTextClass = (showText: "sm" | "always") =>
+  showText === "always" ? undefined : "hidden sm:block";
 
 const STEP_CLASS = "h-11 w-auto min-w-11 gap-1.5 px-3 sm:px-4";
 
@@ -133,6 +142,7 @@ function stepContent(asChild: boolean, children: ReactNode, inner: ReactNode) {
 export function PaginationPrevious({
   className,
   text = "Попередня",
+  showText = "sm",
   asChild = false,
   children,
   ...props
@@ -140,7 +150,7 @@ export function PaginationPrevious({
   const inner = (
     <>
       <ChevronLeft aria-hidden="true" strokeWidth={2} />
-      <span className="hidden sm:block">{text}</span>
+      <span className={stepTextClass(showText)}>{text}</span>
     </>
   );
 
@@ -160,13 +170,14 @@ export function PaginationPrevious({
 export function PaginationNext({
   className,
   text = "Наступна",
+  showText = "sm",
   asChild = false,
   children,
   ...props
 }: PaginationStepProps) {
   const inner = (
     <>
-      <span className="hidden sm:block">{text}</span>
+      <span className={stepTextClass(showText)}>{text}</span>
       <ChevronRight aria-hidden="true" strokeWidth={2} />
     </>
   );

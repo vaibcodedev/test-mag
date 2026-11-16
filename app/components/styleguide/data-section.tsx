@@ -268,8 +268,8 @@ export function DataSection({ images }: DataSectionProps) {
 
         <Specimen label="Item: on-dark" tone="ink">
           <Item variant="on-dark" size="none">
-            <ItemMedia variant="icon" size="lg" tone="dark">
-              <MapPin aria-hidden="true" strokeWidth={2} className="text-lime" />
+            <ItemMedia variant="icon" size="lg" tone="lime">
+              <MapPin aria-hidden="true" strokeWidth={2} />
             </ItemMedia>
             <ItemContent>
               <ItemTitle>Самовивіз сьогодні</ItemTitle>
@@ -284,6 +284,99 @@ export function DataSection({ images }: DataSectionProps) {
             <AlertDescription>Замовлення до 16:00 відправляємо того ж дня.</AlertDescription>
           </Alert>
           <Progress value={40} tone="on-dark" aria-label="Залишилося товарів за акцією" />
+        </Specimen>
+
+        <Specimen label="Item: active, позначка sm, кругла плитка" tone="surface">
+          <ItemGroup asChild className="gap-1">
+            <ul>
+              <li>
+                <Item asChild size="sm" variant="active">
+                  <Link to="/pages/delivery" aria-current="page">
+                    <ItemContent>
+                      <ItemTitle>Доставка й оплата</ItemTitle>
+                    </ItemContent>
+                  </Link>
+                </Item>
+              </li>
+              <li>
+                <Item asChild size="sm">
+                  <Link to="/pages/warranty">
+                    <ItemContent>
+                      <ItemTitle>Гарантія</ItemTitle>
+                    </ItemContent>
+                  </Link>
+                </Item>
+              </li>
+            </ul>
+          </ItemGroup>
+          <Item size="none" className="flex-nowrap gap-3">
+            <ItemMedia variant="icon" size="sm" shape="round">
+              <Check aria-hidden="true" strokeWidth={2} />
+            </ItemMedia>
+            <ItemContent>
+              <ItemDescription className="text-body text-ink">
+                Перевіряємо кожен пристрій перед продажем
+              </ItemDescription>
+            </ItemContent>
+            <ItemMedia variant="icon" shape="round" aria-hidden="true">
+              <ArrowUpRight strokeWidth={2} />
+            </ItemMedia>
+          </Item>
+        </Specimen>
+
+        <Specimen label="Card: tone on-ink, CardTitle h3" tone="ink">
+          <Card tone="on-ink">
+            <CardHeader>
+              <CardTitle asChild size="h3">
+                <h4>Олена, Вінниця</h4>
+              </CardTitle>
+              <CardDescription>Купила iPhone 17 у шоурумі</CardDescription>
+            </CardHeader>
+            <CardContent className="text-body">
+              Допомогли перенести дані зі старого телефона за пів години.
+            </CardContent>
+          </Card>
+        </Specimen>
+
+        <Specimen
+          label="Card size=panel, Alert surface, Empty panel + titleSize, Pagination showText"
+          tone="page"
+          className="lg:col-span-2"
+        >
+          <Card size="panel">
+            <CardTitle asChild size="h2-panel">
+              <h4>Панель-секція</h4>
+            </CardTitle>
+            <CardDescription className="text-body">
+              Радіус 24 і поля 24 → 40: так зібрані секції головної та панелі сторінок.
+            </CardDescription>
+          </Card>
+          <Alert variant="surface">
+            <Info aria-hidden="true" strokeWidth={2} />
+            <AlertDescription>
+              За цими характеристиками товари однакові. Вимкніть «Лише відмінності».
+            </AlertDescription>
+          </Alert>
+          <Empty size="panel" titleSize="h3">
+            <EmptyHeader>
+              <EmptyTitle as="h4">За цими фільтрами товарів немає</EmptyTitle>
+              <EmptyDescription>Зніміть один із фільтрів або скиньте всі.</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+          <Pagination aria-label="Сторінки блогу (приклад)">
+            <PaginationContent className="w-full justify-between">
+              <PaginationItem>
+                <PaginationPrevious asChild showText="always" text="Новіші статті">
+                  <Link to="?page=1#data" preventScrollReset aria-label="Новіші статті" />
+                </PaginationPrevious>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext asChild showText="always" text="Старіші статті">
+                  <Link to="?page=3#data" preventScrollReset aria-label="Старіші статті" />
+                </PaginationNext>
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </Specimen>
 
         <Specimen label="Alert: info, success, warning, danger">
@@ -353,7 +446,7 @@ export function DataSection({ images }: DataSectionProps) {
               </EmptyHeader>
               <EmptyContent>
                 <Button asChild>
-                  <Link to="/collections/all">Перейти в каталог</Link>
+                  <Link to="/collections">Перейти в каталог</Link>
                 </Button>
               </EmptyContent>
             </Empty>
@@ -369,7 +462,7 @@ export function DataSection({ images }: DataSectionProps) {
               </EmptyHeader>
               <EmptyContent>
                 <Button asChild variant="secondary" size="sm">
-                  <Link to="/collections/all">Увесь каталог</Link>
+                  <Link to="/collections">Увесь каталог</Link>
                 </Button>
               </EmptyContent>
             </Empty>

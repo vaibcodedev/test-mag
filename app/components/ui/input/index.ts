@@ -1,1 +1,1 @@
-export { fieldClassName, Input } from "./input";
+export { fieldClassName, fieldOnDarkClassName, Input, type InputProps } from "./input";

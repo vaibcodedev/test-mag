@@ -43,7 +43,9 @@ export function Slider({
           data-slot="slider-thumb"
           key={index}
           aria-label={thumbLabels?.[index]}
-          className="relative block size-6 shrink-0 cursor-grab rounded-pill border-2 border-blue bg-surface transition-transform duration-150 outline-none after:absolute after:-inset-2.5 hover:scale-110 focus-visible:shadow-focus-offset active:cursor-grabbing disabled:pointer-events-none"
+          // Повзунок 24px, ціль натискання 44px: псевдоелемент відлічується від внутрішнього
+          // краю межі (20px), тому виходить за нього на 12px з кожного боку.
+          className="relative block size-6 shrink-0 cursor-grab rounded-pill border-2 border-blue bg-surface transition-transform duration-150 outline-none after:absolute after:-inset-3 hover:scale-110 focus-visible:shadow-focus-offset active:cursor-grabbing disabled:pointer-events-none"
         />
       ))}
     </SliderPrimitive.Root>

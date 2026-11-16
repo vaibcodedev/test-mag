@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Heart, Scale } from "lucide-react";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 
 import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 
@@ -90,6 +90,61 @@ export const Icons: Story = {
       <ToggleGroupItem value="compare" aria-label="У порівнянні">
         <Scale aria-hidden="true" strokeWidth={2} />
       </ToggleGroupItem>
+    </ToggleGroup>
+  ),
+};
+
+/** Значення, якого немає в наявності: закреслене, але натискне (на відміну від disabled). */
+export const Unavailable: Story = {
+  render: () => (
+    <ToggleGroup type="single" defaultValue="256 ГБ" aria-label="Пам'ять">
+      <ToggleGroupItem value="256 ГБ">256 ГБ</ToggleGroupItem>
+      <ToggleGroupItem value="512 ГБ" unavailable>
+        512 ГБ<span className="sr-only">, немає в наявності</span>
+      </ToggleGroupItem>
+      <ToggleGroupItem
+        value="Помаранчевий"
+        variant="swatch"
+        swatch="#f77e2d"
+        unavailable
+        aria-label="Космічний помаранчевий, немає в наявності"
+      />
+    </ToggleGroup>
+  ),
+};
+
+/** asChild: елемент групи — посилання на варіант; крапка кольору лежить усередині нього. */
+export const AsLinks: Story = {
+  render: () => (
+    <ToggleGroup
+      type="single"
+      variant="swatch"
+      value={COLORS[0]?.name ?? ""}
+      rovingFocus={false}
+      aria-label="Колір"
+    >
+      {COLORS.map((color) => (
+        <ToggleGroupItem key={color.name} asChild value={color.name} swatch={color.hex}>
+          <a href={`?color=${encodeURIComponent(color.name)}`} aria-label={color.name} />
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
+  ),
+};
+
+/** Мініатюри галереї товару: 80px, вибрана — з межею. */
+export const Thumbnails: Story = {
+  render: () => (
+    <ToggleGroup type="single" variant="thumbnail" defaultValue="0" aria-label="Фото товару">
+      {COLORS.map((color, index) => (
+        <ToggleGroupItem key={color.name} value={String(index)} aria-label={`Фото ${index + 1}`}>
+          <span
+            aria-hidden="true"
+            className="size-full bg-(--swatch)"
+            style={{ "--swatch": color.hex } as CSSProperties}
+          />
+        </ToggleGroupItem>
+      ))}
     </ToggleGroup>
   ),
 };

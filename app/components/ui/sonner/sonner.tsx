@@ -4,12 +4,26 @@ import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 import { Spinner } from "~/components/ui/spinner";
 
+/**
+ * Тости стоять над закріпленими смугами: нижньою навігацією (до lg) і панеллю «Купити»,
+ * коли та показана. Висоти смуг — змінна --bottom-fixed-space з app.css (на десктопі 0),
+ * тож тут немає власних чисел, крім штатних відступів Sonner (24px і 16px на телефоні).
+ * Sonner перемикає offset → mobileOffset на 600px, а нижня панель живе до 1024px,
+ * тому змінна врахована в обох.
+ */
+export const TOAST_OFFSET = { bottom: "calc(24px + var(--bottom-fixed-space, 0px))" } as const;
+export const TOAST_MOBILE_OFFSET = {
+  bottom: "calc(16px + var(--bottom-fixed-space, 0px))",
+} as const;
+
 /** Тости на ink: «Додано в кошик». Викликаються через toast() із пакета sonner. */
 export function Toaster(props: ToasterProps) {
   return (
     <Sonner
       theme="light"
       position="bottom-center"
+      offset={TOAST_OFFSET}
+      mobileOffset={TOAST_MOBILE_OFFSET}
       containerAriaLabel="Сповіщення"
       icons={{
         success: <CircleCheck strokeWidth={2} className="size-5 text-lime" />,

@@ -101,3 +101,19 @@ export const PrevNextOnly: Story = {
     </Pagination>
   ),
 };
+
+/** Пара «новіші / старіші» без номерів: текст видно й на телефоні (showText="always"). */
+export const TextAlwaysVisible: Story = {
+  render: () => (
+    <Pagination aria-label="Сторінки блогу">
+      <PaginationContent className="w-full justify-between">
+        <PaginationItem>
+          <PaginationPrevious href="?direction=newer" showText="always" text="Новіші статті" />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationNext href="?direction=older" showText="always" text="Старіші статті" />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  ),
+};

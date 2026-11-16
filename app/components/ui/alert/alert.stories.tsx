@@ -13,7 +13,7 @@ const meta = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["info", "success", "warning", "danger", "on-dark"],
+      options: ["info", "surface", "success", "warning", "danger", "on-dark"],
     },
   },
   decorators: [
@@ -96,6 +96,20 @@ export const OnInk: Story = {
       <Truck aria-hidden="true" strokeWidth={2} />
       <AlertTitle>Доставимо завтра</AlertTitle>
       <AlertDescription>Замовлення до 16:00 відправляємо Новою поштою того ж дня.</AlertDescription>
+    </Alert>
+  ),
+};
+
+/** Нейтральна підказка просто на сірому тлі сторінки: біла, щоб її було видно. */
+export const Surface: Story = {
+  args: { variant: "surface" },
+  parameters: { surface: "page" },
+  render: (args) => (
+    <Alert {...args}>
+      <Info aria-hidden="true" strokeWidth={2} />
+      <AlertDescription>
+        За цими характеристиками товари однакові. Вимкніть «Лише відмінності».
+      </AlertDescription>
     </Alert>
   ),
 };

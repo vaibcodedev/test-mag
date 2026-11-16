@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   ArrowUpRight,
+  Check,
   ChevronRight,
   MapPin,
   Phone,
@@ -29,7 +30,10 @@ const meta = {
   tags: ["autodocs"],
   args: { variant: "default", size: "md" },
   argTypes: {
-    variant: { control: "inline-radio", options: ["default", "outline", "muted", "on-dark"] },
+    variant: {
+      control: "inline-radio",
+      options: ["default", "outline", "muted", "active", "on-dark"],
+    },
     size: { control: "inline-radio", options: ["md", "sm", "none"] },
   },
   decorators: [
@@ -157,5 +161,78 @@ export const OnInk: Story = {
         </ItemDescription>
       </ItemContent>
     </Item>
+  ),
+};
+
+/** Поточний пункт бічної навігації: variant="active" разом з aria-current. */
+export const ActiveNavigation: Story = {
+  render: () => (
+    <ItemGroup asChild className="gap-1">
+      <ul>
+        <li>
+          <Item asChild size="sm" variant="active">
+            <Link to="/pages/delivery" aria-current="page">
+              <ItemContent>
+                <ItemTitle>Доставка й оплата</ItemTitle>
+              </ItemContent>
+            </Link>
+          </Item>
+        </li>
+        <li>
+          <Item asChild size="sm">
+            <Link to="/pages/warranty">
+              <ItemContent>
+                <ItemTitle>Гарантія</ItemTitle>
+              </ItemContent>
+            </Link>
+          </Item>
+        </li>
+      </ul>
+    </ItemGroup>
+  ),
+};
+
+/** Позначка-галочка 24px і кругла плитка-стрілка: size="sm", shape="round". */
+export const RoundMedia: Story = {
+  render: () => (
+    <Item size="none" className="flex-nowrap gap-3">
+      <ItemMedia variant="icon" size="sm" shape="round">
+        <Check strokeWidth={2} aria-hidden="true" />
+      </ItemMedia>
+      <ItemContent>
+        <ItemDescription className="text-body text-ink">
+          Перевіряємо кожен пристрій перед продажем
+        </ItemDescription>
+      </ItemContent>
+      <ItemMedia variant="icon" shape="round" aria-hidden="true">
+        <ArrowUpRight strokeWidth={2} />
+      </ItemMedia>
+    </Item>
+  ),
+};
+
+/** Lime-іконка на ink: контакти у футері та блок шоуруму. */
+export const LimeOnInk: Story = {
+  parameters: { surface: "ink" },
+  render: () => (
+    <ItemGroup>
+      <Item variant="on-dark" size="none">
+        <ItemMedia variant="icon" tone="lime">
+          <MapPin strokeWidth={2} aria-hidden="true" />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>Шоурум у Вінниці</ItemTitle>
+          <ItemDescription>Щодня з 10:00 до 20:00</ItemDescription>
+        </ItemContent>
+      </Item>
+      <Item variant="on-dark" size="sm">
+        <ItemMedia tone="lime">
+          <Phone strokeWidth={2} aria-hidden="true" />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>068 129 99 00</ItemTitle>
+        </ItemContent>
+      </Item>
+    </ItemGroup>
   ),
 };

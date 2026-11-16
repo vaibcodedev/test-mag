@@ -3,7 +3,12 @@ import type { ComponentProps } from "react";
 
 import { cn } from "~/lib/utils";
 
-import { cardVariants, type CardVariants } from "./card.variants";
+import {
+  cardTitleVariants,
+  cardVariants,
+  type CardTitleVariants,
+  type CardVariants,
+} from "./card.variants";
 
 type AsChild = { asChild?: boolean };
 
@@ -11,24 +16,28 @@ export type CardProps = ComponentProps<"div"> & CardVariants & AsChild;
 
 /**
  * Картка або плитка. `asChild` робить коренем інший елемент: `<article>`, `<li>`, `<Link>`.
- * Для натискної картки додайте `interactive`.
+ * Для натискної картки додайте `interactive`. `size="panel"` — панель-секція: радіус xl
+ * і адаптивні поля 24 → 40 (їх можна перевизначити пропом `padding`).
  */
 export function Card({
   className,
+  size = "card",
   tone = "surface",
-  padding = "md",
+  padding,
   interactive = false,
   asChild = false,
   ...props
 }: CardProps) {
   const Comp = asChild ? Slot.Root : "div";
+  const resolvedPadding = padding ?? (size === "panel" ? "panel" : "md");
 
   return (
     <Comp
       data-slot="card"
+      data-size={size}
       data-tone={tone}
-      data-padding={padding}
-      className={cn(cardVariants({ tone, padding, interactive }), className)}
+      data-padding={resolvedPadding}
+      className={cn(cardVariants({ size, tone, padding: resolvedPadding, interactive }), className)}
       {...props}
     />
   );
@@ -47,15 +56,22 @@ export function CardHeader({ className, ...props }: ComponentProps<"div">) {
   );
 }
 
-/** Назва картки. Рівень заголовка задає asChild: `<CardTitle asChild><h3>…</h3></CardTitle>`. */
-export function CardTitle({
-  className,
-  asChild = false,
-  ...props
-}: ComponentProps<"div"> & AsChild) {
+export type CardTitleProps = ComponentProps<"div"> & AsChild & CardTitleVariants;
+
+/**
+ * Назва картки. Рівень заголовка задає asChild: `<CardTitle asChild><h3>…</h3></CardTitle>`,
+ * розмір — проп `size` (`card` | `h3` | `h2-panel`).
+ */
+export function CardTitle({ className, size = "card", asChild = false, ...props }: CardTitleProps) {
   const Comp = asChild ? Slot.Root : "div";
 
-  return <Comp data-slot="card-title" className={cn("text-card-title", className)} {...props} />;
+  return (
+    <Comp
+      data-slot="card-title"
+      className={cn(cardTitleVariants({ size }), className)}
+      {...props}
+    />
+  );
 }
 
 export function CardDescription({ className, ...props }: ComponentProps<"div">) {
@@ -63,7 +79,7 @@ export function CardDescription({ className, ...props }: ComponentProps<"div">) 
     <div
       data-slot="card-description"
       className={cn(
-        "text-small text-ink-2 group-data-[tone=blue]/card:text-surface group-data-[tone=ink]/card:text-on-ink-muted",
+        "text-small text-ink-2 group-data-[tone=blue]/card:text-surface group-data-[tone=ink]/card:text-on-ink-muted group-data-[tone=on-ink]/card:text-on-ink-muted",
         className,
       )}
       {...props}

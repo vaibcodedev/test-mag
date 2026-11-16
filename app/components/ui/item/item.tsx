@@ -75,6 +75,8 @@ export function ItemMedia({
   variant = "default",
   size = "md",
   tone = "light",
+  shape = "tile",
+  fit = "contain",
   asChild = false,
   ...props
 }: ItemMediaProps) {
@@ -84,7 +86,7 @@ export function ItemMedia({
     <Comp
       data-slot="item-media"
       data-variant={variant}
-      className={cn(itemMediaVariants({ variant, size, tone }), className)}
+      className={cn(itemMediaVariants({ variant, size, tone, shape, fit }), className)}
       {...props}
     />
   );
@@ -125,7 +127,7 @@ export function ItemDescription({ className, ...props }: ComponentProps<"p">) {
     <p
       data-slot="item-description"
       className={cn(
-        "text-start text-small text-ink-2 group-data-[variant=on-dark]/item:text-on-ink-muted [&>a]:text-blue [&>a]:underline [&>a]:underline-offset-4 group-data-[variant=on-dark]/item:[&>a]:text-surface",
+        "text-start text-small text-ink-2 group-data-[variant=active]/item:text-ink group-data-[variant=on-dark]/item:text-on-ink-muted [&>a]:text-blue [&>a]:underline [&>a]:underline-offset-4 group-data-[variant=on-dark]/item:[&>a]:text-surface",
         className,
       )}
       {...props}

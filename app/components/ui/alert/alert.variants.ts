@@ -11,6 +11,8 @@ export const alertVariants = cva(
       variant: {
         /** Нейтральна підказка на білій картці. */
         info: "border-transparent bg-page text-ink [&>svg]:text-ink-2",
+        /** Та сама нейтральна підказка просто на сірому тлі сторінки: біла, щоб її було видно. */
+        surface: "border-transparent bg-surface text-ink [&>svg]:text-ink-2",
         /** Дія вдалася: «Промокод застосовано». */
         success: "border-success bg-surface text-ink [&>svg]:text-success",
         /** Варто звернути увагу: «Залишився 1 товар». */

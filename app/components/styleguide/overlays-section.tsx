@@ -273,14 +273,22 @@ export function OverlaysSection() {
               </CommandEmpty>
               <CommandGroup heading="Товари">
                 {SEARCH_SUGGESTIONS.map((suggestion) => (
-                  <CommandItem key={suggestion} value={suggestion}>
+                  <CommandItem
+                    key={suggestion}
+                    value={suggestion}
+                    onSelect={(value) => toast(`Вибрано товар: ${value}`)}
+                  >
                     {suggestion}
                   </CommandItem>
                 ))}
               </CommandGroup>
               <CommandGroup heading="Категорії">
                 {SEARCH_CATEGORIES.map((category) => (
-                  <CommandItem key={category} value={category}>
+                  <CommandItem
+                    key={category}
+                    value={category}
+                    onSelect={(value) => toast(`Вибрано категорію: ${value}`)}
+                  >
                     {category}
                     <ArrowUpRight aria-hidden="true" strokeWidth={2} className="ms-auto" />
                   </CommandItem>

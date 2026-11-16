@@ -1,5 +1,5 @@
 import { ArrowRight, Heart, Minus, Plus, Scale, Search } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useState, type CSSProperties } from "react";
 
 import { Button } from "~/components/ui/button";
 import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group";
@@ -41,6 +41,12 @@ const PRICE_MAX = 150000;
 const PRICE_STEP = 1000;
 const MEMORY_OPTIONS = ["128 ГБ", "256 ГБ", "512 ГБ", "1 ТБ"];
 const CONDITION_OPTIONS = ["Новий", "Як новий", "Відмінний", "Хороший"];
+/** Демо залежного вибору: відділення з'являються після міста. */
+const BRANCHES: Record<string, string[]> = {
+  vinnytsia: ["Шоурум «Сад», вул. Соборна", "Нова пошта №1", "Нова пошта №12"],
+  kyiv: ["Нова пошта №5", "Нова пошта №41"],
+  lviv: ["Нова пошта №3", "Нова пошта №27"],
+};
 const QUANTITY_MIN = 1;
 const QUANTITY_MAX = 5;
 /** Демо-значення метаполя custom.color_swatches: дані товару, а не кольори інтерфейсу. */
@@ -57,10 +63,14 @@ export function FormsSection() {
   const [memory, setMemory] = useState("256 ГБ");
   const [swatch, setSwatch] = useState(SWATCHES[0]?.name ?? "");
   const [darkSwatch, setDarkSwatch] = useState(SWATCHES[1]?.name ?? "");
+  const [cityValue, setCityValue] = useState("");
+  const [branch, setBranch] = useState("");
+  const branches = BRANCHES[cityValue] ?? [];
 
   const clampQuantity = (value: number) => Math.min(QUANTITY_MAX, Math.max(QUANTITY_MIN, value));
   const city = fieldProps(`${id}-city`, { description: true });
   const email = fieldProps(`${id}-field-email`, { invalid: true });
+  const darkEmail = fieldProps(`${id}-dark-email`, { invalid: true, description: true });
 
   return (
     <StyleguideSection
@@ -209,7 +219,16 @@ export function FormsSection() {
             <FieldGroup>
               <Field {...city.field}>
                 <FieldLabel {...city.label}>Місто</FieldLabel>
-                <NativeSelect defaultValue="vinnytsia" name="city" {...city.control}>
+                <NativeSelect
+                  name="city"
+                  value={cityValue}
+                  onChange={(event) => {
+                    setCityValue(event.target.value);
+                    setBranch("");
+                  }}
+                  {...city.control}
+                >
+                  <NativeSelectOption value="">Виберіть місто</NativeSelectOption>
                   <NativeSelectOption value="vinnytsia">Вінниця</NativeSelectOption>
                   <NativeSelectOption value="kyiv">Київ</NativeSelectOption>
                   <NativeSelectOption value="lviv">Львів</NativeSelectOption>
@@ -225,10 +244,23 @@ export function FormsSection() {
                   В адресі бракує домену. Приклад: olena@example.com.
                 </FieldError>
               </Field>
-              <Field>
+              <Field data-disabled={branches.length === 0 ? "true" : undefined}>
                 <FieldLabel htmlFor={`${id}-branch`}>Відділення</FieldLabel>
-                <NativeSelect id={`${id}-branch`} disabled defaultValue="1">
-                  <NativeSelectOption value="1">Спершу виберіть місто</NativeSelectOption>
+                <NativeSelect
+                  id={`${id}-branch`}
+                  name="branch"
+                  disabled={branches.length === 0}
+                  value={branch}
+                  onChange={(event) => setBranch(event.target.value)}
+                >
+                  <NativeSelectOption value="">
+                    {branches.length === 0 ? "Спершу виберіть місто" : "Виберіть відділення"}
+                  </NativeSelectOption>
+                  {branches.map((item) => (
+                    <NativeSelectOption key={item} value={item}>
+                      {item}
+                    </NativeSelectOption>
+                  ))}
                 </NativeSelect>
               </Field>
             </FieldGroup>
@@ -294,6 +326,65 @@ export function FormsSection() {
               ))}
             </ToggleGroup>
           </div>
+        </Specimen>
+
+        <Specimen label="Toggle: недоступне значення, asChild-посилання, thumbnail" tone="page">
+          <ToggleGroup type="single" defaultValue="256 ГБ" aria-label="Пам'ять (приклад)">
+            <ToggleGroupItem value="256 ГБ">256 ГБ</ToggleGroupItem>
+            <ToggleGroupItem value="512 ГБ" unavailable>
+              512 ГБ<span className="sr-only">, немає в наявності</span>
+            </ToggleGroupItem>
+            {/* asChild: елемент групи — посилання; крапка кольору потрапляє всередину нього. */}
+            <ToggleGroupItem asChild value="Срібний" variant="swatch" swatch="#e3e4e5">
+              <a href="#forms" aria-label="Срібний" title="Срібний" />
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="Помаранчевий"
+              variant="swatch"
+              swatch="#f77e2d"
+              unavailable
+              aria-label="Космічний помаранчевий, немає в наявності"
+            />
+          </ToggleGroup>
+          <ToggleGroup
+            type="single"
+            variant="thumbnail"
+            defaultValue="1"
+            aria-label="Фото товару (приклад)"
+          >
+            {SWATCHES.map((color, index) => (
+              <ToggleGroupItem
+                key={color.name}
+                value={String(index + 1)}
+                aria-label={`Фото ${index + 1}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className="size-full bg-(--swatch)"
+                  style={{ "--swatch": color.hex } as CSSProperties}
+                />
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </Specimen>
+
+        <Specimen label="Field та Input на ink: onDark" tone="ink">
+          <Field {...darkEmail.field} onDark>
+            <FieldLabel {...darkEmail.label}>Email для розсилки</FieldLabel>
+            <Input
+              type="email"
+              defaultValue="olena@"
+              autoComplete="email"
+              onDark
+              {...darkEmail.control}
+            />
+            <FieldError {...darkEmail.error}>
+              В адресі бракує домену. Приклад: olena@example.com.
+            </FieldError>
+            <FieldDescription {...darkEmail.description}>
+              Пишемо раз на тиждень: новинки та знижки.
+            </FieldDescription>
+          </Field>
         </Specimen>
 
         <Specimen label="Toggle: pill та icon" tone="page">

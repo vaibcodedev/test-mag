@@ -20,7 +20,7 @@ describe("Empty", () => {
           <EmptyDescription>Додайте товар із каталогу.</EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <a href="/collections/all">Перейти в каталог</a>
+          <a href="/collections">Перейти в каталог</a>
         </EmptyContent>
       </Empty>,
     );
