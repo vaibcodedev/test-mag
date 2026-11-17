@@ -1,4 +1,3 @@
-import { Leaf } from "lucide-react";
 import type { ComponentProps } from "react";
 import { Link } from "react-router";
 
@@ -86,10 +85,10 @@ export function DealsTicker({
                         </span>
                       </Link>
                     </Item>
-                    <Leaf
+                    {/* Роздільник із полями: плашка наведення сусідньої позиції його не торкається. */}
+                    <span
                       aria-hidden="true"
-                      strokeWidth={2}
-                      className="size-4 shrink-0 text-on-ink-muted"
+                      className="mx-3 size-1.5 shrink-0 rounded-pill bg-on-ink-20"
                     />
                   </li>
                 ))}
