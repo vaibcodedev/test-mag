@@ -1,27 +1,20 @@
-import {
-  ArrowRight,
-  CircleCheck,
-  CircleX,
-  Clock,
-  CreditCard,
-  Package,
-  Truck,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, ExternalLink, Package } from "lucide-react";
 import { useId, type ComponentProps } from "react";
+import { Link } from "react-router";
 
+import { ReorderButton } from "~/components/account/reorder-button";
 import { PublishedDate } from "~/components/content/published-date";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardTitle } from "~/components/ui/card";
 import { ItemMedia } from "~/components/ui/item";
 import { Price } from "~/components/ui/price";
 import { ShopImage } from "~/components/ui/shop-image";
+import { orderPath } from "~/lib/account/order-id";
 import { cn } from "~/lib/utils";
 
 import type { AccountOrder, OrderLineItem } from "./order-card.types";
 import { itemCountLabel, orderItemsPreview, orderItemsSummary } from "./order-items";
-import { orderStatuses, type OrderStatus } from "./order-status";
+import { OrderStatusBadges } from "./order-status-badges";
 
 export type OrderCardProps = Omit<ComponentProps<"article">, "children"> & {
   order: AccountOrder;
@@ -31,43 +24,6 @@ const THUMB_SIZE = 56;
 /** Плитка 48 на телефоні, 56 від sm: чотири плитки вміщаються в картку на 360px. */
 const THUMB_CLASS = "size-12 sm:size-14";
 const THUMB_WIDTHS = [56, 112, 168] as const;
-
-function StatusBadge({
-  status,
-  prefix,
-  neutralIcon,
-  attentionIcon = Clock,
-}: {
-  status: OrderStatus;
-  /** Що саме описує бейдж — для зчитувача екрана: «Оплата», «Доставка». */
-  prefix: string;
-  neutralIcon: LucideIcon;
-  attentionIcon?: LucideIcon;
-}) {
-  const Icon =
-    status.tone === "positive"
-      ? CircleCheck
-      : status.tone === "attention"
-        ? attentionIcon
-        : neutralIcon;
-
-  return (
-    <li>
-      <Badge
-        variant="chip"
-        data-tone={status.tone}
-        className={cn(
-          "text-ink",
-          status.tone === "positive" ? "[&>svg]:text-success" : "[&>svg]:text-ink-2",
-        )}
-      >
-        <Icon aria-hidden="true" strokeWidth={2} />
-        <span className="sr-only">{prefix}: </span>
-        {status.label}
-      </Badge>
-    </li>
-  );
-}
 
 function Thumb({ item }: { item: OrderLineItem }) {
   return (
@@ -89,12 +45,12 @@ function Thumb({ item }: { item: OrderLineItem }) {
 }
 
 /**
- * Картка замовлення: номер, дата, стан оплати й доставки, що всередині, сума та
- * перехід на сторінку стану замовлення в Shopify.
+ * Картка замовлення: номер, дата, стан оплати й доставки, що всередині й сума. Дії: сторінка
+ * замовлення в кабінеті, «Повторити» і сторінка стану в Shopify (відстеження, повернення).
  */
 export function OrderCard({ order, className, ...props }: OrderCardProps) {
   const titleId = useId();
-  const { payment, delivery } = orderStatuses(order);
+  const detailsPath = orderPath(order.id);
   const preview = orderItemsPreview(order);
   const summary = orderItemsSummary(preview);
 
@@ -120,56 +76,58 @@ export function OrderCard({ order, className, ...props }: OrderCardProps) {
           </p>
         </div>
 
-        {payment || delivery ? (
-          <ul role="list" aria-label="Стан замовлення" className="flex flex-wrap gap-2">
-            {payment ? (
-              <StatusBadge status={payment} prefix="Оплата" neutralIcon={CreditCard} />
-            ) : null}
-            {delivery ? (
-              <StatusBadge
-                status={delivery}
-                prefix="Доставка"
-                neutralIcon={Truck}
-                attentionIcon={order.cancelledAt ? CircleX : Clock}
-              />
-            ) : null}
-          </ul>
-        ) : null}
+        <OrderStatusBadges order={order} />
 
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          {preview.thumbs.length > 0 ? (
-            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
-              {/* Мініатюри декоративні: склад замовлення названо текстом поруч. */}
-              <div aria-hidden="true" data-slot="order-thumbs" className="flex shrink-0 gap-2">
-                {preview.thumbs.map((item) => (
-                  <Thumb key={item.id} item={item} />
-                ))}
-                {preview.hiddenCount > 0 ? (
-                  <ItemMedia
-                    variant="image"
-                    data-thumb="more"
-                    className={cn(
-                      THUMB_CLASS,
-                      "bg-page text-small font-semibold text-ink tabular-nums",
-                    )}
-                  >
-                    +{preview.hiddenCount}
-                  </ItemMedia>
-                ) : null}
-              </div>
-              {summary ? (
-                <p className="line-clamp-2 min-w-0 text-small wrap-anywhere text-ink-2">
-                  {summary}
-                </p>
+        {preview.thumbs.length > 0 ? (
+          <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
+            {/* Мініатюри декоративні: склад замовлення названо текстом поруч. */}
+            <div aria-hidden="true" data-slot="order-thumbs" className="flex shrink-0 gap-2">
+              {preview.thumbs.map((item) => (
+                <Thumb key={item.id} item={item} />
+              ))}
+              {preview.hiddenCount > 0 ? (
+                <ItemMedia
+                  variant="image"
+                  data-thumb="more"
+                  className={cn(
+                    THUMB_CLASS,
+                    "bg-page text-small font-semibold text-ink tabular-nums",
+                  )}
+                >
+                  +{preview.hiddenCount}
+                </ItemMedia>
               ) : null}
             </div>
-          ) : null}
+            {summary ? (
+              <p className="line-clamp-2 min-w-0 text-small wrap-anywhere text-ink-2">{summary}</p>
+            ) : null}
+          </div>
+        ) : null}
 
+        <div data-slot="order-actions" className="flex flex-wrap items-center gap-x-2 gap-y-3">
+          {detailsPath ? (
+            <Button asChild variant="secondary" size="sm">
+              <Link viewTransition to={detailsPath} aria-label={`Деталі замовлення ${order.name}`}>
+                Деталі
+                <ArrowRight aria-hidden="true" strokeWidth={2} />
+              </Link>
+            </Button>
+          ) : null}
+          {/* Повторити можна лише замовлення з позиціями: порожнє нічого не додасть. */}
+          {detailsPath && preview.lineCount > 0 ? (
+            <ReorderButton
+              orderId={order.id}
+              orderName={order.name}
+              variant="secondary"
+              size="sm"
+              compact
+            />
+          ) : null}
           {/* Сторінка стану живе в Shopify, тому це звичайний <a>. */}
-          <Button asChild variant="secondary" size="sm" className="shrink-0 md:ms-auto">
+          <Button asChild variant="link" size="sm" className="min-h-11 sm:ms-auto">
             <a href={order.statusPageUrl} aria-label={`Стан замовлення ${order.name}`}>
               Стан замовлення
-              <ArrowRight aria-hidden="true" strokeWidth={2} />
+              <ExternalLink aria-hidden="true" strokeWidth={2} className="size-4" />
             </a>
           </Button>
         </div>

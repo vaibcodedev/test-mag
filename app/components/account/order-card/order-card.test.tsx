@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
 import { OrderCard } from "./order-card";
@@ -28,6 +29,15 @@ const ORDER: AccountOrder = {
   lineItemsSummary: { lineItemCount: 6, totalQuantityOfLineItems: 8 },
   lineItems: { nodes: lines(4) },
 };
+
+/** Картка має посилання на сторінку замовлення, тож їй потрібен роутер. */
+function renderCard(order: AccountOrder = ORDER) {
+  return render(
+    <MemoryRouter initialEntries={["/account"]}>
+      <OrderCard order={order} />
+    </MemoryRouter>,
+  );
+}
 
 describe("paymentStatus і fulfillmentStatus", () => {
   it("перекладають відомі коди", () => {
@@ -169,7 +179,7 @@ describe("підписи складу замовлення", () => {
 
 describe("OrderCard", () => {
   it("показує номер, дату, кількість, суму, обидва стани й посилання на сторінку стану", () => {
-    render(<OrderCard order={ORDER} />);
+    renderCard();
 
     const card = screen.getByRole("article", { name: "Замовлення #1001" });
     expect(within(card).getByRole("heading", { level: 3 })).toHaveTextContent("Замовлення #1001");
@@ -193,7 +203,7 @@ describe("OrderCard", () => {
   });
 
   it("малює три мініатюри й плитку «+3», позицію без фото — плиткою без зображення", () => {
-    const { container } = render(<OrderCard order={ORDER} />);
+    const { container } = renderCard();
 
     const thumbs = container.querySelector('[data-slot="order-thumbs"]') as HTMLElement;
     expect(thumbs).toHaveAttribute("aria-hidden", "true");
@@ -204,21 +214,37 @@ describe("OrderCard", () => {
   });
 
   it("невідомі коди станів не потрапляють на сторінку, замовлення без позицій не ламається", () => {
-    const { container } = render(
-      <OrderCard
-        order={{
-          ...ORDER,
-          financialStatus: "SOMETHING_NEW",
-          fulfillmentStatus: "ANOTHER_ONE",
-          lineItems: null,
-          lineItemsSummary: null,
-        }}
-      />,
-    );
+    const { container } = renderCard({
+      ...ORDER,
+      financialStatus: "SOMETHING_NEW",
+      fulfillmentStatus: "ANOTHER_ONE",
+      lineItems: null,
+      lineItemsSummary: null,
+    });
 
     expect(screen.queryByRole("list", { name: "Стан замовлення" })).toBeNull();
     expect(container).not.toHaveTextContent(/SOMETHING_NEW|ANOTHER_ONE/);
     expect(container.querySelector('[data-slot="order-thumbs"]')).toBeNull();
+    expect(screen.getByRole("link", { name: "Стан замовлення #1001" })).toBeInTheDocument();
+    // Порожнє замовлення нічого не додасть у кошик, тож і кнопки немає.
+    expect(screen.queryByRole("button", { name: /Повторити/ })).toBeNull();
+  });
+
+  it("веде на сторінку замовлення в кабінеті й пропонує повторити замовлення", () => {
+    renderCard();
+
+    const details = screen.getByRole("link", { name: "Деталі замовлення #1001" });
+    expect(details).toHaveAttribute("href", "/account/orders/1");
+    expect(screen.getByRole("button", { name: "Повторити замовлення #1001" })).toHaveTextContent(
+      "Повторити",
+    );
+  });
+
+  it("без зрозумілого ідентифікатора лишає тільки сторінку стану в Shopify", () => {
+    renderCard({ ...ORDER, id: "gid://shopify/Order/1?key=abc" });
+
+    expect(screen.queryByRole("link", { name: /Деталі/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Повторити/ })).toBeNull();
     expect(screen.getByRole("link", { name: "Стан замовлення #1001" })).toBeInTheDocument();
   });
 });
