@@ -126,6 +126,9 @@ export type CollectionListItem = {
   } | null;
 };
 
+/** Службова колекція Shopify «Home page»: у каталозі покупцеві вона ні до чого. */
+const HIDDEN_COLLECTIONS = new Set(["frontpage"]);
+
 /** Колекції для сторінки «Каталог». Колекція без фото показує фото свого першого товару. */
 export async function loadCollectionsPage({
   storefrontClient,
@@ -143,12 +146,14 @@ export async function loadCollectionsPage({
   );
 
   return {
-    collections: data.collections.nodes.map((collection) => ({
-      handle: collection.handle,
-      title: collection.title,
-      description: collection.description,
-      image: collection.image ?? collection.products.nodes[0]?.featuredImage ?? null,
-    })),
+    collections: data.collections.nodes
+      .filter((collection) => !HIDDEN_COLLECTIONS.has(collection.handle))
+      .map((collection) => ({
+        handle: collection.handle,
+        title: collection.title,
+        description: collection.description,
+        image: collection.image ?? collection.products.nodes[0]?.featuredImage ?? null,
+      })),
     origin: new URL(request.url).origin,
   };
 }

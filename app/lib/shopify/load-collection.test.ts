@@ -407,6 +407,15 @@ describe("loadCollectionsPage", () => {
               nodes: [{ featuredImage: { ...image, url: "https://cdn.shopify.com/b.png" } }],
             },
           },
+          // Службова колекція Shopify у каталог не потрапляє.
+          {
+            id: "3",
+            handle: "frontpage",
+            title: "Home page",
+            description: "",
+            image: null,
+            products: { nodes: [] },
+          },
         ],
       },
     });
