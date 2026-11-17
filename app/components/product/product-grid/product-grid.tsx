@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import { memo, type ComponentProps } from "react";
 
 import {
   ProductCard,
@@ -31,6 +31,38 @@ export type ProductGridProps = Omit<ComponentProps<"ul">, "children"> & {
   addingHandle?: string | null;
 };
 
+type GridItemProps = {
+  product: ProductCardData;
+  headingLevel?: ProductCardProps["headingLevel"];
+  priority: boolean;
+  onAddToCart?: (product: ProductCardData) => void;
+  adding: boolean;
+};
+
+/**
+ * Комірка сітки. memo: коли сітка лише дописує товари чи показує заглушки («Показати ще»),
+ * уже намальовані картки не перемальовуються — інакше кнопка відповідала б із затримкою.
+ */
+const GridItem = memo(function GridItem({
+  product,
+  headingLevel,
+  priority,
+  onAddToCart,
+  adding,
+}: GridItemProps) {
+  return (
+    <li className="min-w-0">
+      <ProductCard
+        product={product}
+        headingLevel={headingLevel}
+        priority={priority}
+        onAddToCart={onAddToCart ? () => onAddToCart(product) : undefined}
+        adding={adding}
+      />
+    </li>
+  );
+});
+
 /** Сітка карток товарів: каталог, пошук і будь-який інший список. */
 export function ProductGrid({
   products,
@@ -59,15 +91,14 @@ export function ProductGrid({
       {...props}
     >
       {products.map((product, index) => (
-        <li key={product.handle} className="min-w-0">
-          <ProductCard
-            product={product}
-            headingLevel={headingLevel}
-            priority={index < priorityCount}
-            onAddToCart={onAddToCart ? () => onAddToCart(product) : undefined}
-            adding={addingHandle === product.handle}
-          />
-        </li>
+        <GridItem
+          key={product.handle}
+          product={product}
+          headingLevel={headingLevel}
+          priority={index < priorityCount}
+          onAddToCart={onAddToCart}
+          adding={addingHandle === product.handle}
+        />
       ))}
       {Array.from({ length: loadingMore }, (_, index) => (
         <li key={`skeleton-${index}`} className="min-w-0">

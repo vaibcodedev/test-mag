@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 
 import type { CollectionPageInfo } from "~/lib/shopify/collection";
@@ -17,6 +17,9 @@ type Appended<T> = {
   pageInfo: CollectionPageInfo;
 };
 
+/** Запит, на відповідь якого чекаємо. */
+type Requested = { base: string; search: string; started: boolean };
+
 /**
  * «Показати ще»: довантажує наступну сторінку тим самим loader і дописує товари в кінець.
  * Адреса не змінюється, тож оновлення сторінки повертає до її початку, а не до курсора посередині.
@@ -29,20 +32,30 @@ export function useLoadMore<T>(
 ) {
   const fetcher = useFetcher<LoadMoreData<T>>();
   const [appended, setAppended] = useState<Appended<T> | null>(null);
-  const requested = useRef<{ base: string; search: string } | null>(null);
+  const [requested, setRequested] = useState<Requested | null>(null);
 
   useEffect(() => {
-    const data = fetcher.data;
-    const request = requested.current;
-    if (!data || !request || data.dataSearch !== request.search) return;
+    if (!requested) return;
+    // Спершу чекаємо, доки запит справді піде: одразу після натискання fetcher ще «idle»
+    // зі старими даними, і завершувати на них не можна.
+    if (fetcher.state !== "idle") {
+      if (!requested.started) setRequested({ ...requested, started: true });
+      return;
+    }
+    if (!requested.started) return;
 
-    requested.current = null;
+    const data = fetcher.data;
+    // Запит завершився. Знімаємо «завантаження» тим самим оновленням, що й дописує товари:
+    // інакше заглушки зникали б на мить раніше, ніж з'являться картки, і сітка блимала б.
+    setRequested(null);
+    // Немає відповіді на цей запит (збій мережі) — лишаємо список як був.
+    if (!data || data.dataSearch !== requested.search) return;
     setAppended((current) => ({
-      base: request.base,
-      products: [...(current?.base === request.base ? current.products : []), ...data.products],
+      base: requested.base,
+      products: [...(current?.base === requested.base ? current.products : []), ...data.products],
       pageInfo: data.pageInfo,
     }));
-  }, [fetcher.data]);
+  }, [fetcher.state, fetcher.data, requested]);
 
   const current = appended?.base === dataSearch ? appended : null;
 
@@ -55,10 +68,10 @@ export function useLoadMore<T>(
           endCursor: current.pageInfo.endCursor,
         }
       : initialPageInfo,
-    loading: fetcher.state !== "idle",
+    loading: fetcher.state !== "idle" || requested !== null,
     /** `href` — адреса наступної сторінки, `search` — її рядок пошуку без «?». */
     loadMore: (href: string, search: string) => {
-      requested.current = { base: dataSearch, search };
+      setRequested({ base: dataSearch, search, started: false });
       void fetcher.load(href);
     },
   };
