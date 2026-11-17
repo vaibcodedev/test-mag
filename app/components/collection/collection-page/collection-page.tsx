@@ -119,7 +119,7 @@ export function CollectionPage({ data, crumbs }: CollectionPageProps) {
           <Card
             asChild
             padding="none"
-            className="hidden px-5 py-1 lg:sticky lg:top-28 lg:block lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto noscript:block"
+            className="hidden [scrollbar-width:thin] px-5 py-1 lg:sticky lg:top-28 lg:block lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:pb-3 noscript:block"
           >
             <aside aria-labelledby={filtersTitleId}>
               <h2 id={filtersTitleId} className="sr-only">
@@ -148,7 +148,7 @@ export function CollectionPage({ data, crumbs }: CollectionPageProps) {
               value={sortSelectValue(state)}
               action={path}
               hiddenParams={activeFilterParams(state.filters)}
-              className="flex-1 sm:ms-auto sm:max-w-64"
+              className="min-w-0 flex-1 sm:ms-auto sm:max-w-64 sm:flex-none"
             />
           </div>
 

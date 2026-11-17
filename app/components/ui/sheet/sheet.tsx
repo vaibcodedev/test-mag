@@ -68,7 +68,10 @@ export function SheetBody({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-body"
-      className={cn("flex-1 scrollbar-stable overflow-y-auto overscroll-contain p-6", className)}
+      className={cn(
+        "flex-1 [scrollbar-width:thin] scrollbar-stable overflow-y-auto overscroll-contain p-6",
+        className,
+      )}
       {...props}
     />
   );

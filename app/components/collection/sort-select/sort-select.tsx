@@ -70,7 +70,11 @@ export function SortSelect({
       ))}
       <input type="hidden" name={SORT_PARAM} value={current} />
       <Select value={current} onValueChange={handleChange}>
-        <SelectTrigger aria-label="Сортування" className="min-w-56 font-semibold">
+        {/* На телефоні кнопка займає те, що лишилось поруч із «Фільтрами», і за край не виходить. */}
+        <SelectTrigger
+          aria-label="Сортування"
+          className="w-full min-w-0 font-semibold sm:w-auto sm:min-w-56"
+        >
           {/* Текст передаємо самі: без нього Radix показує порожню кнопку до гідратації. */}
           <SelectValue>{options.find((option) => option.value === current)?.label}</SelectValue>
         </SelectTrigger>
