@@ -20,7 +20,9 @@ test("знайти товар, додати в кошик і перейти до
   await search.press("Enter");
 
   await expect(page).toHaveURL(/\/search\?q=/);
-  const cards = page.locator('[data-slot="product-card"]');
+  // Картки беремо саме з результатів пошуку: одразу після зміни адреси в розмітці ще мить
+  // стоять картки попередньої сторінки (перехід між сторінками анімований).
+  const cards = page.locator('[data-slot="search-results"] [data-slot="product-card"]');
   await expect(cards.first()).toBeVisible();
 
   // 2. Сторінка товару.
@@ -30,7 +32,7 @@ test("знайти товар, додати в кошик і перейти до
   await expect(page).toHaveURL(/\/products\//);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(productTitle);
 
-  // 3. «Купити»: сповіщення й кошик, що відкрився сам.
+  // 3. «Купити»: кошик відкривається сам — окремого сповіщення немає, щоб не дублювати.
   await page
     .getByRole("main")
     .getByRole("button", { name: /^Купити/ })
@@ -40,7 +42,6 @@ test("знайти товар, додати в кошик і перейти до
   const cart = page.getByRole("dialog", { name: "Кошик" });
   await expect(cart).toBeVisible();
   await expect(cart.getByText(productTitle).first()).toBeVisible();
-  await expect(page.getByText("Додано в кошик")).toBeVisible();
 
   // 4. Кількість змінюється без перезавантаження сторінки.
   await cart.getByRole("button", { name: "Збільшити кількість" }).first().click();
