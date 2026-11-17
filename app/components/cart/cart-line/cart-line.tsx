@@ -175,10 +175,15 @@ export function CartLine({
       data-testid="cart-line"
       data-pending={pending || undefined}
       aria-busy={pending || undefined}
-      className={className}
+      // Рядок — сітка з одним рядком: коли товар прибрали, CartLines ставить data-leaving,
+      // і рядок плавно згортається до нуля та гасне, а не зникає ривком.
+      className={cn(
+        "grid grid-rows-[1fr] transition-[grid-template-rows,opacity] duration-300 ease-in-out data-leaving:grid-rows-[0fr] data-leaving:opacity-0",
+        className,
+      )}
       {...props}
     >
-      <Item size="none" className="flex-nowrap items-start py-4">
+      <Item size="none" className="min-h-0 flex-nowrap items-start overflow-hidden py-4">
         <ItemMedia variant="image" size="lg" fit="cover" className="sm:size-24">
           {image ? (
             <ShopImage

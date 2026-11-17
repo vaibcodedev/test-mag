@@ -77,6 +77,13 @@ export function ProductGallery({ media, images, title, className, ...props }: Pr
   const firstId = items[0]?.id;
   const active = items[selectedIndex];
 
+  /** Перше фото вже змінювалося через вибір варіанта: відтоді воно проявляється плавно. */
+  const initialFirstId = useRef(firstId);
+  const [variantChanged, setVariantChanged] = useState(false);
+  useEffect(() => {
+    if (firstId !== initialFirstId.current) setVariantChanged(true);
+  }, [firstId]);
+
   // Вибрали інший варіант — його фото стало першим: повертаємо галерею на початок.
   useEffect(() => {
     api?.scrollTo(0, true);
@@ -173,13 +180,24 @@ export function ProductGallery({ media, images, title, className, ...props }: Pr
                 aria-hidden={index === selectedIndex ? undefined : true}
                 inert={index !== selectedIndex}
               >
-                <GallerySlide
-                  media={item}
-                  title={title}
-                  priority={index === 0}
-                  embedPlaying={index === selectedIndex && embedId === item.id}
-                  onPlayEmbed={() => setEmbedId(item.id)}
-                />
+                {/* Після вибору іншого варіанта перше фото монтується наново (інший key)
+                    і м'яко проявляється. На першому показі анімації немає: головне фото
+                    сторінки має з'явитися одразу. */}
+                <div
+                  key={index === 0 && variantChanged ? `lead:${firstId}` : item.id}
+                  className={cn(
+                    "size-full",
+                    index === 0 && variantChanged && "animate-in duration-300 fade-in-0",
+                  )}
+                >
+                  <GallerySlide
+                    media={item}
+                    title={title}
+                    priority={index === 0}
+                    embedPlaying={index === selectedIndex && embedId === item.id}
+                    onPlayEmbed={() => setEmbedId(item.id)}
+                  />
+                </div>
               </CarouselItem>
             ))}
           </CarouselContent>
