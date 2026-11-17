@@ -8,6 +8,13 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
+import {
+  COMPARE_CATEGORIES,
+  compareCategoryOf,
+  parseSpecs,
+  SPECS_METAFIELD,
+  specKeysOf,
+} from "../app/lib/compare/spec-schema.ts";
 import { colorValues, productsInCollection, variantKey } from "./seed-catalog.ts";
 import {
   COLLECTIONS,
@@ -21,6 +28,7 @@ import {
 } from "./seed-data.ts";
 import { IMAGE_MANIFEST } from "./seed-images.ts";
 import { productMediaPlan, SHOWCASE_HANDLE, variantMediaAlt } from "./seed-media.ts";
+import { SPECS } from "./seed-specs.ts";
 
 const API_VERSION = "2026-10";
 const PAGE_SIZE = 250;
@@ -236,6 +244,87 @@ async function verifyProduct(handle: string, verbose: boolean): Promise<void> {
   }
 }
 
+type SpecsPage = {
+  nodes: { handle: string; productType: string; specs: { type: string; value: string } | null }[];
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
+};
+
+/** Метаполе custom.specs: є й читається в кожного пристрою, немає в аксесуарів. */
+async function verifySpecs(): Promise<void> {
+  const nodes: SpecsPage["nodes"] = [];
+  let after: string | null = null;
+  for (;;) {
+    const page: SpecsPage = (
+      await storefront<{ products: SpecsPage }>(
+        `query VerifySpecs($first: Int!, $after: String, $namespace: String!, $key: String!) {
+          products(first: $first, after: $after) {
+            nodes { handle productType specs: metafield(namespace: $namespace, key: $key) { type value } }
+            pageInfo { hasNextPage endCursor }
+          }
+        }`,
+        { first: PAGE_SIZE, after, ...SPECS_METAFIELD },
+      )
+    ).products;
+    nodes.push(...page.nodes);
+    if (!page.pageInfo.hasNextPage) break;
+    after = page.pageInfo.endCursor;
+  }
+
+  const stats = new Map<string, { products: number; filled: number; rows: number }>();
+  let accessories = 0;
+  for (const node of nodes) {
+    const seed = PRODUCTS.find((item) => item.handle === node.handle);
+    if (!seed) continue;
+    const category = compareCategoryOf(node.productType);
+    check(
+      node.productType === seed.productType,
+      `${node.handle}: тип товару «${node.productType}», а має бути «${seed.productType}».`,
+    );
+    if (!category) {
+      accessories += 1;
+      check(node.specs === null, `${node.handle}: аксесуар має метаполе custom.specs.`);
+      continue;
+    }
+    if (!node.specs) {
+      problems.push(`${node.handle}: немає метаполя custom.specs.`);
+      continue;
+    }
+    check(node.specs.type === "json", `${node.handle}: custom.specs має тип ${node.specs.type}.`);
+    const specs = parseSpecs(node.specs.value);
+    const wanted = SPECS[node.handle] ?? {};
+    const keys = specKeysOf(category);
+    const unknown = Object.keys(specs).filter((key) => !keys.includes(key));
+    check(unknown.length === 0, `${node.handle}: зайві ключі ${unknown.join(", ")}.`);
+    check(
+      Object.keys(specs).length > 0 &&
+        Object.keys(specs).length === Object.keys(wanted).length &&
+        Object.entries(wanted).every(([key, value]) => specs[key] === value),
+      `${node.handle}: custom.specs у магазині не збігається з scripts/seed-specs.ts.`,
+    );
+    const row = stats.get(category.key) ?? { products: 0, filled: 0, rows: 0 };
+    row.products += 1;
+    row.filled += Object.keys(specs).length;
+    row.rows += keys.length;
+    stats.set(category.key, row);
+  }
+
+  console.log("Характеристики для порівняння (custom.specs):");
+  for (const category of COMPARE_CATEGORIES) {
+    const row = stats.get(category.key) ?? { products: 0, filled: 0, rows: 0 };
+    const expected = PRODUCTS.filter((item) => item.productType === category.productType).length;
+    console.log(
+      `  ${category.key}: товарів ${row.products} з ${expected}, заповнено рядків ${row.filled} з ${row.rows} (${row.rows ? Math.round((row.filled / row.rows) * 100) : 0}%)`,
+    );
+    check(
+      row.products === expected,
+      `Категорія ${category.key}: характеристики мають ${row.products} товарів, а має бути ${expected}.`,
+    );
+  }
+  console.log(`  аксесуарів без характеристик: ${accessories}`);
+  const sample = nodes.find((node) => node.handle === SAMPLES[0]);
+  if (sample?.specs) console.log(`  ${sample.handle}: ${sample.specs.value}`);
+}
+
 async function main(): Promise<void> {
   if (!DOMAIN || (!PUBLIC_TOKEN && !PRIVATE_TOKEN)) {
     throw new Error("Не задано PUBLIC_STORE_DOMAIN або токен Storefront API у .env.");
@@ -309,6 +398,8 @@ async function main(): Promise<void> {
   for (const [index, handle] of SAMPLES.entries()) {
     await verifyProduct(handle, index === 0 || handle.startsWith("used-"));
   }
+
+  await verifySpecs();
 
   const showcase = await storefront<{
     product: { media: { nodes: { mediaContentType: string }[] } } | null;
