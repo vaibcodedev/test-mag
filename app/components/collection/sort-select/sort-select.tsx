@@ -71,7 +71,8 @@ export function SortSelect({
       <input type="hidden" name={SORT_PARAM} value={current} />
       <Select value={current} onValueChange={handleChange}>
         <SelectTrigger aria-label="Сортування" className="min-w-56 font-semibold">
-          <SelectValue />
+          {/* Текст передаємо самі: без нього Radix показує порожню кнопку до гідратації. */}
+          <SelectValue>{options.find((option) => option.value === current)?.label}</SelectValue>
         </SelectTrigger>
         <SelectContent align="end">
           {options.map((option) => (
