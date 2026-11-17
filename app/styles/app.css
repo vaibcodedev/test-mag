@@ -337,31 +337,21 @@
    і опція viewTransition у navigate(). Тут — лише вигляд. Браузери без підтримки
    просто перемикають сторінку, як раніше. */
 
-/* Шапка й нижня навігація стоять на місці: у переході беруть участь окремо від сторінки. */
-[data-slot="header"] {
-  view-transition-name: site-header;
-}
-[data-slot="bottom-bar"] {
-  view-transition-name: bottom-bar;
-}
-
-/* Звичайний перехід: стара сторінка гасне, нова проявляється й трохи підіймається. */
-@keyframes page-leave {
-  to {
-    opacity: 0;
-  }
-}
+/* Звичайний перехід: нова сторінка проявляється поверх старої. Без зсуву й без окремих шарів
+   для шапки: стара сторінка стоїть нерухомо, тож нічого не «скаче», а там, де шапка та сама,
+   вона просто лишається на місці. Окремий шар для шапки лишав під нею порожню смугу. */
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(0.75rem);
   }
 }
 ::view-transition-old(root) {
-  animation: page-leave 140ms var(--ease-out-soft) both;
+  animation: none;
+  mix-blend-mode: normal;
 }
 ::view-transition-new(root) {
-  animation: page-enter 320ms var(--ease-out-soft) 60ms both;
+  animation: page-enter 220ms var(--ease-out-soft) both;
+  mix-blend-mode: normal;
 }
 
 /* Картка розкривається в сторінку. Назва береться з --vt-name і вмикається лише в картки,

@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 
 import type { ProductCardImage } from "~/components/product/product-card";
 import {
@@ -14,6 +14,7 @@ import { ItemMedia } from "~/components/ui/item";
 import { ShopImage } from "~/components/ui/shop-image";
 import { formatInteger, formatPrice, plural, type Money } from "~/lib/format";
 import { cn } from "~/lib/utils";
+import { TransitionSource } from "~/lib/view-transition";
 
 export type BentoCategory = {
   title: string;
@@ -52,7 +53,7 @@ export function CategoryBentoTile({
       <CardHeader>
         <CardTitle asChild>
           <h3 className={featured ? "text-h3" : "wrap-anywhere xl:text-h3"}>
-            <Link
+            <NavLink
               viewTransition
               to={category.to}
               prefetch="intent"
@@ -63,8 +64,11 @@ export function CategoryBentoTile({
                   : "focus-visible:after:shadow-focus",
               )}
             >
-              {category.title}
-            </Link>
+              {/* Назва переїжджає в заголовок сторінки колекції. */}
+              <span data-vt-target className="inline-block">
+                {category.title}
+              </span>
+            </NavLink>
           </h3>
         </CardTitle>
         <CardDescription className="text-caption">
@@ -124,13 +128,15 @@ export function CategoryBentoTile({
         padding="sm"
         className={cn("h-full min-h-56 flex-row gap-4 md:p-5", className)}
       >
-        <article data-slot="category-tile" data-featured="true">
-          {text}
-          {/* Рамка 4:5 бере висоту плитки й рахує з неї ширину, AspectRatio рахує навпаки. */}
-          <div className="relative aspect-4/5 shrink-0 self-stretch overflow-hidden rounded-md bg-photo">
-            {photo}
-          </div>
-        </article>
+        <TransitionSource href={category.to}>
+          <article data-slot="category-tile" data-featured="true">
+            {text}
+            {/* Рамка 4:5 бере висоту плитки й рахує з неї ширину, AspectRatio рахує навпаки. */}
+            <div className="relative aspect-4/5 shrink-0 self-stretch overflow-hidden rounded-md bg-photo">
+              {photo}
+            </div>
+          </article>
+        </TransitionSource>
       </Card>
     );
   }
@@ -142,13 +148,15 @@ export function CategoryBentoTile({
       padding="sm"
       className={cn("h-full min-h-56 md:flex-row md:gap-4 md:p-5", className)}
     >
-      <article data-slot="category-tile">
-        {/* Фото заповнює власну рамку: на мобільному зверху 4:3, з md — праворуч на всю висоту. */}
-        <div className="relative aspect-4/3 shrink-0 overflow-hidden rounded-md bg-photo md:order-last md:aspect-auto md:w-1/3">
-          {photo}
-        </div>
-        {text}
-      </article>
+      <TransitionSource href={category.to}>
+        <article data-slot="category-tile">
+          {/* Фото заповнює власну рамку: на мобільному зверху 4:3, з md — праворуч на всю висоту. */}
+          <div className="relative aspect-4/3 shrink-0 overflow-hidden rounded-md bg-photo md:order-last md:aspect-auto md:w-1/3">
+            {photo}
+          </div>
+          {text}
+        </article>
+      </TransitionSource>
     </Card>
   );
 }

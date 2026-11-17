@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef, type CSSProperties } from "react";
+import { Slot } from "radix-ui";
+import { useLayoutEffect, useRef, type ComponentProps, type CSSProperties } from "react";
 
 /**
  * Переходи між сторінками за посібником React Router «View Transitions»:
@@ -55,4 +56,42 @@ export function useTransitionSource<T extends HTMLElement>(href: string) {
   };
 
   return { ref, onClickCapture: markSource };
+}
+
+/** Адреса сторінки → тип і handle сутності: «/products/iphone-17» → product, iphone-17. */
+export function transitionTargetOf(href: string): { kind: TransitionKind; handle: string } | null {
+  const [pathname = ""] = href.split(/[?#]/);
+  const product = /^\/products\/([^/]+)$/.exec(pathname);
+  if (product?.[1]) return { kind: "product", handle: decodeURIComponent(product[1]) };
+  const collection = /^\/collections\/([^/]+)$/.exec(pathname);
+  if (collection?.[1]) return { kind: "collection", handle: decodeURIComponent(collection[1]) };
+  const article = /^\/blogs\/[^/]+\/([^/]+)$/.exec(pathname);
+  if (article?.[1]) return { kind: "article", handle: decodeURIComponent(article[1]) };
+  return null;
+}
+
+export type TransitionSourceProps = ComponentProps<typeof Slot.Root> & {
+  /** Куди веде плитка: за адресою визначається назва переходу. */
+  href: string;
+};
+
+/**
+ * Обгортка без власної розмітки для плитки, що «розкривається» в сторінку: додає дочірньому
+ * елементу позначку джерела та змінну `--vt-name`. Усередині потрібні `NavLink` з `viewTransition`
+ * і елемент з `data-vt-target`. Для адрес, що не ведуть на товар, колекцію чи статтю,
+ * нічого не робить.
+ */
+export function TransitionSource({ href, style, children, ...props }: TransitionSourceProps) {
+  const transition = useTransitionSource<HTMLElement>(href);
+  const target = transitionTargetOf(href);
+
+  return (
+    <Slot.Root
+      {...props}
+      {...transition}
+      style={target ? { ...viewTransitionStyle(target.kind, target.handle), ...style } : style}
+    >
+      {children}
+    </Slot.Root>
+  );
 }

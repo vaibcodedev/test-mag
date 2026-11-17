@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 
 import { Section, SectionHeader, type SectionProps } from "~/components/layout/section";
 import type { ProductCardImage } from "~/components/product/product-card";
@@ -10,6 +10,7 @@ import { Price } from "~/components/ui/price";
 import { Separator } from "~/components/ui/separator";
 import { ShopImage } from "~/components/ui/shop-image";
 import type { Money } from "~/lib/format";
+import { TransitionSource } from "~/lib/view-transition";
 
 export type IphoneLineupModel = {
   /** Назва моделі: «iPhone 17 Pro». */
@@ -62,52 +63,58 @@ export function IphoneLineup({
         {models.map((model) => (
           <li key={model.to} className="w-56 min-w-0 shrink-0 snap-start xl:w-auto">
             <Card asChild interactive padding="sm" className="h-full p-3">
-              <article>
-                <AspectRatio ratio={1} className="overflow-hidden rounded-md bg-photo">
-                  {model.image ? (
-                    <ShopImage
-                      src={model.image.url}
-                      alt={model.image.altText ?? ""}
-                      width={model.image.width ?? IMAGE_FALLBACK_SIZE}
-                      height={model.image.height ?? IMAGE_FALLBACK_SIZE}
-                      sizes={IMAGE_SIZES}
-                      className="size-full lift-photo object-cover"
-                    />
-                  ) : null}
-                </AspectRatio>
-                <CardContent className="flex flex-1 flex-col gap-3 px-1 pb-1">
-                  <CardTitle asChild>
-                    <h3>
-                      <Link
-                        viewTransition
-                        to={model.to}
-                        prefetch="intent"
-                        className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"
-                      >
-                        {model.title}
-                      </Link>
-                    </h3>
-                  </CardTitle>
-                  <Price price={model.price} from />
-                  <Separator />
-                  <ItemGroup asChild>
-                    <ul aria-label={`Особливості ${model.title}`}>
-                      {model.highlights.map((highlight) => (
-                        <li key={highlight}>
-                          <Item size="none" className="flex-nowrap gap-2">
-                            <ItemMedia>
-                              <Check aria-hidden="true" strokeWidth={2} className="size-4" />
-                            </ItemMedia>
-                            <ItemContent>
-                              <ItemDescription>{highlight}</ItemDescription>
-                            </ItemContent>
-                          </Item>
-                        </li>
-                      ))}
-                    </ul>
-                  </ItemGroup>
-                </CardContent>
-              </article>
+              <TransitionSource href={model.to}>
+                <article>
+                  <AspectRatio
+                    data-vt-target
+                    ratio={1}
+                    className="overflow-hidden rounded-md bg-photo"
+                  >
+                    {model.image ? (
+                      <ShopImage
+                        src={model.image.url}
+                        alt={model.image.altText ?? ""}
+                        width={model.image.width ?? IMAGE_FALLBACK_SIZE}
+                        height={model.image.height ?? IMAGE_FALLBACK_SIZE}
+                        sizes={IMAGE_SIZES}
+                        className="size-full lift-photo object-cover"
+                      />
+                    ) : null}
+                  </AspectRatio>
+                  <CardContent className="flex flex-1 flex-col gap-3 px-1 pb-1">
+                    <CardTitle asChild>
+                      <h3>
+                        <NavLink
+                          viewTransition
+                          to={model.to}
+                          prefetch="intent"
+                          className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"
+                        >
+                          {model.title}
+                        </NavLink>
+                      </h3>
+                    </CardTitle>
+                    <Price price={model.price} from />
+                    <Separator />
+                    <ItemGroup asChild>
+                      <ul aria-label={`Особливості ${model.title}`}>
+                        {model.highlights.map((highlight) => (
+                          <li key={highlight}>
+                            <Item size="none" className="flex-nowrap gap-2">
+                              <ItemMedia>
+                                <Check aria-hidden="true" strokeWidth={2} className="size-4" />
+                              </ItemMedia>
+                              <ItemContent>
+                                <ItemDescription>{highlight}</ItemDescription>
+                              </ItemContent>
+                            </Item>
+                          </li>
+                        ))}
+                      </ul>
+                    </ItemGroup>
+                  </CardContent>
+                </article>
+              </TransitionSource>
             </Card>
           </li>
         ))}

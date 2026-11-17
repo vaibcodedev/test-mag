@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import type { ComponentProps } from "react";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 
 import type { ProductCardImage } from "~/components/product/product-card";
 import { Badge } from "~/components/ui/badge";
@@ -18,6 +18,7 @@ import { Price } from "~/components/ui/price";
 import { ShopImage } from "~/components/ui/shop-image";
 import { discountPercent, formatPrice, type Money } from "~/lib/format";
 import { cn } from "~/lib/utils";
+import { TransitionSource } from "~/lib/view-transition";
 
 /** Плитка з товаром: новинка або товар зі знижкою. */
 export type PromoProductTile = {
@@ -65,49 +66,54 @@ function ProductTile({ tile, kind }: { tile: PromoProductTile; kind: "new" | "sa
       padding="sm"
       className={cn(TILE, "flex-row gap-4 @2xl:flex-col-reverse")}
     >
-      <article data-slot="promo-tile" data-kind={kind}>
-        <CardContent className="flex flex-1 flex-col items-start gap-2">
-          {kind === "new" ? <Badge variant="new">Новинка</Badge> : null}
-          {percent ? (
-            <Badge variant="sale">
-              <span className="sr-only">Знижка </span>−{percent}%
-            </Badge>
-          ) : null}
-          <CardTitle asChild>
-            <h3>
-              <Link
-                viewTransition
-                to={tile.to}
-                prefetch="intent"
-                className={cn(TILE_LINK, "focus-visible:after:shadow-focus")}
-              >
-                {tile.title}
-              </Link>
-            </h3>
-          </CardTitle>
-          {tile.caption ? (
-            <CardDescription className="text-caption">{tile.caption}</CardDescription>
-          ) : null}
-          <Price
-            price={tile.price}
-            compareAt={kind === "sale" ? tile.compareAtPrice : null}
-            className="mt-auto pt-1"
-          />
-        </CardContent>
-        {tile.image ? (
-          // Рамка без сталих пропорцій: у рядку вона на всю висоту плитки, у стовпчику — 128px.
-          <div className="relative w-28 shrink-0 overflow-hidden rounded-md bg-photo @2xl:h-32 @2xl:w-full">
-            <ShopImage
-              src={tile.image.url}
-              alt={tile.image.altText ?? ""}
-              width={tile.image.width ?? IMAGE_FALLBACK_SIZE}
-              height={tile.image.height ?? IMAGE_FALLBACK_SIZE}
-              sizes={IMAGE_SIZES}
-              className="absolute inset-0 size-full lift-photo object-cover"
+      <TransitionSource href={tile.to}>
+        <article data-slot="promo-tile" data-kind={kind}>
+          <CardContent className="flex flex-1 flex-col items-start gap-2">
+            {kind === "new" ? <Badge variant="new">Новинка</Badge> : null}
+            {percent ? (
+              <Badge variant="sale">
+                <span className="sr-only">Знижка </span>−{percent}%
+              </Badge>
+            ) : null}
+            <CardTitle asChild>
+              <h3>
+                <NavLink
+                  viewTransition
+                  to={tile.to}
+                  prefetch="intent"
+                  className={cn(TILE_LINK, "focus-visible:after:shadow-focus")}
+                >
+                  {tile.title}
+                </NavLink>
+              </h3>
+            </CardTitle>
+            {tile.caption ? (
+              <CardDescription className="text-caption">{tile.caption}</CardDescription>
+            ) : null}
+            <Price
+              price={tile.price}
+              compareAt={kind === "sale" ? tile.compareAtPrice : null}
+              className="mt-auto pt-1"
             />
-          </div>
-        ) : null}
-      </article>
+          </CardContent>
+          {tile.image ? (
+            // Рамка без сталих пропорцій: у рядку вона на всю висоту плитки, у стовпчику — 128px.
+            <div
+              data-vt-target
+              className="relative w-28 shrink-0 overflow-hidden rounded-md bg-photo @2xl:h-32 @2xl:w-full"
+            >
+              <ShopImage
+                src={tile.image.url}
+                alt={tile.image.altText ?? ""}
+                width={tile.image.width ?? IMAGE_FALLBACK_SIZE}
+                height={tile.image.height ?? IMAGE_FALLBACK_SIZE}
+                sizes={IMAGE_SIZES}
+                className="absolute inset-0 size-full lift-photo object-cover"
+              />
+            </div>
+          ) : null}
+        </article>
+      </TransitionSource>
     </Card>
   );
 }
