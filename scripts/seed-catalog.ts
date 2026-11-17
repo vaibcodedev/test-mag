@@ -68,6 +68,7 @@ export const CONFIG_OPTION = "Конфігурація";
 export const CONNECTIVITY_OPTION = "Зв'язок";
 export const SIZE_OPTION = "Розмір";
 export const LENGTH_OPTION = "Довжина";
+export const MODEL_OPTION = "Модель";
 
 /** Єдина опція товару без варіантів — так її називає сам Shopify. */
 export const DEFAULT_OPTION: OptionSeed = { name: "Title", values: ["Default Title"] };
@@ -1269,7 +1270,8 @@ const ACCESSORIES: SimpleRow[] = [
     ],
     ["4K Dolby Vision", "Пульт Siri Remote"],
     7499,
-    [option(STORAGE_OPTION, value("64 ГБ, Wi-Fi"), value("128 ГБ, Wi-Fi + Ethernet", 1000))],
+    // «Модель», а не «Пам'ять»: інакше «64 ГБ, Wi-Fi» потрапляє у фільтр пам'яті поруч із 64 ГБ.
+    [option(MODEL_OPTION, value("Wi-Fi, 64 ГБ"), value("Wi-Fi + Ethernet, 128 ГБ", 1000))],
   ],
   [
     "usb-c-to-headphone-jack-adapter",
