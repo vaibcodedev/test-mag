@@ -8,6 +8,7 @@ export default [
   route("cart", "routes/cart.tsx"),
   route("search", "routes/search.tsx"),
   route("account", "routes/account.tsx"),
+  route("account/profile", "routes/account.profile.tsx"),
   route("robots.txt", "routes/robots.ts"),
   route("sitemap.xml", "routes/sitemap.ts"),
   route("pages/:handle", "routes/page.tsx"),
