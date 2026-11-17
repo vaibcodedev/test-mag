@@ -136,7 +136,7 @@ export function DataSection({ images }: DataSectionProps) {
         <Specimen label="Card: тони surface, ink, blue та interactive" tone="page">
           <div className="grid gap-4 sm:grid-cols-2">
             <Card interactive asChild className="focus-ring">
-              <Link to="/collections/iphone">
+              <Link viewTransition to="/collections/iphone">
                 <AspectRatio ratio={SQUARE} className="overflow-hidden rounded-md bg-photo">
                   {photo ? (
                     <ShopImage
@@ -192,7 +192,9 @@ export function DataSection({ images }: DataSectionProps) {
             </CardContent>
             <CardFooter>
               <Button asChild size="sm">
-                <Link to="/pages/contacts">Як дістатися</Link>
+                <Link viewTransition to="/pages/contacts">
+                  Як дістатися
+                </Link>
               </Button>
             </CardFooter>
           </Card>
@@ -245,7 +247,7 @@ export function DataSection({ images }: DataSectionProps) {
               {SUGGESTIONS.map((suggestion, index) => (
                 <li key={suggestion.to}>
                   <Item asChild size="sm">
-                    <Link to={suggestion.to}>
+                    <Link viewTransition to={suggestion.to}>
                       <ItemMedia variant="image">
                         <Thumb image={images[index]} />
                       </ItemMedia>
@@ -291,7 +293,7 @@ export function DataSection({ images }: DataSectionProps) {
             <ul>
               <li>
                 <Item asChild size="sm" variant="active">
-                  <Link to="/pages/delivery" aria-current="page">
+                  <Link viewTransition to="/pages/delivery" aria-current="page">
                     <ItemContent>
                       <ItemTitle>Доставка й оплата</ItemTitle>
                     </ItemContent>
@@ -300,7 +302,7 @@ export function DataSection({ images }: DataSectionProps) {
               </li>
               <li>
                 <Item asChild size="sm">
-                  <Link to="/pages/warranty">
+                  <Link viewTransition to="/pages/warranty">
                     <ItemContent>
                       <ItemTitle>Гарантія</ItemTitle>
                     </ItemContent>
@@ -367,12 +369,22 @@ export function DataSection({ images }: DataSectionProps) {
             <PaginationContent className="w-full justify-between">
               <PaginationItem>
                 <PaginationPrevious asChild showText="always" text="Новіші статті">
-                  <Link to="?page=1#data" preventScrollReset aria-label="Новіші статті" />
+                  <Link
+                    viewTransition
+                    to="?page=1#data"
+                    preventScrollReset
+                    aria-label="Новіші статті"
+                  />
                 </PaginationPrevious>
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext asChild showText="always" text="Старіші статті">
-                  <Link to="?page=3#data" preventScrollReset aria-label="Старіші статті" />
+                  <Link
+                    viewTransition
+                    to="?page=3#data"
+                    preventScrollReset
+                    aria-label="Старіші статті"
+                  />
                 </PaginationNext>
               </PaginationItem>
             </PaginationContent>
@@ -446,7 +458,9 @@ export function DataSection({ images }: DataSectionProps) {
               </EmptyHeader>
               <EmptyContent>
                 <Button asChild>
-                  <Link to="/collections">Перейти в каталог</Link>
+                  <Link viewTransition to="/collections">
+                    Перейти в каталог
+                  </Link>
                 </Button>
               </EmptyContent>
             </Empty>
@@ -457,12 +471,18 @@ export function DataSection({ images }: DataSectionProps) {
                 </EmptyMedia>
                 <EmptyTitle as="h4">Нічого не знайшли</EmptyTitle>
                 <EmptyDescription>
-                  Перевірте назву або <Link to="/pages/contacts">напишіть нам</Link>.
+                  Перевірте назву або{" "}
+                  <Link viewTransition to="/pages/contacts">
+                    напишіть нам
+                  </Link>
+                  .
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
                 <Button asChild variant="secondary" size="sm">
-                  <Link to="/collections">Увесь каталог</Link>
+                  <Link viewTransition to="/collections">
+                    Увесь каталог
+                  </Link>
                 </Button>
               </EmptyContent>
             </Empty>
@@ -474,13 +494,17 @@ export function DataSection({ images }: DataSectionProps) {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="/">Головна</Link>
+                  <Link viewTransition to="/">
+                    Головна
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="/collections/iphone">iPhone</Link>
+                  <Link viewTransition to="/collections/iphone">
+                    iPhone
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
@@ -496,12 +520,12 @@ export function DataSection({ images }: DataSectionProps) {
               </PaginationItem>
               <PaginationItem>
                 <PaginationLink asChild page={1} isActive>
-                  <Link to="?page=1#data" preventScrollReset />
+                  <Link viewTransition to="?page=1#data" preventScrollReset />
                 </PaginationLink>
               </PaginationItem>
               <PaginationItem>
                 <PaginationLink asChild page={2}>
-                  <Link to="?page=2#data" preventScrollReset />
+                  <Link viewTransition to="?page=2#data" preventScrollReset />
                 </PaginationLink>
               </PaginationItem>
               <PaginationItem>
@@ -509,12 +533,12 @@ export function DataSection({ images }: DataSectionProps) {
               </PaginationItem>
               <PaginationItem>
                 <PaginationLink asChild page={12}>
-                  <Link to="?page=12#data" preventScrollReset />
+                  <Link viewTransition to="?page=12#data" preventScrollReset />
                 </PaginationLink>
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext asChild>
-                  <Link to="?page=2#data" preventScrollReset />
+                  <Link viewTransition to="?page=2#data" preventScrollReset />
                 </PaginationNext>
               </PaginationItem>
             </PaginationContent>

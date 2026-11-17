@@ -64,6 +64,7 @@ export function PopularProducts({
               return (
                 <li key={tab.to} className="shrink-0">
                   <Link
+                    viewTransition
                     to={tab.to}
                     prefetch="intent"
                     aria-current={active ? "page" : undefined}

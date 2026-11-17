@@ -1,11 +1,12 @@
 import { ArrowRight } from "lucide-react";
 import type { ComponentProps } from "react";
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Card, CardContent, CardDescription, CardTitle } from "~/components/ui/card";
 import { ShopImage } from "~/components/ui/shop-image";
 import { cn } from "~/lib/utils";
+import { useTransitionSource, viewTransitionStyle } from "~/lib/view-transition";
 
 const IMAGE_FALLBACK_SIZE = 800;
 const IMAGE_SIZES = "(min-width: 64rem) 30vw, (min-width: 40rem) 45vw, 90vw";
@@ -38,10 +39,17 @@ export function CollectionCard({
   ...props
 }: CollectionCardProps) {
   const { image } = collection;
+  const href = `/collections/${collection.handle}`;
+  const transition = useTransitionSource<HTMLElement>(href);
 
   return (
     <Card asChild interactive padding="sm" className={cn("h-full gap-4", className)}>
-      <article data-slot="collection-card" {...props}>
+      <article
+        data-slot="collection-card"
+        {...props}
+        {...transition}
+        style={{ ...viewTransitionStyle("collection", collection.handle), ...props.style }}
+      >
         <div className="overflow-hidden rounded-md bg-photo">
           <AspectRatio ratio={4 / 3}>
             {image ? (
@@ -62,13 +70,17 @@ export function CollectionCard({
           <div className="flex min-w-0 flex-col gap-1">
             <CardTitle asChild size="h3" className="wrap-anywhere">
               <Heading>
-                <Link
-                  to={`/collections/${collection.handle}`}
+                <NavLink
+                  to={href}
                   prefetch="intent"
+                  viewTransition
                   className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"
                 >
-                  {collection.title}
-                </Link>
+                  {/* Назва переїжджає в заголовок сторінки колекції. */}
+                  <span data-vt-target className="inline-block">
+                    {collection.title}
+                  </span>
+                </NavLink>
               </Heading>
             </CardTitle>
             {collection.description ? (

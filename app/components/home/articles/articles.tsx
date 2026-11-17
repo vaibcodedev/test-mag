@@ -90,6 +90,7 @@ export function Articles({ id = "articles", content, articles, ...props }: Artic
                     <CardTitle asChild>
                       <h3 className="text-h3 wrap-break-word">
                         <Link
+                          viewTransition
                           to={`/blogs/blog/${article.handle}`}
                           prefetch="intent"
                           className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"

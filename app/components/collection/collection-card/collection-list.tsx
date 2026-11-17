@@ -39,7 +39,9 @@ export function CollectionList({ collections, className, ...props }: CollectionL
         </EmptyHeader>
         <EmptyContent>
           <Button asChild>
-            <Link to="/">На головну</Link>
+            <Link viewTransition to="/">
+              На головну
+            </Link>
           </Button>
         </EmptyContent>
       </Empty>

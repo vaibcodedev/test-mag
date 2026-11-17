@@ -101,7 +101,7 @@ export function UsedDevices({
           </ItemGroup>
 
           <Button asChild variant="lime" className="mt-auto w-full sm:w-fit">
-            <Link to={content.link.to} prefetch="intent">
+            <Link viewTransition to={content.link.to} prefetch="intent">
               {content.link.title}
               <ArrowRight aria-hidden="true" strokeWidth={2} />
             </Link>

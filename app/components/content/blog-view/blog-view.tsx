@@ -79,7 +79,7 @@ export function BlogView({
           </EmptyHeader>
           <EmptyContent>
             <Button asChild>
-              <Link to="/collections" prefetch="intent">
+              <Link viewTransition to="/collections" prefetch="intent">
                 Перейти до каталогу
               </Link>
             </Button>
@@ -98,7 +98,7 @@ export function BlogView({
                   text="Новіші статті"
                   aria-label="Новіші статті"
                 >
-                  <Link to={newerHref} />
+                  <Link viewTransition to={newerHref} />
                 </PaginationPrevious>
               </PaginationItem>
             ) : null}
@@ -110,7 +110,7 @@ export function BlogView({
                   text="Старіші статті"
                   aria-label="Старіші статті"
                 >
-                  <Link to={olderHref} />
+                  <Link viewTransition to={olderHref} />
                 </PaginationNext>
               </PaginationItem>
             ) : null}

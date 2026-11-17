@@ -107,7 +107,7 @@ export function OrdersList({
           </EmptyHeader>
           <EmptyContent>
             <Button asChild>
-              <Link to="/collections" prefetch="intent">
+              <Link viewTransition to="/collections" prefetch="intent">
                 Перейти до каталогу
               </Link>
             </Button>
@@ -158,7 +158,7 @@ export function OrdersList({
                   text="Новіші замовлення"
                   aria-label="Новіші замовлення"
                 >
-                  <Link to={newerHref} preventScrollReset />
+                  <Link viewTransition to={newerHref} preventScrollReset />
                 </PaginationPrevious>
               </PaginationItem>
             ) : null}
@@ -170,7 +170,7 @@ export function OrdersList({
                   text="Старіші замовлення"
                   aria-label="Старіші замовлення"
                 >
-                  <Link to={olderHref} preventScrollReset />
+                  <Link viewTransition to={olderHref} preventScrollReset />
                 </PaginationNext>
               </PaginationItem>
             ) : null}

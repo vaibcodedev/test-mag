@@ -25,7 +25,7 @@ export function CollectionEmpty({ filtered, resetHref, ...props }: CollectionEmp
         {...props}
       >
         <Button asChild>
-          <Link to={resetHref} preventScrollReset>
+          <Link viewTransition to={resetHref} preventScrollReset>
             Скинути фільтри
           </Link>
         </Button>
@@ -41,7 +41,9 @@ export function CollectionEmpty({ filtered, resetHref, ...props }: CollectionEmp
       {...props}
     >
       <Button asChild>
-        <Link to="/collections">Перейти до каталогу</Link>
+        <Link viewTransition to="/collections">
+          Перейти до каталогу
+        </Link>
       </Button>
     </ProductGridEmpty>
   );

@@ -35,7 +35,7 @@ function FooterColumn({ id, title, links }: { id: string; title: string; links: 
       <ul>
         {links.map((link) => (
           <li key={link.to}>
-            <Link to={link.to} className={LINK}>
+            <Link viewTransition to={link.to} className={LINK}>
               {link.title}
             </Link>
           </li>

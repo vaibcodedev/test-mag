@@ -38,6 +38,7 @@ export function BottomBar() {
         {ITEMS.map(({ title, to, icon: Icon, end }) => (
           <li key={to}>
             <NavLink
+              viewTransition
               to={to}
               end={end}
               className={({ isActive }) => cn(ITEM, isActive ? "text-blue" : "text-ink-2")}
@@ -52,6 +53,7 @@ export function BottomBar() {
         ))}
         <li>
           <NavLink
+            viewTransition
             to="/cart"
             aria-haspopup="dialog"
             onClick={openCartDrawerFromLinkClick}

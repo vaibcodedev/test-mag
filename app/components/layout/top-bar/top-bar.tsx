@@ -16,14 +16,18 @@ export function TopBar({ store = STORE_INFO }: { store?: StoreInfo }) {
         <nav aria-label="Сервіс і шоурум" className="min-w-0">
           <ul className="flex items-center gap-x-6">
             <li>
-              <Link to={SHOWROOM_LINK.to} className={`${LINK} font-semibold text-surface`}>
+              <Link
+                viewTransition
+                to={SHOWROOM_LINK.to}
+                className={`${LINK} font-semibold text-surface`}
+              >
                 <MapPin aria-hidden="true" strokeWidth={2} className="size-4 text-lime" />
                 {SHOWROOM_LINK.title}
               </Link>
             </li>
             {SERVICE_LINKS.map((link) => (
               <li key={link.to} className="hidden lg:block">
-                <Link to={link.to} className={LINK}>
+                <Link viewTransition to={link.to} className={LINK}>
                   {link.title}
                 </Link>
               </li>

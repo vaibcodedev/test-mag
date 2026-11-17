@@ -67,7 +67,7 @@ export function SearchEmpty({ term, categories, className, ...props }: SearchEmp
             {categories.map((category) => (
               <li key={category.to}>
                 <Button asChild variant="secondary" size="sm" className="min-h-11">
-                  <Link to={category.to} prefetch="intent">
+                  <Link viewTransition to={category.to} prefetch="intent">
                     {category.title}
                   </Link>
                 </Button>

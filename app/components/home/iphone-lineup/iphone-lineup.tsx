@@ -79,6 +79,7 @@ export function IphoneLineup({
                   <CardTitle asChild>
                     <h3>
                       <Link
+                        viewTransition
                         to={model.to}
                         prefetch="intent"
                         className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"

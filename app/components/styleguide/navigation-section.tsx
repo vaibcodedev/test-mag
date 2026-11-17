@@ -128,7 +128,9 @@ export function NavigationSection() {
                     {CATALOG.map((item) => (
                       <li key={item.to}>
                         <NavigationMenuLink asChild>
-                          <Link to={item.to}>{item.title}</Link>
+                          <Link viewTransition to={item.to}>
+                            {item.title}
+                          </Link>
                         </NavigationMenuLink>
                       </li>
                     ))}

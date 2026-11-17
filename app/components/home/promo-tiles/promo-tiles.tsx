@@ -76,6 +76,7 @@ function ProductTile({ tile, kind }: { tile: PromoProductTile; kind: "new" | "sa
           <CardTitle asChild>
             <h3>
               <Link
+                viewTransition
                 to={tile.to}
                 prefetch="intent"
                 className={cn(TILE_LINK, "focus-visible:after:shadow-focus")}
@@ -119,6 +120,7 @@ function TradeInTile({ tile }: { tile: PromoTradeInTile }) {
           <CardTitle asChild>
             <h3 className="text-h3">
               <Link
+                viewTransition
                 to={tile.to}
                 prefetch="intent"
                 className={cn(TILE_LINK, "focus-visible:after:shadow-focus-offset")}

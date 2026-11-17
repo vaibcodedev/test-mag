@@ -54,7 +54,7 @@ function LinkColumn({
               size="sm"
               className={cn("text-ink-2", chips && "w-auto")}
             >
-              <Link to={link.to} prefetch="intent">
+              <Link viewTransition to={link.to} prefetch="intent">
                 {link.title}
               </Link>
             </Item>

@@ -53,7 +53,7 @@ function Unavailable({ store }: { store: StoreInfo }) {
       actions={
         <>
           <Button asChild>
-            <Link to="/collections" prefetch="intent">
+            <Link viewTransition to="/collections" prefetch="intent">
               Перейти до каталогу
             </Link>
           </Button>

@@ -95,6 +95,7 @@ export function Pagination({
       {showMore && nextHref ? (
         <Button asChild variant="surface" size="lg">
           <Link
+            viewTransition
             to={nextHref}
             preventScrollReset
             aria-busy={loading || undefined}
@@ -109,14 +110,14 @@ export function Pagination({
         {previousHref ? (
           <PaginationItem>
             <PaginationPrevious asChild>
-              <Link to={previousHref} prefetch={prefetch} />
+              <Link viewTransition to={previousHref} prefetch={prefetch} />
             </PaginationPrevious>
           </PaginationItem>
         ) : null}
         {nextHref ? (
           <PaginationItem>
             <PaginationNext asChild>
-              <Link to={nextHref} prefetch={prefetch} />
+              <Link viewTransition to={nextHref} prefetch={prefetch} />
             </PaginationNext>
           </PaginationItem>
         ) : null}

@@ -38,12 +38,12 @@ export function NotFound({ categories = CATALOG_LINKS }: NotFoundProps) {
         </EmptyHeader>
         <EmptyContent>
           <Button asChild>
-            <Link to="/" prefetch="intent">
+            <Link viewTransition to="/" prefetch="intent">
               На головну
             </Link>
           </Button>
           <Button asChild variant="secondary">
-            <Link to="/collections" prefetch="intent">
+            <Link viewTransition to="/collections" prefetch="intent">
               Перейти до каталогу
             </Link>
           </Button>
@@ -59,7 +59,7 @@ export function NotFound({ categories = CATALOG_LINKS }: NotFoundProps) {
             {categories.map((category) => (
               <li key={category.to}>
                 <Button asChild variant="surface">
-                  <Link to={category.to} prefetch="intent">
+                  <Link viewTransition to={category.to} prefetch="intent">
                     {category.title}
                   </Link>
                 </Button>

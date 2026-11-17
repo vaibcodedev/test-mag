@@ -39,7 +39,7 @@ export function MegaMenu({ categories }: { categories: readonly MegaMenuCategory
                       {/* NavigationMenuLink дає роль і закриття меню, Item — вигляд плитки. */}
                       <NavigationMenuLink asChild className="rounded-md p-2 pe-3">
                         <Item asChild variant="muted" size="sm">
-                          <Link to={category.to} prefetch="intent">
+                          <Link viewTransition to={category.to} prefetch="intent">
                             <ItemMedia variant="image" size="sm" fit="cover">
                               {category.image ? (
                                 <ShopImage
@@ -68,13 +68,15 @@ export function MegaMenu({ categories }: { categories: readonly MegaMenuCategory
                   {BUYER_LINKS.map((link) => (
                     <li key={link.to}>
                       <NavigationMenuLink asChild>
-                        <Link to={link.to}>{link.title}</Link>
+                        <Link viewTransition to={link.to}>
+                          {link.title}
+                        </Link>
                       </NavigationMenuLink>
                     </li>
                   ))}
                 </ul>
                 <NavigationMenuLink asChild className="mt-auto font-semibold text-blue">
-                  <Link to="/collections" prefetch="intent">
+                  <Link viewTransition to="/collections" prefetch="intent">
                     Увесь каталог
                     <ArrowRight aria-hidden="true" strokeWidth={2} className="text-blue" />
                   </Link>

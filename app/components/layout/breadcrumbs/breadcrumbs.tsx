@@ -43,7 +43,7 @@ export function Breadcrumbs({ items, className, ...props }: BreadcrumbsProps) {
                 <BreadcrumbPage>{item.title}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link to={item.to} prefetch="intent">
+                  <Link viewTransition to={item.to} prefetch="intent">
                     {item.title}
                   </Link>
                 </BreadcrumbLink>

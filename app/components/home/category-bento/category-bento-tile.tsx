@@ -53,6 +53,7 @@ export function CategoryBentoTile({
         <CardTitle asChild>
           <h3 className={featured ? "text-h3" : "wrap-anywhere xl:text-h3"}>
             <Link
+              viewTransition
               to={category.to}
               prefetch="intent"
               className={cn(

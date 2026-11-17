@@ -33,6 +33,7 @@ export function Header({ categories }: { categories: readonly MegaMenuCategory[]
         </div>
 
         <Link
+          viewTransition
           to="/"
           aria-label="Ionov Store — на головну"
           className="inline-flex min-h-11 shrink-0 items-center rounded-sm focus-ring"
@@ -52,31 +53,32 @@ export function Header({ categories }: { categories: readonly MegaMenuCategory[]
         >
           {/* Кнопка вже inline-flex, тому ховаємо її класами md:hidden і max-lg:hidden, а не парою hidden + lg:inline-flex. */}
           <Button asChild variant="ghost" size="icon" className="md:hidden">
-            <Link to="/search" aria-label="Пошук">
+            <Link viewTransition to="/search" aria-label="Пошук">
               <Search aria-hidden="true" strokeWidth={2} className="size-6" />
             </Link>
           </Button>
           <Button asChild variant="ghost" size="icon" className="max-lg:hidden">
-            <Link to="/compare">
+            <Link viewTransition to="/compare">
               <span className="sr-only">Порівняння</span>
               <Scale aria-hidden="true" strokeWidth={2} className="size-6" />
               <CompareCount />
             </Link>
           </Button>
           <Button asChild variant="ghost" size="icon" className="max-lg:hidden">
-            <Link to="/wishlist">
+            <Link viewTransition to="/wishlist">
               <span className="sr-only">Обране</span>
               <Heart aria-hidden="true" strokeWidth={2} className="size-6" />
               <WishlistCount />
             </Link>
           </Button>
           <Button asChild variant="ghost" size="icon" className="max-sm:hidden">
-            <Link to="/account" aria-label="Кабінет">
+            <Link viewTransition to="/account" aria-label="Кабінет">
               <User aria-hidden="true" strokeWidth={2} className="size-6" />
             </Link>
           </Button>
           <Button asChild variant="primary" className="ms-1 px-4 text-small">
             <Link
+              viewTransition
               to="/cart"
               aria-label={cartLabel(totalQuantity)}
               aria-haspopup="dialog"

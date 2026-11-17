@@ -67,6 +67,7 @@ export function SectionHeader({
       </div>
       {link ? (
         <Link
+          viewTransition
           to={link.to}
           prefetch="intent"
           className={cn(

@@ -31,7 +31,7 @@ export function ProductTrust({ used = false, className, ...props }: ProductTrust
         {items.map(({ icon: Icon, title, to }) => (
           <li key={to} className="min-w-0">
             <Item asChild size="sm">
-              <Link to={to} prefetch="intent">
+              <Link viewTransition to={to} prefetch="intent">
                 <ItemMedia variant="icon" aria-hidden="true">
                   <Icon strokeWidth={2} />
                 </ItemMedia>

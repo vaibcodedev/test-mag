@@ -1,6 +1,6 @@
 import { ShoppingCart } from "lucide-react";
 import type { ComponentProps } from "react";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 
 import { ColorSwatches } from "~/components/product/color-swatches";
 import { CompareButton } from "~/components/product/compare-button";
@@ -17,6 +17,7 @@ import { ShopImage } from "~/components/ui/shop-image";
 import { toggleCompare, useIsCompared } from "~/hooks/use-compare";
 import { toggleWishlist, useIsWishlisted } from "~/hooks/use-wishlist";
 import { cn } from "~/lib/utils";
+import { useTransitionSource, viewTransitionStyle } from "~/lib/view-transition";
 
 import { ProductCardBadges } from "./product-card-badges";
 import type { ProductCardData } from "./product-card.types";
@@ -61,6 +62,7 @@ export function ProductCard({
   const { image, availableForSale, compareCategory } = product;
   const href = `/products/${product.handle}`;
 
+  const transition = useTransitionSource<HTMLElement>(href);
   const storedWishlisted = useIsWishlisted(product.handle);
   const storedCompared = useIsCompared(product.handle);
   // Картка керована ззовні, щойно передано стан або обробник.
@@ -69,8 +71,15 @@ export function ProductCard({
 
   return (
     <Card asChild interactive padding="sm" className={cn("h-full", className)}>
-      <article data-slot="product-card" data-available={availableForSale} {...props}>
-        <div className="relative overflow-hidden rounded-md bg-photo">
+      <article
+        data-slot="product-card"
+        data-available={availableForSale}
+        {...props}
+        {...transition}
+        style={{ ...viewTransitionStyle("product", product.handle), ...props.style }}
+      >
+        {/* data-vt-target: під час переходу це фото «розкривається» в галерею сторінки товару. */}
+        <div data-vt-target className="relative overflow-hidden rounded-md bg-photo">
           <AspectRatio ratio={1}>
             {image ? (
               <ShopImage
@@ -116,13 +125,15 @@ export function ProductCard({
         <CardContent className="flex flex-1 flex-col gap-2">
           <CardTitle asChild>
             <Heading>
-              <Link
+              {/* NavLink: на час переходу отримує клас transitioning (див. ~/lib/view-transition). */}
+              <NavLink
                 to={href}
                 prefetch="intent"
+                viewTransition
                 className="line-clamp-2 min-h-10 rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"
               >
                 {product.title}
-              </Link>
+              </NavLink>
             </Heading>
           </CardTitle>
 
@@ -157,7 +168,12 @@ export function ProductCard({
             </Button>
           ) : (
             <Button asChild variant="secondary" className="w-full">
-              <Link to={href} prefetch="intent" aria-label={`Докладніше: ${product.title}`}>
+              <Link
+                viewTransition
+                to={href}
+                prefetch="intent"
+                aria-label={`Докладніше: ${product.title}`}
+              >
                 Докладніше
               </Link>
             </Button>

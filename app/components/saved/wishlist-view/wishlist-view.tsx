@@ -55,7 +55,7 @@ export function WishlistView() {
           </EmptyHeader>
           <EmptyContent>
             <Button asChild>
-              <Link to="/collections" prefetch="intent">
+              <Link viewTransition to="/collections" prefetch="intent">
                 Перейти до каталогу
               </Link>
             </Button>

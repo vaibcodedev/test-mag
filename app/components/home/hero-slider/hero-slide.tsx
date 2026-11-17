@@ -173,7 +173,7 @@ export function HeroSlide({ banner, index, count, priority = false }: HeroSlideP
 
               <div className="flex flex-wrap gap-3">
                 <Button asChild variant="lime" size="lg">
-                  <Link to={href} prefetch="intent">
+                  <Link viewTransition to={href} prefetch="intent">
                     <ShoppingCart aria-hidden="true" strokeWidth={2} />
                     Купити
                     <span className="sr-only">: {banner.title}</span>
@@ -182,7 +182,7 @@ export function HeroSlide({ banner, index, count, priority = false }: HeroSlideP
                 {comparable ? (
                   <Button asChild variant="on-dark" size="lg">
                     {/* Посилання веде на /compare; перед переходом товар банера потрапляє у список. */}
-                    <Link to="/compare" onClick={compareBanner}>
+                    <Link viewTransition to="/compare" onClick={compareBanner}>
                       <Scale aria-hidden="true" strokeWidth={2} />
                       Порівняти
                       <span className="sr-only">: {banner.title}</span>
@@ -190,7 +190,7 @@ export function HeroSlide({ banner, index, count, priority = false }: HeroSlideP
                   </Button>
                 ) : banner.compareHref ? (
                   <Button asChild variant="on-dark" size="lg">
-                    <Link to={banner.compareHref} prefetch="intent">
+                    <Link viewTransition to={banner.compareHref} prefetch="intent">
                       <LayoutGrid aria-hidden="true" strokeWidth={2} />
                       Усі моделі
                       <span className="sr-only">: {banner.title}</span>

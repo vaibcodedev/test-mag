@@ -77,7 +77,7 @@ export function CartPage() {
                 shopPay={totals.hasLines}
                 secondaryAction={
                   <Button asChild variant="ghost" className="w-full">
-                    <Link to="/collections" prefetch="intent">
+                    <Link viewTransition to="/collections" prefetch="intent">
                       <ArrowLeft aria-hidden="true" strokeWidth={2} />
                       Продовжити покупки
                     </Link>

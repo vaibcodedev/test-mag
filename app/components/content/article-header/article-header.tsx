@@ -65,7 +65,7 @@ export function ArticleHeader({
       </div>
 
       {image ? (
-        <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-xl bg-photo">
+        <AspectRatio data-vt-detail ratio={16 / 9} className="overflow-hidden rounded-xl bg-photo">
           <ShopImage
             src={image.url}
             alt={image.altText ?? ""}

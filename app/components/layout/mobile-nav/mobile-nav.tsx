@@ -67,7 +67,7 @@ export function MobileNav({ categories, store = STORE_INFO }: MobileNavProps) {
                 {categories.map((category) => (
                   <li key={category.to}>
                     <Item asChild size="sm">
-                      <Link to={category.to} onClick={close}>
+                      <Link viewTransition to={category.to} onClick={close}>
                         <ItemContent>
                           <ItemTitle>{category.title}</ItemTitle>
                         </ItemContent>
@@ -84,7 +84,7 @@ export function MobileNav({ categories, store = STORE_INFO }: MobileNavProps) {
               <ul>
                 <li>
                   <Item asChild size="sm">
-                    <Link to="/compare" onClick={close}>
+                    <Link viewTransition to="/compare" onClick={close}>
                       <ItemMedia>
                         <Scale aria-hidden="true" strokeWidth={2} />
                       </ItemMedia>
@@ -104,7 +104,7 @@ export function MobileNav({ categories, store = STORE_INFO }: MobileNavProps) {
                 </li>
                 <li>
                   <Item asChild size="sm">
-                    <Link to="/account" onClick={close}>
+                    <Link viewTransition to="/account" onClick={close}>
                       <ItemMedia>
                         <User aria-hidden="true" strokeWidth={2} />
                       </ItemMedia>
@@ -125,7 +125,7 @@ export function MobileNav({ categories, store = STORE_INFO }: MobileNavProps) {
                 {BUYER_LINKS.map((link) => (
                   <li key={link.to}>
                     <Item asChild size="sm">
-                      <Link to={link.to} onClick={close}>
+                      <Link viewTransition to={link.to} onClick={close}>
                         {link.title}
                       </Link>
                     </Item>
@@ -164,7 +164,7 @@ export function MobileNav({ categories, store = STORE_INFO }: MobileNavProps) {
               </li>
               <li>
                 <Item asChild size="sm">
-                  <Link to="/pages/contacts" onClick={close}>
+                  <Link viewTransition to="/pages/contacts" onClick={close}>
                     <ItemMedia>
                       <MapPin aria-hidden="true" strokeWidth={2} />
                     </ItemMedia>

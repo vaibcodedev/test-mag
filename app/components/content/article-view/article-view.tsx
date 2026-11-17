@@ -45,7 +45,7 @@ export function ArticleView({ breadcrumbs, blog, article, related }: ArticleView
           </CardContent>
         </Card>
         <Button asChild variant="link" className="min-h-11 self-start">
-          <Link to={`/blogs/${blog.handle}`} prefetch="intent">
+          <Link viewTransition to={`/blogs/${blog.handle}`} prefetch="intent">
             <ArrowLeft aria-hidden="true" strokeWidth={2} />
             Усі статті блогу
           </Link>

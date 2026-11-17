@@ -70,7 +70,7 @@ export function FiltersSheet({
           </SheetClose>
           {clearHref && activeCount > 0 ? (
             <Button asChild variant="ghost">
-              <Link to={clearHref} preventScrollReset>
+              <Link viewTransition to={clearHref} preventScrollReset>
                 Скинути все
               </Link>
             </Button>

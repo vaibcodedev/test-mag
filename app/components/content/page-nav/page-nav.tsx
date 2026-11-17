@@ -48,7 +48,12 @@ export function PageNav({
                     variant={active ? "active" : "default"}
                     className="whitespace-nowrap"
                   >
-                    <Link to={link.to} prefetch="intent" aria-current={active ? "page" : undefined}>
+                    <Link
+                      viewTransition
+                      to={link.to}
+                      prefetch="intent"
+                      aria-current={active ? "page" : undefined}
+                    >
                       <ItemContent>
                         <ItemTitle>{link.title}</ItemTitle>
                       </ItemContent>

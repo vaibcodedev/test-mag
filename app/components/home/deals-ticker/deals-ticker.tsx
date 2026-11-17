@@ -74,6 +74,7 @@ export function DealsTicker({
                       className="w-auto flex-nowrap gap-2 px-4 whitespace-nowrap"
                     >
                       <Link
+                        viewTransition
                         to={item.to}
                         prefetch={duplicate ? "none" : "intent"}
                         tabIndex={duplicate ? -1 : undefined}

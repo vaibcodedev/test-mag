@@ -43,7 +43,7 @@ export function CategoryPills({ categories, className, ...props }: CategoryPills
                 size="sm"
                 className={cn("h-11 rounded-pill", category.image && "ps-1.5")}
               >
-                <Link to={category.to} prefetch="intent">
+                <Link viewTransition to={category.to} prefetch="intent">
                   {category.image ? (
                     <ItemMedia asChild variant="image" fit="cover" className="size-8 rounded-pill">
                       <span>

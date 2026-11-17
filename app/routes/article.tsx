@@ -1,4 +1,5 @@
 import { ArticleView } from "~/components/content/article-view";
+import { viewTransitionStyle } from "~/lib/view-transition";
 import { JsonLd } from "~/components/seo/json-ld";
 import { useNonce } from "~/lib/csp";
 import { articleJsonLd } from "~/lib/seo/article-json-ld";
@@ -48,7 +49,13 @@ export default function Article({ loaderData }: Route.ComponentProps) {
   const nonce = useNonce();
 
   return (
-    <main id="main-content" tabIndex={-1} className="flex-1 pt-4 outline-none">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="flex-1 pt-4 outline-none"
+      // Головне фото статті (data-vt-detail) бере звідси назву переходу з картки статті.
+      style={viewTransitionStyle("article", article.handle)}
+    >
       <ArticleView breadcrumbs={breadcrumbs} blog={blog} article={article} related={related} />
 
       <JsonLd

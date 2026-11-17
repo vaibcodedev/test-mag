@@ -157,7 +157,7 @@ export function ProductDetails({
                 </CardContent>
                 <CardFooter>
                   <Button asChild variant="link" size="sm" className="min-h-11">
-                    <Link to={to} prefetch="intent">
+                    <Link viewTransition to={to} prefetch="intent">
                       {link}
                       <ArrowRight
                         aria-hidden="true"

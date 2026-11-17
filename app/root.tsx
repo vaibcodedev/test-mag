@@ -213,7 +213,7 @@ export function Layout({ children }: { children: ReactNode }) {
 export default function App({ loaderData }: Route.ComponentProps) {
   // Дії в тостах («Відкрити порівняння») переходять через роутер, без перезавантаження.
   const navigate = useNavigate();
-  useEffect(() => registerAppNavigate((to) => navigate(to)), [navigate]);
+  useEffect(() => registerAppNavigate((to) => navigate(to, { viewTransition: true })), [navigate]);
 
   return (
     <CartProvider initialData={loaderData.cartData}>

@@ -88,7 +88,7 @@ export function Deals({
           </ul>
 
           <Button asChild variant="on-dark" className="mt-6">
-            <Link to={content.link.to} prefetch="intent">
+            <Link viewTransition to={content.link.to} prefetch="intent">
               {content.link.title}
               <ArrowRight aria-hidden="true" strokeWidth={2} />
             </Link>

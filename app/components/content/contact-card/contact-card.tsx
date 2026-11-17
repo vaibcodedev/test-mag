@@ -90,7 +90,7 @@ export function ContactCard({
 
         {showroomLink ? (
           <Button asChild variant="link" className="min-h-11 self-start">
-            <Link to={showroomLink.to} prefetch="intent">
+            <Link viewTransition to={showroomLink.to} prefetch="intent">
               {showroomLink.title}
               <ArrowRight aria-hidden="true" strokeWidth={2} />
             </Link>

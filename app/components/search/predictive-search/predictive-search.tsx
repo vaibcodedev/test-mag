@@ -176,7 +176,7 @@ function PredictiveSearchField({
         if (!activeOption) return;
         event.preventDefault();
         select(activeOption);
-        void navigate(activeOption.href);
+        void navigate(activeOption.href, { viewTransition: true });
         return;
       }
       case "Escape": {
@@ -222,7 +222,9 @@ function PredictiveSearchField({
                 const trimmed = term.trim();
                 finish();
                 inputRef.current?.blur();
-                void navigate(trimmed ? searchPageUrl(trimmed) : SEARCH_PAGE_PATH);
+                void navigate(trimmed ? searchPageUrl(trimmed) : SEARCH_PAGE_PATH, {
+                  viewTransition: true,
+                });
               },
             })}
           >

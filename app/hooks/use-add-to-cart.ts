@@ -86,7 +86,7 @@ export function useAddToCart() {
       const merchandiseId = product.variantId;
       // Без варіанта чи без скриптів Shopify купити з картки не можна: ведемо на сторінку товару.
       if (!merchandiseId || !updateCart) {
-        await navigate(`/products/${product.handle}`);
+        await navigate(`/products/${product.handle}`, { viewTransition: true });
         return;
       }
 

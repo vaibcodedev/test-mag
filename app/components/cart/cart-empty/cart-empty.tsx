@@ -35,7 +35,7 @@ export function CartEmpty({ headingLevel = "h2", onNavigate, ...props }: CartEmp
       </EmptyHeader>
       <EmptyContent>
         <Button asChild>
-          <Link to="/collections" prefetch="intent" onClick={onNavigate}>
+          <Link viewTransition to="/collections" prefetch="intent" onClick={onNavigate}>
             Перейти до каталогу
           </Link>
         </Button>

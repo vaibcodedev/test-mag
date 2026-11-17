@@ -158,7 +158,11 @@ export function ProductGallery({ media, images, title, className, ...props }: Pr
         tabIndex={0}
         className="flex flex-col gap-3 rounded-xl focus-ring lg:grid lg:grid-cols-[5rem_minmax(0,1fr)]"
       >
-        <div className="relative overflow-hidden rounded-xl bg-photo lg:col-start-2 lg:row-start-1">
+        {/* data-vt-detail: сюди «розкривається» фото з картки товару (назва — у --vt-name вище). */}
+        <div
+          data-vt-detail
+          className="relative overflow-hidden rounded-xl bg-photo lg:col-start-2 lg:row-start-1"
+        >
           <CarouselContent className="ms-0">
             {items.map((item, index) => (
               <CarouselItem

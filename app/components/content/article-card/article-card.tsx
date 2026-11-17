@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import type { ComponentProps } from "react";
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 
 import { PublishedDate } from "~/components/content/published-date";
 import type { ArticleCardData } from "~/components/home/articles";
@@ -9,6 +9,7 @@ import { buttonVariants } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "~/components/ui/card";
 import { ShopImage } from "~/components/ui/shop-image";
 import { cn } from "~/lib/utils";
+import { useTransitionSource, viewTransitionStyle } from "~/lib/view-transition";
 
 const IMAGE_FALLBACK_WIDTH = 960;
 const IMAGE_FALLBACK_HEIGHT = 600;
@@ -37,10 +38,18 @@ export function ArticleCard({
   className,
   ...props
 }: ArticleCardProps) {
+  const href = `/blogs/${blogHandle}/${article.handle}`;
+  const transition = useTransitionSource<HTMLElement>(href);
+
   return (
     <Card asChild interactive padding="none" className={cn("h-full overflow-hidden", className)}>
-      <article data-slot="article-card" {...props}>
-        <AspectRatio ratio={IMAGE_RATIO} className="overflow-hidden bg-photo">
+      <article
+        data-slot="article-card"
+        {...props}
+        {...transition}
+        style={{ ...viewTransitionStyle("article", article.handle), ...props.style }}
+      >
+        <AspectRatio data-vt-target ratio={IMAGE_RATIO} className="overflow-hidden bg-photo">
           {article.image ? (
             <ShopImage
               src={article.image.url}
@@ -59,13 +68,14 @@ export function ArticleCard({
           <CardTitle asChild size="h3" className="wrap-break-word">
             <Heading>
               {/* Псевдоелемент розтягує посилання на всю картку; фокус обводить її цілком. */}
-              <Link
-                to={`/blogs/${blogHandle}/${article.handle}`}
+              <NavLink
+                to={href}
                 prefetch="intent"
+                viewTransition
                 className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"
               >
                 {article.title}
-              </Link>
+              </NavLink>
             </Heading>
           </CardTitle>
           {article.excerpt ? (

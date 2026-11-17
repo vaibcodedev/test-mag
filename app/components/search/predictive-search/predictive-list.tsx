@@ -84,7 +84,7 @@ function OptionRow({
 }: { option: PredictiveOption } & Pick<PredictiveListProps, "onSelect">) {
   return (
     <CommandItem asChild value={option.id} onSelect={() => onSelect?.(option)} className="py-1.5">
-      <Link id={option.id} data-kind={option.kind} tabIndex={-1} to={option.href}>
+      <Link viewTransition id={option.id} data-kind={option.kind} tabIndex={-1} to={option.href}>
         <OptionVisual option={option} />
         <ItemContent>
           <span className={cn("line-clamp-2", option.kind === "all" && "font-semibold text-blue")}>

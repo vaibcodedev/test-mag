@@ -174,6 +174,7 @@ export function CompareTable({
                 {/* Вільне місце в таблиці веде до каталогу цієї ж категорії. Плитка тягнеться
                     на два рядки шапки: це її верхня половина, нижня — в липкому рядку. */}
                 <Link
+                  viewTransition
                   to={collectionHref}
                   prefetch="intent"
                   data-slot="compare-add"
@@ -201,6 +202,7 @@ export function CompareTable({
                 <div className="flex h-full flex-col gap-1 text-start">
                   {/* Назва товару лишається звичайним ink-посиланням, як у картці товару. */}
                   <Link
+                    viewTransition
                     to={`/products/${product.handle}`}
                     prefetch="intent"
                     className="inline-flex min-h-11 items-center rounded-sm text-card-title text-ink focus-ring hover:text-blue"
@@ -227,6 +229,7 @@ export function CompareTable({
                   ) : (
                     <Button asChild variant="secondary" className="mt-1 w-full">
                       <Link
+                        viewTransition
                         to={`/products/${product.handle}`}
                         prefetch="intent"
                         aria-label={`${product.availableForSale ? "Обрати варіант" : "Докладніше"}: ${product.title}`}
@@ -242,6 +245,7 @@ export function CompareTable({
               <TableHead className={cn(PRODUCT_CELL, STICKY_CELL, "relative")}>
                 {/* Нижня половина плитки. Коли рядок прилип, вона лишається на видноті. */}
                 <Link
+                  viewTransition
                   to={collectionHref}
                   prefetch="intent"
                   data-slot="compare-add-more"

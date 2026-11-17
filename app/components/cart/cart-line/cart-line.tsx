@@ -198,6 +198,7 @@ export function CartLine({
               <Heading>
                 {product?.handle ? (
                   <Link
+                    viewTransition
                     to={`/products/${product.handle}`}
                     prefetch="intent"
                     className="inline-flex min-h-11 items-center rounded-sm focus-ring hover:text-blue"

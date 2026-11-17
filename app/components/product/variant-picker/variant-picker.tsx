@@ -92,6 +92,7 @@ function PickerValue({ value }: { value: VariantPickerValue }) {
     >
       {/* Посилання лишається посиланням: адреса варіанта працює без JavaScript і в новій вкладці. */}
       <Link
+        viewTransition
         to={value.to}
         replace={Boolean(onSelect)}
         preventScrollReset
