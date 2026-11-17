@@ -9,6 +9,7 @@ export default [
   route("search", "routes/search.tsx"),
   route("account", "routes/account.tsx"),
   route("account/profile", "routes/account.profile.tsx"),
+  route("account/orders/:id/reorder", "routes/account.order.reorder.ts"),
   route("robots.txt", "routes/robots.ts"),
   route("sitemap.xml", "routes/sitemap.ts"),
   route("pages/:handle", "routes/page.tsx"),
