@@ -106,15 +106,17 @@ export function FilterCheckboxList({ filter, activeFilters, labelId }: FilterChe
         // Висоту веде сітка (рядок 0fr ↔ 1fr), як в акордеоні. Крива ease-out і 200 мс: список
         // рушає одразу після натискання, без повільного розгону, який читається як затримка.
         // Згорнуті — невидимі й приховані від читачів екрана, тож у фокус не потрапляють.
+        // -mt-3 знімає зайвий проміжок FieldSet: згорнутий блок не лишає порожнього місця.
         <div
           id={listId}
           data-slot="filter-more"
           data-state={expanded ? "open" : "closed"}
           aria-hidden={expanded ? undefined : true}
-          className="grid transition-[grid-template-rows,visibility] duration-200 ease-out data-[state=closed]:invisible data-[state=closed]:grid-rows-[0fr] data-[state=open]:grid-rows-[1fr] motion-reduce:transition-none"
+          className="-mt-3 grid transition-[grid-template-rows,visibility] duration-200 ease-out data-[state=closed]:invisible data-[state=closed]:grid-rows-[0fr] data-[state=open]:grid-rows-[1fr] motion-reduce:transition-none"
         >
           <div className="relative -m-1 min-h-0 overflow-hidden p-1">
-            <FieldGroup data-slot="checkbox-group">
+            {/* Той самий крок, що й між значеннями вище: список читається як один. */}
+            <FieldGroup data-slot="checkbox-group" className="pt-1">
               {rest.map((option) => (
                 <FilterCheckbox key={option.value.id} filter={filter} option={option} />
               ))}
