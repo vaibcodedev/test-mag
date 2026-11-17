@@ -180,9 +180,9 @@ describe("AccountView", () => {
       "https://shop.example/orders/1",
     );
 
-    const older = screen.getByRole("link", { name: "Старіші замовлення" });
+    const older = screen.getByRole("link", { name: "Наступні замовлення" });
     expect(older).toHaveAttribute("href", "/account?after=e%3D1");
-    expect(screen.queryByRole("link", { name: "Новіші замовлення" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Попередні замовлення" })).toBeNull();
   });
 
   it("дає швидкі переходи до обраного, порівняння, кошика, сервісу й контактів", () => {

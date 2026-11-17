@@ -13,6 +13,11 @@ import { SignInPanel } from "~/components/account/sign-in-panel";
 import { ContactCard } from "~/components/content/contact-card";
 import { Container } from "~/components/layout/container";
 import { Button } from "~/components/ui/button";
+import {
+  DEFAULT_ORDERS_CHOICE,
+  ordersListSearch,
+  type OrdersListChoice,
+} from "~/lib/account/orders-list";
 import type { StoreInfo } from "~/lib/content/site";
 
 export type AccountCustomer = {
@@ -36,7 +41,12 @@ export type AccountState =
   | { status: "unavailable" }
   | { status: "signed-out"; loginFailed: boolean }
   | { status: "error" }
-  | { status: "signed-in"; customer: AccountCustomer };
+  | {
+      status: "signed-in";
+      customer: AccountCustomer;
+      /** Сортування й період списку замовлень; без них — типові. */
+      list?: OrdersListChoice;
+    };
 
 export type AccountViewProps = {
   state: AccountState;
@@ -49,8 +59,13 @@ const ACCOUNT_PATH = "/account";
 /** Сітка «вміст + бічна колонка»: однакова в усіх станах, щоб сторінка не стрибала. */
 const LAYOUT = "grid gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-8";
 
-function cursorHref(name: "before" | "after", cursor: string | null | undefined): string | null {
-  return cursor ? `?${name}=${encodeURIComponent(cursor)}` : null;
+/** Адреса сусідньої сторінки списку: зберігає вибране сортування й період. */
+function cursorHref(
+  list: OrdersListChoice,
+  name: "before" | "after",
+  cursor: string | null | undefined,
+): string | null {
+  return cursor ? ordersListSearch(list, { name, value: cursor }) : null;
 }
 
 /** Заголовок станів без входу; у кабінеті покупця h1 — це привітання в CustomerProfile. */
@@ -132,7 +147,15 @@ function LoadError({ store }: { store: StoreInfo }) {
   );
 }
 
-function SignedIn({ customer, store }: { customer: AccountCustomer; store: StoreInfo }) {
+function SignedIn({
+  customer,
+  list,
+  store,
+}: {
+  customer: AccountCustomer;
+  list: OrdersListChoice;
+  store: StoreInfo;
+}) {
   const navigation = useNavigation();
   const busy = navigation.state === "loading" && navigation.location?.pathname === ACCOUNT_PATH;
   const { pageInfo } = customer.orders;
@@ -158,8 +181,11 @@ function SignedIn({ customer, store }: { customer: AccountCustomer; store: Store
       <div className={`${LAYOUT} lg:items-start`}>
         <OrdersList
           orders={customer.orders.nodes}
-          newerHref={pageInfo.hasPreviousPage ? cursorHref("before", pageInfo.startCursor) : null}
-          olderHref={pageInfo.hasNextPage ? cursorHref("after", pageInfo.endCursor) : null}
+          choice={list}
+          previousHref={
+            pageInfo.hasPreviousPage ? cursorHref(list, "before", pageInfo.startCursor) : null
+          }
+          nextHref={pageInfo.hasNextPage ? cursorHref(list, "after", pageInfo.endCursor) : null}
           busy={busy}
         />
         <aside aria-label="Корисне" className="flex min-w-0 flex-col gap-6">
@@ -176,7 +202,11 @@ export function AccountView({ state, store }: AccountViewProps) {
   return (
     <Container data-slot="account-view" data-status={state.status} className="flex flex-col gap-8">
       {state.status === "signed-in" ? (
-        <SignedIn customer={state.customer} store={store} />
+        <SignedIn
+          customer={state.customer}
+          list={state.list ?? DEFAULT_ORDERS_CHOICE}
+          store={store}
+        />
       ) : (
         <PageTitle />
       )}

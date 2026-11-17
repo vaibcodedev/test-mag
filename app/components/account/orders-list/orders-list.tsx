@@ -1,4 +1,4 @@
-import { Package } from "lucide-react";
+import { CalendarX, Package } from "lucide-react";
 import { useId, type ComponentProps } from "react";
 import { Link } from "react-router";
 
@@ -20,14 +20,23 @@ import {
   PaginationPrevious,
 } from "~/components/ui/pagination";
 import { Spinner } from "~/components/ui/spinner";
+import {
+  ordersListFiltered,
+  ordersListSearch,
+  type OrdersListChoice,
+} from "~/lib/account/orders-list";
 import { CATALOG_LINKS, type NavLink } from "~/lib/content/site";
 import { cn } from "~/lib/utils";
 
+import { OrdersToolbar } from "./orders-toolbar";
+
 export type OrdersListProps = Omit<ComponentProps<"section">, "children"> & {
   orders: readonly AccountOrder[];
+  /** Вибрані сортування й період; без них панелі вибору немає. */
+  choice?: OrdersListChoice;
   /** Адреси сусідніх сторінок списку; `null` — сторінки немає. */
-  newerHref?: string | null;
-  olderHref?: string | null;
+  previousHref?: string | null;
+  nextHref?: string | null;
   /** Триває перехід між сторінками списку. */
   busy?: boolean;
   /** Категорії-підказки для покупця без замовлень. */
@@ -74,17 +83,49 @@ function NoOrders({ catalogLinks }: { catalogLinks: readonly NavLink[] }) {
   );
 }
 
-/** Замовлення покупця картками та перехід між сторінками списку. */
+/** Період, за який нічого не знайшлося: це не «замовлень ще немає», тож і порада інша. */
+function NoOrdersInPeriod({ allHref }: { allHref: string }) {
+  return (
+    <Empty size="panel" titleSize="h3">
+      <EmptyHeader>
+        <EmptyMedia>
+          <CalendarX strokeWidth={2} />
+        </EmptyMedia>
+        <EmptyTitle as="h3">За цей період замовлень немає</EmptyTitle>
+        <EmptyDescription>
+          Оберіть довший період або подивіться всі замовлення одразу.
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button asChild>
+          <Link to={allHref} preventScrollReset>
+            Усі замовлення
+          </Link>
+        </Button>
+      </EmptyContent>
+    </Empty>
+  );
+}
+
+/**
+ * Замовлення покупця картками: період і сортування вгорі, перехід між сторінками внизу.
+ * Сторінки курсорні (так їх віддає Shopify), тому переходи — «попередні / наступні»,
+ * без номерів.
+ */
 export function OrdersList({
   orders,
-  newerHref,
-  olderHref,
+  choice,
+  previousHref,
+  nextHref,
   busy = false,
   catalogLinks = CATALOG_LINKS,
   className,
   ...props
 }: OrdersListProps) {
   const titleId = useId();
+  const filtered = choice ? ordersListFiltered(choice) : false;
+  // Покупцеві без жодного замовлення вибирати нема з чого.
+  const showToolbar = choice && (orders.length > 0 || filtered);
 
   return (
     <section
@@ -93,16 +134,23 @@ export function OrdersList({
       className={cn("flex min-w-0 flex-col gap-4", className)}
       {...props}
     >
-      <div className="flex min-h-8 items-center gap-3">
-        <h2 id={titleId} className="text-h3 text-ink">
-          Мої замовлення
-        </h2>
-        {/* Спокійний стан завантаження: список тьмяніє на місці, без стрибків верстки. */}
-        {busy ? <Spinner aria-label="Завантажуємо замовлення" className="text-ink-2" /> : null}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div className="flex min-h-8 items-center gap-3">
+          <h2 id={titleId} className="text-h3 text-ink">
+            Мої замовлення
+          </h2>
+          {/* Спокійний стан завантаження: список тьмяніє на місці, без стрибків верстки. */}
+          {busy ? <Spinner aria-label="Завантажуємо замовлення" className="text-ink-2" /> : null}
+        </div>
+        {showToolbar ? <OrdersToolbar choice={choice} className="max-sm:w-full" /> : null}
       </div>
 
       {orders.length === 0 ? (
-        <NoOrders catalogLinks={catalogLinks} />
+        filtered && choice ? (
+          <NoOrdersInPeriod allHref={ordersListSearch({ ...choice, period: "all" }) || "?"} />
+        ) : (
+          <NoOrders catalogLinks={catalogLinks} />
+        )
       ) : (
         <ul
           role="list"
@@ -120,31 +168,31 @@ export function OrdersList({
         </ul>
       )}
 
-      {newerHref || olderHref ? (
+      {previousHref || nextHref ? (
         <Pagination aria-label="Сторінки замовлень">
           <PaginationContent className="w-full justify-between">
             {/* Без viewTransition: зміни всередині сторінки на сайті миттєві. */}
-            {newerHref ? (
+            {previousHref ? (
               <PaginationItem>
                 <PaginationPrevious
                   asChild
                   showText="always"
-                  text="Новіші"
-                  aria-label="Новіші замовлення"
+                  text="Попередні"
+                  aria-label="Попередні замовлення"
                 >
-                  <Link to={newerHref} preventScrollReset />
+                  <Link to={previousHref} preventScrollReset />
                 </PaginationPrevious>
               </PaginationItem>
             ) : null}
-            {olderHref ? (
+            {nextHref ? (
               <PaginationItem className="ms-auto">
                 <PaginationNext
                   asChild
                   showText="always"
-                  text="Старіші"
-                  aria-label="Старіші замовлення"
+                  text="Наступні"
+                  aria-label="Наступні замовлення"
                 >
-                  <Link to={olderHref} preventScrollReset />
+                  <Link to={nextHref} preventScrollReset />
                 </PaginationNext>
               </PaginationItem>
             ) : null}

@@ -1,11 +1,10 @@
 import { AccountView } from "~/components/account/account-view";
 import { ACCOUNT_QUERY } from "~/graphql/queries/account.query";
+import { parseOrdersList } from "~/lib/account/orders-list";
 import { STORE_INFO } from "~/lib/content/site";
 import { customerAccountContext } from "~/lib/customer-account";
 
 import type { Route } from "./+types/account";
-
-const ORDERS_PAGE_SIZE = 10;
 
 export function meta() {
   return [
@@ -30,10 +29,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     return { status: "signed-out", loginFailed: searchParams.get("login") === "failed" } as const;
   }
 
-  const before = searchParams.get("before");
-  const variables = before
-    ? { last: ORDERS_PAGE_SIZE, before }
-    : { first: ORDERS_PAGE_SIZE, after: searchParams.get("after") };
+  const { choice, variables } = parseOrdersList(searchParams);
 
   try {
     const { data, errors } = await client.graphql(ACCOUNT_QUERY, { accessToken, variables });
@@ -49,7 +45,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       );
       return { status: "error" } as const;
     }
-    return { status: "signed-in", customer: data.customer } as const;
+    return { status: "signed-in", customer: data.customer, list: choice } as const;
   } catch (error) {
     console.error(
       `[customer-account] AccountPage: ${error instanceof Error ? error.message : String(error)}`,

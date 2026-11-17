@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
 import { DEMO_ORDERS } from "~/components/account/account.fixtures";
+import { DEFAULT_ORDERS_CHOICE } from "~/lib/account/orders-list";
 
 import { OrdersList } from "./orders-list";
 
@@ -24,26 +25,59 @@ describe("OrdersList", () => {
   });
 
   it("веде на сусідні сторінки списку, зберігаючи шлях кабінету", () => {
-    renderList({ newerHref: "?before=a", olderHref: "?after=b" });
+    renderList({ previousHref: "?before=a", nextHref: "?after=b" });
 
-    const newer = screen.getByRole("link", { name: "Новіші замовлення" });
-    const older = screen.getByRole("link", { name: "Старіші замовлення" });
-    expect(newer).toHaveAttribute("href", "/account?before=a");
-    expect(older).toHaveAttribute("href", "/account?after=b");
+    expect(screen.getByRole("link", { name: "Попередні замовлення" })).toHaveAttribute(
+      "href",
+      "/account?before=a",
+    );
+    expect(screen.getByRole("link", { name: "Наступні замовлення" })).toHaveAttribute(
+      "href",
+      "/account?after=b",
+    );
   });
 
   it("під час завантаження сторінки позначає список зайнятим і показує індикатор", () => {
-    const { rerender } = renderList({ olderHref: "?after=b" });
+    const { rerender } = renderList({ nextHref: "?after=b" });
     const list = screen.getAllByRole("list").find((item) => item.hasAttribute("aria-busy"));
     expect(list).toHaveAttribute("aria-busy", "false");
     expect(screen.queryByRole("status", { name: "Завантажуємо замовлення" })).toBeNull();
 
     rerender(
       <MemoryRouter initialEntries={["/account"]}>
-        <OrdersList orders={DEMO_ORDERS} olderHref="?after=b" busy />
+        <OrdersList orders={DEMO_ORDERS} nextHref="?after=b" busy />
       </MemoryRouter>,
     );
     expect(list).toHaveAttribute("aria-busy", "true");
     expect(screen.getByRole("status", { name: "Завантажуємо замовлення" })).toBeInTheDocument();
+  });
+
+  it("показує вибір періоду й сортування з поточними значеннями", () => {
+    renderList({ choice: { sort: "expensive", period: "6m" } });
+
+    const toolbar = screen.getByRole("group", { name: "Період і сортування замовлень" });
+    expect(toolbar).toBeVisible();
+    expect(screen.getByRole("combobox", { name: "Період" })).toHaveTextContent("За пів року");
+    expect(screen.getByRole("combobox", { name: "Сортування" })).toHaveTextContent(
+      "Спочатку дорожчі",
+    );
+  });
+
+  it("покупцеві без замовлень вибір не показує — лише запрошення до каталогу", () => {
+    renderList({ orders: [], choice: DEFAULT_ORDERS_CHOICE });
+
+    expect(screen.queryByRole("group", { name: "Період і сортування замовлень" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Замовлень поки немає" })).toBeVisible();
+  });
+
+  it("порожній період пояснює, що сталося, і веде до всіх замовлень, зберігаючи сортування", () => {
+    renderList({ orders: [], choice: { sort: "old", period: "30d" } });
+
+    expect(screen.getByRole("heading", { name: "За цей період замовлень немає" })).toBeVisible();
+    expect(screen.getByRole("group", { name: "Період і сортування замовлень" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Усі замовлення" })).toHaveAttribute(
+      "href",
+      "/account?sort=old",
+    );
   });
 });
