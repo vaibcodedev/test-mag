@@ -9,8 +9,8 @@ import { expect, test } from "@playwright/test";
 const PAGES = [
   "/",
   "/collections",
-  "/collections/devices-and-audio",
-  "/products/one-smartphone",
+  "/collections/iphone",
+  "/products/iphone-17-pro",
   "/search?q=phone",
   "/search?q=zzzz",
   "/cart",
