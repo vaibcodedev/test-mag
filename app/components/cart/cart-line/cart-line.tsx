@@ -125,7 +125,9 @@ export function CartLine({
     const selector = intent === "set" ? 'input[name="quantity"]' : `button[value="${intent}"]`;
     const target =
       neighbour?.querySelector<HTMLElement>(selector) ?? document.getElementById(emptyCartFocusId);
-    target?.focus();
+    // preventScroll: сусідній рядок сам з'їде на місце прибраного, коли той згорнеться;
+    // без цього браузер одразу прокручував список до кнопки у фокусі, і вміст стрибав.
+    target?.focus({ preventScroll: true });
   };
 
   const beforeSubmit = (event: SubmitEvent<HTMLFormElement>) => {
