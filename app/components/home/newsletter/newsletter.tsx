@@ -171,7 +171,7 @@ export function Newsletter({
                   onChange={(event) => handleChange(event.target.value)}
                   placeholder={content.emailPlaceholder}
                   onDark
-                  className="flex-1"
+                  className="sm:flex-1"
                 />
                 <Button
                   type="submit"
