@@ -104,7 +104,7 @@ describe("loadCollectionPage", () => {
       request: request(),
     });
 
-    expect(variables()).toMatchObject({ handle: "iphone", first: 24, sortKey: "BEST_SELLING" });
+    expect(variables()).toMatchObject({ handle: "iphone", first: 24, sortKey: "COLLECTION_DEFAULT" });
     expect(variables().filters).toBeUndefined();
     expect(variables().after).toBeUndefined();
     expect(data.products.map((item) => item.handle)).toEqual(["iphone-17", "iphone-17-pro"]);

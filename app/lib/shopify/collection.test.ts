@@ -148,13 +148,13 @@ describe("сортування", () => {
   });
 
   it.each([
-    ["", "BEST_SELLING", false],
-    [`sort_by=${DEFAULT_SORT_VALUE}`, "BEST_SELLING", false],
+    ["", "COLLECTION_DEFAULT", false],
+    [`sort_by=${DEFAULT_SORT_VALUE}`, "COLLECTION_DEFAULT", false],
     ["sort_by=price-ascending", "PRICE", false],
     ["sort_by=price-descending", "PRICE", true],
     ["sort_by=created-descending", "CREATED", true],
     ["sort_by=best-selling", "BEST_SELLING", false],
-    ["sort_by=щось-невідоме", "BEST_SELLING", false],
+    ["sort_by=щось-невідоме", "COLLECTION_DEFAULT", false],
   ])("«%s» → sortKey %s, reverse %s", (search, sortKey, reverse) => {
     const browse = parseCollectionParams(new URLSearchParams(search));
 

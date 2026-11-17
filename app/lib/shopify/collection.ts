@@ -78,12 +78,16 @@ export const SORT_OPTIONS: readonly SortOption[] = [
   { label: "Спочатку новинки", value: getSortByValue("CREATED", true) },
 ];
 
-/** Сортування з адреси → змінні запиту. Без параметра показуємо популярні. */
+/**
+ * Сортування з адреси → змінні запиту. Без параметра — порядок, заданий для колекції в адмінці
+ * (COLLECTION_DEFAULT): власник сам вирішує, що йде першим. BEST_SELLING у магазині без продажів
+ * дає випадковий порядок.
+ */
 export function toStorefrontSort({ sortKey, reverse }: BrowseSort): {
   sortKey: NonNullable<BrowseSort["sortKey"]>;
   reverse: boolean;
 } {
-  if (!sortKey) return { sortKey: "BEST_SELLING", reverse: false };
+  if (!sortKey) return { sortKey: "COLLECTION_DEFAULT", reverse: false };
   return { sortKey, reverse };
 }
 
