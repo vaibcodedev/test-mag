@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Clock, ExternalLink, Package, X } from "lucide-react";
+import { ArrowRight, ExternalLink, Package } from "lucide-react";
 import { useId, type ComponentProps } from "react";
 import { Link } from "react-router";
 
@@ -21,9 +21,9 @@ export type OrderCardProps = Omit<ComponentProps<"article">, "children"> & {
   order: AccountOrder;
 };
 
-const THUMB_SIZE = 72;
-const THUMB_CLASS = "size-16 rounded-md sm:size-18";
-const THUMB_WIDTHS = [72, 144, 216] as const;
+const THUMB_SIZE = 56;
+const THUMB_CLASS = "size-14 rounded-md";
+const THUMB_WIDTHS = [56, 112, 168] as const;
 
 function Thumb({ item, className }: { item: OrderLineItem; className?: string }) {
   return (
@@ -48,10 +48,17 @@ function Thumb({ item, className }: { item: OrderLineItem; className?: string })
   );
 }
 
+/** Колір крапки біля стану: він лише підсилює текст поруч. */
+const DOT_CLASS = {
+  positive: "bg-success",
+  neutral: "bg-blue",
+  attention: "bg-danger",
+} as const;
+
 /**
- * Картка замовлення. Угорі — стан одним рядком, номер, дата й сума; нижче — що всередині та,
- * повний шлях етапами. Дії: сторінка замовлення в кабінеті, «Повторити» і
- * сторінка стану в Shopify (відстеження, повернення).
+ * Картка замовлення. Перший рядок — стан («що з замовленням?») і сума; далі номер із датою,
+ * що всередині, смуга етапів і дії: сторінка замовлення в кабінеті, «Повторити» та сторінка
+ * стану в Shopify (відстеження, повернення).
  */
 export function OrderCard({ order, className, ...props }: OrderCardProps) {
   const titleId = useId();
@@ -61,53 +68,41 @@ export function OrderCard({ order, className, ...props }: OrderCardProps) {
   const headline = orderHeadline(order);
   const hasProgress = orderProgress(order) !== null;
   const payment = paymentStatus(order.financialStatus);
-  const HeadlineIcon = headline.cancelled
-    ? X
-    : headline.tone === "positive"
-      ? Check
-      : headline.tone === "attention"
-        ? Clock
-        : Package;
 
   return (
-    <Card asChild className={cn("gap-0 p-0", className)}>
+    <Card asChild className={cn("gap-4 p-4 sm:gap-5 sm:p-6", className)}>
       <article aria-labelledby={titleId} data-slot="order-card" {...props}>
-        {/* Шапка: спершу стан — відповідь на «що з замовленням?», потім номер і дата. */}
-        <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 p-4 sm:px-6 sm:pt-6 sm:pb-5">
-          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
-            <span
-              aria-hidden="true"
-              data-slot="order-status-icon"
-              data-tone={headline.tone}
-              className={cn(
-                "flex size-11 shrink-0 items-center justify-center rounded-pill bg-page [&>svg]:size-5",
-                headline.tone === "positive" ? "text-success" : "text-ink",
-              )}
+        <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
+          <div className="flex min-w-0 flex-col gap-1">
+            <p
+              data-slot="order-headline"
+              className="flex items-baseline gap-2 text-card-title text-ink"
             >
-              <HeadlineIcon strokeWidth={2} />
-            </span>
-            <div className="flex min-w-0 flex-col gap-1">
-              <p
-                data-slot="order-headline"
-                className="text-h3 wrap-anywhere max-sm:text-[1.125rem]"
-              >
+              <span
+                aria-hidden="true"
+                data-tone={headline.tone}
+                className={cn(
+                  "size-2 shrink-0 -translate-y-0.5 rounded-pill",
+                  headline.cancelled ? "bg-ink-2" : DOT_CLASS[headline.tone],
+                )}
+              />
+              <span className="min-w-0 wrap-anywhere">
                 <span className="sr-only">Стан: </span>
                 {headline.label}
-              </p>
-              <div className="text-small wrap-anywhere text-ink-2">
-                <CardTitle asChild className="inline text-small font-semibold text-ink">
-                  <h3 id={titleId}>Замовлення {order.name}</h3>
-                </CardTitle>
-                <span aria-hidden="true"> · </span>
-                <span className="sr-only">, </span>
-                <PublishedDate value={order.processedAt} />
-              </div>
+              </span>
+            </p>
+            <div className="text-small wrap-anywhere text-ink-2">
+              <CardTitle asChild className="inline text-small font-semibold text-ink">
+                <h3 id={titleId}>Замовлення {order.name}</h3>
+              </CardTitle>
+              <span aria-hidden="true"> · </span>
+              <span className="sr-only">, </span>
+              <PublishedDate value={order.processedAt} />
             </div>
           </div>
-          <div className="flex max-w-full min-w-0 flex-col gap-0.5 sm:ms-auto sm:items-end">
-            <span className="text-caption text-ink-2">Разом</span>
+          <div className="flex max-w-full min-w-0 flex-col sm:ms-auto sm:items-end">
             <Price price={order.totalPrice} className="wrap-anywhere" />
-            {/* Оплата поруч із сумою — коли шляху немає (скасоване замовлення). */}
+            {/* Оплата поруч із сумою — коли смуги етапів немає (скасоване замовлення). */}
             {payment && !hasProgress ? (
               <span data-slot="order-payment" className="text-caption text-ink-2">
                 <span className="sr-only">Оплата: </span>
@@ -117,55 +112,48 @@ export function OrderCard({ order, className, ...props }: OrderCardProps) {
           </div>
         </header>
 
-        <div className="flex flex-col gap-5 border-t border-line px-4 py-4 empty:hidden sm:px-6 sm:py-5">
-          {preview.thumbs.length > 0 || summary ? (
-            <div className="flex items-center gap-4">
-              {preview.thumbs.length > 0 ? (
-                // Мініатюри декоративні: склад замовлення названо текстом поруч.
-                <div aria-hidden="true" data-slot="order-thumbs" className="flex shrink-0 gap-2">
-                  {preview.thumbs.map((item, index) => (
-                    <Thumb
-                      key={item.id}
-                      item={item}
-                      // На телефоні поруч із текстом лишається одне фото.
-                      className={index > 0 ? "max-sm:hidden" : undefined}
-                    />
-                  ))}
-                  {preview.hiddenCount > 0 ? (
-                    <ItemMedia
-                      variant="image"
-                      data-thumb="more"
-                      className={cn(
-                        THUMB_CLASS,
-                        "bg-page text-body font-semibold text-ink tabular-nums max-sm:hidden",
-                      )}
-                    >
-                      +{preview.hiddenCount}
-                    </ItemMedia>
-                  ) : null}
-                </div>
-              ) : null}
-              <div className="flex min-w-0 flex-col gap-0.5">
-                {summary ? (
-                  <p className="line-clamp-3 text-body wrap-anywhere text-ink sm:line-clamp-2">
-                    {summary}
-                  </p>
-                ) : null}
-                {preview.totalQuantity > 0 ? (
-                  <p className="text-small text-ink-2">{itemCountLabel(preview.totalQuantity)}</p>
+        {preview.thumbs.length > 0 || summary ? (
+          <div className="flex items-center gap-3 sm:gap-4">
+            {preview.thumbs.length > 0 ? (
+              // Мініатюри декоративні: склад замовлення названо текстом поруч.
+              <div aria-hidden="true" data-slot="order-thumbs" className="flex shrink-0 gap-2">
+                {preview.thumbs.map((item, index) => (
+                  <Thumb
+                    key={item.id}
+                    item={item}
+                    // На телефоні поруч із текстом лишається одне фото.
+                    className={index > 0 ? "max-sm:hidden" : undefined}
+                  />
+                ))}
+                {preview.hiddenCount > 0 ? (
+                  <ItemMedia
+                    variant="image"
+                    data-thumb="more"
+                    className={cn(
+                      THUMB_CLASS,
+                      "bg-page text-small font-semibold text-ink tabular-nums max-sm:hidden",
+                    )}
+                  >
+                    +{preview.hiddenCount}
+                  </ItemMedia>
                 ) : null}
               </div>
+            ) : null}
+            <div className="flex min-w-0 flex-col gap-0.5">
+              {summary ? (
+                <p className="line-clamp-2 text-body wrap-anywhere text-ink">{summary}</p>
+              ) : null}
+              {preview.totalQuantity > 0 ? (
+                <p className="text-small text-ink-2">{itemCountLabel(preview.totalQuantity)}</p>
+              ) : null}
             </div>
-          ) : null}
+          </div>
+        ) : null}
 
-          {/* Повний шлях замовлення: пройдене зафарбовано, поточний етап виділено. */}
-          <OrderProgress order={order} />
-        </div>
+        {/* Смуга етапів: пройдене зафарбовано, поточний етап заповнено наполовину. */}
+        <OrderProgress order={order} />
 
-        <footer
-          data-slot="order-actions"
-          className="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3 sm:px-6 sm:py-4"
-        >
+        <footer data-slot="order-actions" className="flex flex-wrap items-center gap-2">
           {/* Сторінка стану живе в Shopify, тому це звичайний <a>. */}
           <Button asChild variant="link" size="sm" className="me-auto min-h-11 px-0">
             <a href={order.statusPageUrl} aria-label={`Стан замовлення ${order.name}`}>
