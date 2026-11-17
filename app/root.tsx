@@ -39,7 +39,11 @@ import { registerAppNavigate } from "~/lib/app-navigate";
 import { CartProvider } from "~/lib/cart";
 import { cartHandlers } from "~/lib/cart-handlers";
 import { useNonce } from "~/lib/csp";
-import { createRequestCustomerAccount, customerAccountContext } from "~/lib/customer-account";
+import {
+  createRequestCustomerAccount,
+  customerAccountContext,
+  isSignedIn,
+} from "~/lib/customer-account";
 import { envContext } from "~/lib/env";
 import { predictiveSearchHandlers } from "~/lib/predictive-search-handlers";
 import { loadRootLayout } from "~/lib/root-layout";
@@ -123,16 +127,19 @@ export const middleware: Route.MiddlewareFunction[] = [
 export async function loader({ context, request }: Route.LoaderArgs) {
   const env = context.get(envContext);
   const storefrontClient = context.get(storefrontClientContext);
-  const [cartResult, layout, catalog] = await Promise.all([
+  const [cartResult, layout, catalog, signedIn] = await Promise.all([
     cartHandlers.get({ storefrontClient, request }),
     loadRootLayout(storefrontClient),
     loadCatalog(storefrontClient),
+    isSignedIn(context.get(customerAccountContext)),
   ]);
 
   return {
     cartData: cartResult.data,
     shopInfo: layout.shopInfo,
     catalog,
+    /** Покупець увійшов у кабінет: шапка показує це значком. */
+    signedIn,
     shopIdentity: resolveShopIdentity(env, layout.shopId),
     currency: layout.currency,
     locale: storefrontClient.locale,
@@ -221,7 +228,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
         <PageViewedTracker />
         <CartAnalyticsTracker />
         <TopBar />
-        <Header categories={loaderData.catalog} />
+        <Header categories={loaderData.catalog} signedIn={loaderData.signedIn} />
         <Outlet />
         <Footer />
         <BottomBar />

@@ -18,10 +18,10 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-async function openMenu() {
+async function openMenu(signedIn = false) {
   render(
     <MemoryRouter>
-      <MobileNav categories={CATEGORIES} />
+      <MobileNav categories={CATEGORIES} signedIn={signedIn} />
     </MemoryRouter>,
   );
   await userEvent.click(screen.getByRole("button", { name: "Відкрити меню" }));
@@ -32,7 +32,18 @@ describe("MobileNav", () => {
     await openMenu();
 
     expect(screen.getByRole("link", { name: /^Порівняння/ })).toHaveAttribute("href", "/compare");
-    expect(screen.getByRole("link", { name: "Кабінет" })).toHaveAttribute("href", "/account");
+    // Гостю пункт меню каже, що робити: увійти.
+    expect(screen.getByRole("link", { name: "Увійти до кабінету" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+  });
+
+  it("покупцеві, який увійшов, показує «Мій кабінет»", async () => {
+    await openMenu(true);
+
+    expect(screen.getByRole("link", { name: "Мій кабінет" })).toHaveAttribute("href", "/account");
+    expect(screen.queryByRole("link", { name: "Увійти до кабінету" })).toBeNull();
   });
 
   it("показує кількість товарів у порівнянні", async () => {

@@ -1,4 +1,4 @@
-import { Heart, Scale, Search, ShoppingCart, User } from "lucide-react";
+import { Heart, Scale, Search, ShoppingCart, User, UserRoundCheck } from "lucide-react";
 import { Link } from "react-router";
 
 import { preloadCartDrawer } from "~/components/cart/cart-drawer";
@@ -22,14 +22,21 @@ function cartLabel(count: number) {
 }
 
 /** Липка біла шапка: логотип, каталог, пошук, порівняння, обране, кабінет, кошик. */
-export function Header({ categories }: { categories: readonly MegaMenuCategory[] }) {
+export function Header({
+  categories,
+  signedIn = false,
+}: {
+  categories: readonly MegaMenuCategory[];
+  /** Покупець увійшов у кабінет: значок кабінету стає заповненим кружком із позначкою. */
+  signedIn?: boolean;
+}) {
   const totalQuantity = useCart((state) => state.data.totalQuantity);
 
   return (
     <header data-slot="header" className="sticky top-0 z-40 border-b border-line bg-surface">
       <Container className="flex h-header items-center gap-3 lg:gap-6">
         <div className="lg:hidden">
-          <MobileNav categories={categories} />
+          <MobileNav categories={categories} signedIn={signedIn} />
         </div>
 
         <Link
@@ -72,8 +79,21 @@ export function Header({ categories }: { categories: readonly MegaMenuCategory[]
             </Link>
           </Button>
           <Button asChild variant="ghost" size="icon" className="max-sm:hidden">
-            <Link viewTransition to="/account" aria-label="Кабінет">
-              <User aria-hidden="true" strokeWidth={2} className="size-6" />
+            <Link
+              viewTransition
+              to="/account"
+              data-signed-in={signedIn || undefined}
+              aria-label={signedIn ? "Кабінет: ви увійшли" : "Увійти до кабінету"}
+            >
+              {signedIn ? (
+                // Гість бачить контур, покупець після входу — заповнений кружок із галочкою:
+                // стан видно і за формою, а не лише за кольором.
+                <span className="flex size-8 items-center justify-center rounded-pill bg-ink text-surface">
+                  <UserRoundCheck aria-hidden="true" strokeWidth={2} className="size-4.5" />
+                </span>
+              ) : (
+                <User aria-hidden="true" strokeWidth={2} className="size-6" />
+              )}
             </Link>
           </Button>
           <Button asChild variant="primary" className="ms-1 px-4 text-small">

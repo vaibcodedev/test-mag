@@ -1,4 +1,4 @@
-import { MapPin, Menu, Phone, Scale, Send, User } from "lucide-react";
+import { MapPin, Menu, Phone, Scale, Send, User, UserRoundCheck } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
@@ -31,13 +31,15 @@ import { BUYER_LINKS, STORE_INFO, storeAddress, type StoreInfo } from "~/lib/con
 type MobileNavProps = {
   categories: readonly MegaMenuCategory[];
   store?: StoreInfo;
+  /** Покупець увійшов у кабінет: пункт меню веде в «Мій кабінет», а не на вхід. */
+  signedIn?: boolean;
 };
 
 /**
  * Бургер-меню на мобільному: каталог, порівняння й кабінет (у шапці вони є лише на
  * десктопі, а в нижній панелі для них немає місця), сторінки для покупців, контакти.
  */
-export function MobileNav({ categories, store = STORE_INFO }: MobileNavProps) {
+export function MobileNav({ categories, store = STORE_INFO, signedIn = false }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
   const { count: compareCount } = useCompare();
@@ -106,10 +108,14 @@ export function MobileNav({ categories, store = STORE_INFO }: MobileNavProps) {
                   <Item asChild size="sm">
                     <Link viewTransition to="/account" onClick={close}>
                       <ItemMedia>
-                        <User aria-hidden="true" strokeWidth={2} />
+                        {signedIn ? (
+                          <UserRoundCheck aria-hidden="true" strokeWidth={2} />
+                        ) : (
+                          <User aria-hidden="true" strokeWidth={2} />
+                        )}
                       </ItemMedia>
                       <ItemContent>
-                        <ItemTitle>Кабінет</ItemTitle>
+                        <ItemTitle>{signedIn ? "Мій кабінет" : "Увійти до кабінету"}</ItemTitle>
                       </ItemContent>
                     </Link>
                   </Item>

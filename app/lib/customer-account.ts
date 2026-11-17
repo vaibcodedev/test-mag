@@ -70,3 +70,18 @@ export async function createRequestCustomerAccount(
     } satisfies CustomerAccount,
   };
 }
+
+/**
+ * Чи є в сесії дійсний вхід покупця. Потрібен шапці, щоб показати «ви увійшли».
+ * Жодного запиту до API: читаємо (і за потреби оновлюємо) токен із сесії. Якщо кабінет
+ * недоступний або токен не вдалося оновити, вважаємо покупця гостем.
+ */
+export async function isSignedIn(customerAccount: CustomerAccount | null): Promise<boolean> {
+  if (!customerAccount) return false;
+  try {
+    const { session, sessionManager, requestContext } = customerAccount;
+    return Boolean(await session.getOrRefreshAccessToken(sessionManager, requestContext));
+  } catch {
+    return false;
+  }
+}
