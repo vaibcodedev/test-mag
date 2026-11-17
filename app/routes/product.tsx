@@ -15,7 +15,7 @@ import { storefrontClientContext } from "~/lib/storefront";
 
 import type { Route } from "./+types/product";
 
-const SITE_NAME = "Сад";
+const SITE_NAME = "Ionov Store";
 const OG_IMAGE_WIDTH = 1200;
 
 export function meta({ loaderData }: Route.MetaArgs) {

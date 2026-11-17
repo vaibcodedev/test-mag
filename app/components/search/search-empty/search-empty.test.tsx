@@ -24,7 +24,7 @@ describe("SearchEmpty", () => {
     expect(screen.getByText(/спробуйте коротший запит/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "напишіть нам у Telegram" })).toHaveAttribute(
       "href",
-      "https://t.me/sad_vinnytsia",
+      "https://t.me/ionov_store",
     );
   });
 

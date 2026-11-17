@@ -33,7 +33,7 @@ import type { loader as rootLoader } from "~/root";
 
 import type { Route } from "./+types/home";
 
-const TITLE = "Сад — техніка Apple у Вінниці з гарантією 12 місяців";
+const TITLE = "Ionov Store — техніка Apple у Вінниці з гарантією 12 місяців";
 const DESCRIPTION =
   "iPhone, Mac, iPad, Watch і AirPods у шоурумі на Соборній, 64 та з доставкою по Україні завтра. Оплата частинами до 25 платежів, trade-in, гарантія 12 місяців.";
 const H1 =

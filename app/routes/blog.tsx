@@ -9,7 +9,7 @@ import { storefrontClientContext } from "~/lib/storefront";
 import type { Route } from "./+types/blog";
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  if (!loaderData) return [{ title: "Сторінку не знайдено — Сад" }];
+  if (!loaderData) return [{ title: "Сторінку не знайдено — Ionov Store" }];
   const { blog, origin, path } = loaderData;
 
   return contentMeta({

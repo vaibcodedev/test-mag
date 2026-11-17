@@ -3,7 +3,7 @@ import { data } from "react-router";
 import { NotFound } from "~/components/layout/not-found";
 
 export function meta() {
-  return [{ title: "Сторінку не знайдено — Сад" }, { name: "robots", content: "noindex" }];
+  return [{ title: "Сторінку не знайдено — Ionov Store" }, { name: "robots", content: "noindex" }];
 }
 
 /**

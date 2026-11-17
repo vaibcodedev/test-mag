@@ -175,7 +175,7 @@ export function ActionsSection() {
       <StyleguideSection
         id="wordmark"
         title="Wordmark"
-        description="Логотип «сад» з листком для шапки та великий вордмарк із крапкою для футера."
+        description="Логотип «ionov.» з акцентною крапкою: у шапці та великий вордмарк у футері."
       >
         <div className="grid gap-4 lg:grid-cols-2">
           <Specimen label="У шапці">
@@ -187,7 +187,7 @@ export function ActionsSection() {
           <Specimen label="На ink і у футері" tone="ink">
             <SpecimenRow className="gap-8">
               <Wordmark tone="on-dark" size="md" />
-              <Wordmark tone="lime" size="md" mark="dot" />
+              <Wordmark tone="lime" size="md" />
             </SpecimenRow>
           </Specimen>
         </div>

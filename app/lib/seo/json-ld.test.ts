@@ -36,8 +36,8 @@ describe("organizationJsonLd", () => {
       "@context": "https://schema.org",
       "@type": "Organization",
       "@id": "https://sad.example/#organization",
-      name: "Сад",
-      legalName: "ФОП Садовий Олег Вікторович",
+      name: "Ionov Store",
+      legalName: "ФОП Іонов О. В.",
       taxID: "3214509876",
       url: "https://sad.example/",
       logo: "https://sad.example/favicon.svg",
@@ -48,7 +48,7 @@ describe("organizationJsonLd", () => {
         areaServed: "UA",
         availableLanguage: ["uk"],
       },
-      sameAs: ["https://t.me/sad_vinnytsia"],
+      sameAs: ["https://t.me/ionov_store"],
     });
   });
 

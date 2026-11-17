@@ -19,7 +19,7 @@ const SERVICE_NAV = SERVICE_PAGES.map((page) => ({
 }));
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  if (!loaderData) return [{ title: "Сторінку не знайдено — Сад" }];
+  if (!loaderData) return [{ title: "Сторінку не знайдено — Ionov Store" }];
   const { page, origin, path } = loaderData;
 
   return contentMeta({

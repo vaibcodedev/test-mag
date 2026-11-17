@@ -426,9 +426,9 @@ function truncate(text: string, limit: number): string {
 export function productMetaTitle(title: string): string {
   const name = title.trim();
   const candidates = [
-    `${name} — купити у Вінниці | Сад`,
-    `${name} — купити | Сад`,
-    `${name} | Сад`,
+    `${name} — купити у Вінниці | Ionov Store`,
+    `${name} — купити | Ionov Store`,
+    `${name} | Ionov Store`,
   ];
   return (
     candidates.find((candidate) => candidate.length <= TITLE_LIMIT) ?? truncate(name, TITLE_LIMIT)
@@ -440,7 +440,8 @@ export function productMetaDescription(
   product: Pick<ProductPageData, "title" | "description" | "seo">,
 ): string {
   const text = (product.seo.description ?? product.description ?? "").replace(/\s+/g, " ").trim();
-  if (!text) return truncate(`Купити ${product.title} у «Сад». ${STORE_PITCH}`, DESCRIPTION_LIMIT);
+  if (!text)
+    return truncate(`Купити ${product.title} в Ionov Store. ${STORE_PITCH}`, DESCRIPTION_LIMIT);
 
   const withPitch = `${text} ${STORE_PITCH}`;
   return withPitch.length <= DESCRIPTION_LIMIT ? withPitch : truncate(text, DESCRIPTION_LIMIT);

@@ -12,7 +12,7 @@ import type { Route } from "./+types/collections";
 
 const TITLE = `Каталог техніки Apple у Вінниці — ${STORE_INFO.name}`;
 const DESCRIPTION =
-  "Увесь каталог магазину «Сад»: iPhone, Mac, iPad, Watch, AirPods, аксесуари та вживані пристрої. Оплата частинами, гарантія 12 місяців, доставка по Україні.";
+  "Увесь каталог магазинв Ionov Store: iPhone, Mac, iPad, Watch, AirPods, аксесуари та вживані пристрої. Оплата частинами, гарантія 12 місяців, доставка по Україні.";
 const INTRO = "Оберіть категорію — далі допоможуть фільтри за ціною, пам'яттю, кольором і станом.";
 
 export function meta({ loaderData }: Route.MetaArgs) {

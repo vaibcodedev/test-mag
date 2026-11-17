@@ -19,7 +19,7 @@ type Story = StoryObj<typeof meta>;
  * Розсилку ще не підключено (без `onSubmit`): після правильної адреси форма не звітує про
  * підписку, а показує `content.pending` із посиланням на Telegram і лишає адресу в полі.
  */
-export const Default: Story = { args: { telegramUrl: "https://t.me/sad_vinnytsia" } };
+export const Default: Story = { args: { telegramUrl: "https://t.me/ionov_store" } };
 
 /** Підписку підключено: після відповіді сервера на місці форми з'являється підтвердження. */
 export const Connected: Story = { args: { onSubmit: () => wait(300) } };

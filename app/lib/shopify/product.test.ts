@@ -604,9 +604,11 @@ describe("productVariantUrl", () => {
 
 describe("productMetaTitle", () => {
   it("додає уточнення про магазин, доки вміщається в 60 символів", () => {
-    expect(productMetaTitle("iPhone 17 Pro")).toBe("iPhone 17 Pro — купити у Вінниці | Сад");
-    expect(productMetaTitle("MacBook Air 13 M4 16/256 ГБ, темна ніч, 2025")).toBe(
-      "MacBook Air 13 M4 16/256 ГБ, темна ніч, 2025 — купити | Сад",
+    expect(productMetaTitle("iPhone 17 Pro")).toBe(
+      "iPhone 17 Pro — купити у Вінниці | Ionov Store",
+    );
+    expect(productMetaTitle("MacBook Air 13 M4 16/256 ГБ, 2025")).toBe(
+      "MacBook Air 13 M4 16/256 ГБ, 2025 — купити | Ionov Store",
     );
   });
 
@@ -639,7 +641,7 @@ describe("productMetaDescription", () => {
 
   it("без опису складає текст із назви", () => {
     expect(productMetaDescription(product({ description: "" }))).toContain(
-      "Купити iPhone 17 Pro у «Сад».",
+      "Купити iPhone 17 Pro в Ionov Store.",
     );
   });
 });

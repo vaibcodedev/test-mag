@@ -28,7 +28,7 @@ describe("resolveUspIcon", () => {
 describe("UspStrip", () => {
   it("показує всі переваги з іконкою, заголовком і підписом", () => {
     render(<UspStrip usps={DEMO_USPS} />);
-    const section = screen.getByRole("region", { name: "Чому купують у «Саді»" });
+    const section = screen.getByRole("region", { name: "Чому купують в Ionov Store" });
     const items = within(section).getAllByRole("listitem");
 
     expect(items).toHaveLength(5);

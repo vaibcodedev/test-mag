@@ -25,7 +25,7 @@ export type StoreInfo = {
 };
 
 export const STORE_INFO: StoreInfo = {
-  name: "Сад",
+  name: "Ionov Store",
   postalCode: "21050",
   city: "Вінниця",
   street: "вул. Соборна, 64",
@@ -36,9 +36,9 @@ export const STORE_INFO: StoreInfo = {
   closes: "20:00",
   phone: "068 129 99 00",
   phoneHref: "tel:+380681299900",
-  telegramHandle: "@sad_vinnytsia",
-  telegramUrl: "https://t.me/sad_vinnytsia",
-  legalName: "ФОП Садовий Олег Вікторович",
+  telegramHandle: "@ionov_store",
+  telegramUrl: "https://t.me/ionov_store",
+  legalName: "ФОП Іонов О. В.",
   taxId: "3214509876",
 };
 
@@ -90,7 +90,7 @@ export const BUYER_LINKS: NavLink[] = [
 ];
 
 export const COMPANY_LINKS: NavLink[] = [
-  { title: "Про «Сад»", to: "/#about" },
+  { title: "Про Ionov Store", to: "/#about" },
   { title: "Шоурум і контакти", to: "/pages/contacts" },
   { title: "Блог", to: "/blogs/blog" },
   { title: "Відгуки", to: "/#reviews" },

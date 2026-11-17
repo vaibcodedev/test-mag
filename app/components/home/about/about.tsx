@@ -28,7 +28,7 @@ export type AboutProps = {
 
 const SECTION_ID = "about";
 
-/** «Олена Садова» → «ОС». */
+/** «Олена Коваль» → «ОК». */
 function initials(name: string): string {
   return name
     .split(/\s+/)
@@ -38,7 +38,7 @@ function initials(name: string): string {
     .join("");
 }
 
-/** Про «Сад»: тези, команда з ініціалами замість фото та цифри магазину. */
+/** Про Ionov Store: тези, команда з ініціалами замість фото та цифри магазину. */
 export function About({
   title = "Невеликий магазин, де вас пам'ятають",
   description,
@@ -51,7 +51,7 @@ export function About({
       <Card size="panel" className="grid gap-8 lg:grid-cols-2 lg:gap-12">
         <div className="flex min-w-0 flex-col gap-8">
           <div>
-            <p className="mb-3 text-small font-semibold text-muted-foreground">Про «Сад»</p>
+            <p className="mb-3 text-small font-semibold text-muted-foreground">Про Ionov Store</p>
             <SectionHeader
               sectionId={SECTION_ID}
               title={title}

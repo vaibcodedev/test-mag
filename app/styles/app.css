@@ -8,7 +8,7 @@
 @import "./tokens.css";
 
 @theme inline {
-  /* Кольори «Сад» */
+  /* Кольори Ionov Store */
   --color-page: var(--page);
   --color-surface: var(--surface);
   --color-photo: var(--photo);

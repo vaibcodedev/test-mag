@@ -10,7 +10,7 @@ import { storefrontClientContext } from "~/lib/storefront";
 import type { Route } from "./+types/article";
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  if (!loaderData) return [{ title: "Статтю не знайдено — Сад" }];
+  if (!loaderData) return [{ title: "Статтю не знайдено — Ionov Store" }];
   const { article, origin, path } = loaderData;
 
   return contentMeta({

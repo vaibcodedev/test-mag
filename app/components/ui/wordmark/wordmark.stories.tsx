@@ -6,11 +6,10 @@ const meta = {
   title: "UI/Wordmark",
   component: Wordmark,
   tags: ["autodocs"],
-  args: { tone: "ink", size: "md", mark: "leaf" },
+  args: { tone: "ink", size: "md" },
   argTypes: {
     tone: { control: "inline-radio", options: ["ink", "on-dark", "lime"] },
     size: { control: "inline-radio", options: ["sm", "md", "giant"] },
-    mark: { control: "inline-radio", options: ["leaf", "dot"] },
   },
 } satisfies Meta<typeof Wordmark>;
 
@@ -23,6 +22,6 @@ export const OnInk: Story = { args: { tone: "on-dark" }, parameters: { surface: 
 
 /** Великий вордмарк у футері: lime, крапка blue. */
 export const Footer: Story = {
-  args: { tone: "lime", size: "giant", mark: "dot" },
+  args: { tone: "lime", size: "giant" },
   parameters: { surface: "ink" },
 };

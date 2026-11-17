@@ -130,7 +130,7 @@ export function DataSection({ images }: DataSectionProps) {
     <StyleguideSection
       id="data"
       title="Картки, рядки, таблиці"
-      description="Card — основа карток і плиток, Item — рядок «медіа + текст», Table — порівняння, Empty й Alert — стани. Усе це компоненти shadcn у темі «Сад»."
+      description="Card — основа карток і плиток, Item — рядок «медіа + текст», Table — порівняння, Empty й Alert — стани. Усе це компоненти shadcn у темі Ionov Store."
     >
       <div className="grid gap-4 lg:grid-cols-2">
         <Specimen label="Card: тони surface, ink, blue та interactive" tone="page">

@@ -96,7 +96,7 @@ describe("Newsletter", () => {
   });
 
   it("без onSubmit не звітує про підписку: показує, що розсилку ще налаштовуємо, і лишає адресу", async () => {
-    const { input, button } = renderNewsletter({ telegramUrl: "https://t.me/sad_vinnytsia" });
+    const { input, button } = renderNewsletter({ telegramUrl: "https://t.me/ionov_store" });
 
     await userEvent.type(input, "olena@example.com");
     await userEvent.click(button);
@@ -110,7 +110,7 @@ describe("Newsletter", () => {
     );
     expect(screen.getByRole("link", { name: CONTENT.pendingLinkLabel })).toHaveAttribute(
       "href",
-      "https://t.me/sad_vinnytsia",
+      "https://t.me/ionov_store",
     );
   });
 

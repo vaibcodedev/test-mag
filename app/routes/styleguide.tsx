@@ -21,8 +21,8 @@ const DEMO_IMAGE_COUNT = 5;
 
 export function meta() {
   return [
-    { title: "UI-кіт — Сад" },
-    { name: "description", content: "Токени та компоненти дизайн-системи магазину «Сад»." },
+    { title: "UI-кіт — Ionov Store" },
+    { name: "description", content: "Токени та компоненти дизайн-системи магазинв Ionov Store." },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

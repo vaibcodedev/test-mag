@@ -133,7 +133,7 @@ export function Footer({ store = STORE_INFO }: { store?: StoreInfo }) {
       </Container>
 
       <Container className="pt-8">
-        <Wordmark tone="lime" size="giant" mark="dot" className="-mb-[0.14em] block" />
+        <Wordmark tone="lime" size="giant" className="-mb-[0.14em] block" />
       </Container>
     </footer>
   );

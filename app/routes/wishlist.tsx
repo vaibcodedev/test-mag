@@ -1,7 +1,7 @@
 import { WishlistView } from "~/components/saved/wishlist-view";
 
 export function meta() {
-  return [{ title: "Обране — Сад" }, { name: "robots", content: "noindex" }];
+  return [{ title: "Обране — Ionov Store" }, { name: "robots", content: "noindex" }];
 }
 
 export default function Wishlist() {

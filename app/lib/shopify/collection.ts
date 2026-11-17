@@ -221,7 +221,7 @@ export function collectionSeo(
   const description =
     collection.seo?.description?.trim() ||
     collection.description?.trim() ||
-    `${collection.title} у магазині «${storeName}»: актуальні ціни, оплата частинами до 25 платежів, гарантія 12 місяців і доставка по Україні завтра.`;
+    `${collection.title} у магазині ${storeName}: актуальні ціни, оплата частинами до 25 платежів, гарантія 12 місяців і доставка по Україні завтра.`;
 
   return { title, description: truncateText(description, DESCRIPTION_LIMIT) };
 }

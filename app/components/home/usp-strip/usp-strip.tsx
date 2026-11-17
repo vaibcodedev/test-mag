@@ -30,7 +30,7 @@ export type UspStripProps = Omit<SectionProps, "id" | "children" | "title"> & {
 export function UspStrip({
   usps,
   id = "usp",
-  title = "Чому купують у «Саді»",
+  title = "Чому купують в Ionov Store",
   ...props
 }: UspStripProps) {
   if (usps.length === 0) return null;

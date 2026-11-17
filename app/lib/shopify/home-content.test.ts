@@ -398,7 +398,7 @@ describe("mapHomeBanners", () => {
 
 describe("mapStoreInfo", () => {
   const stored = entry("main", {
-    name: "Сад",
+    name: "Ionov Store",
     postal_code: "21050",
     city: "Вінниця",
     street: "вул. Соборна, 64",
@@ -408,8 +408,8 @@ describe("mapStoreInfo", () => {
     opens: "10:00",
     closes: "20:00",
     phone: "068 129 99 00",
-    telegram: "@sad_vinnytsia",
-    legal_name: "ФОП Садовий Олег Вікторович",
+    telegram: "@ionov_store",
+    legal_name: "ФОП Іонов О. В.",
     tax_id: "3214509876",
     google_rating: { value: "4.9", type: "number_decimal" },
     google_reviews_count: { value: "412", type: "number_integer" },
@@ -426,7 +426,7 @@ describe("mapStoreInfo", () => {
   it("читає інші значення й сам будує посилання на телефон і Telegram", () => {
     const store = mapStoreInfo([
       entry("main", {
-        name: "Сад Київ",
+        name: "Ionov Store Київ",
         postal_code: "01001",
         city: "Київ",
         street: "вул. Хрещатик, 1",
@@ -437,13 +437,13 @@ describe("mapStoreInfo", () => {
         closes: "21:00",
         phone: "+380 44 123 45 67",
         telegram: "https://t.me/sad_kyiv",
-        legal_name: "ТОВ «Сад»",
+        legal_name: "ТОВ Ionov Store",
         tax_id: "12345678",
       }),
     ]);
 
     expect(store).toEqual({
-      name: "Сад Київ",
+      name: "Ionov Store Київ",
       postalCode: "01001",
       city: "Київ",
       street: "вул. Хрещатик, 1",
@@ -456,7 +456,7 @@ describe("mapStoreInfo", () => {
       phoneHref: "tel:+380441234567",
       telegramHandle: "@sad_kyiv",
       telegramUrl: "https://t.me/sad_kyiv",
-      legalName: "ТОВ «Сад»",
+      legalName: "ТОВ Ionov Store",
       taxId: "12345678",
     });
   });
@@ -471,7 +471,7 @@ describe("mapStoreInfo", () => {
   it("порожні й зіпсовані поля бере із запасних даних, пов'язані поля — парами", () => {
     const store = mapStoreInfo([
       entry("main", {
-        name: "Сад на Соборній",
+        name: "Ionov Store на Соборній",
         city: null,
         latitude: "49.2331",
         longitude: "схід",
@@ -482,12 +482,12 @@ describe("mapStoreInfo", () => {
       }),
     ]);
 
-    expect(store).toEqual({ ...STORE_INFO, name: "Сад на Соборній" });
+    expect(store).toEqual({ ...STORE_INFO, name: "Ionov Store на Соборній" });
   });
 
   it("відкидає координати поза межами глобуса", () => {
     const store = mapStoreInfo([
-      entry("main", { name: "Сад", latitude: "149.2", longitude: "28.4" }),
+      entry("main", { name: "Ionov Store", latitude: "149.2", longitude: "28.4" }),
     ]);
 
     expect(store?.latitude).toBe(STORE_INFO.latitude);
@@ -675,7 +675,7 @@ describe("buildHomeContent", () => {
     storeInfo: {
       nodes: [
         entry("main", {
-          name: "Сад із магазину",
+          name: "Ionov Store із магазину",
           google_rating: "4.7",
           google_reviews_count: "50",
           google_reviews_url: "https://www.google.com/maps/place/sad",
@@ -728,7 +728,7 @@ describe("buildHomeContent", () => {
       url: "https://www.google.com/maps/place/sad",
     });
     expect(content.about.stats).toEqual([{ value: "10 років", label: "із магазину" }]);
-    expect(content.store.name).toBe("Сад із магазину");
+    expect(content.store.name).toBe("Ionov Store із магазину");
     expect(content.bento.categories).toHaveLength(7);
     expect(content.bento.totalProducts).toBe(11);
     expect(content.articles.items).toHaveLength(3);

@@ -51,7 +51,7 @@ describe("ProductForm", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Немає в наявності");
     expect(screen.getByRole("link", { name: /Запитати в Telegram/ })).toHaveAttribute(
       "href",
-      "https://t.me/sad_vinnytsia",
+      "https://t.me/ionov_store",
     );
   });
 

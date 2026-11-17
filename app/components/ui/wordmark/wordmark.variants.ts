@@ -5,9 +5,9 @@ export const wordmarkVariants = cva(
   {
     variants: {
       tone: {
-        /** На світлому: ink, листок blue. */
+        /** На світлому: ink, крапка blue. */
         ink: "text-ink [--wordmark-accent:var(--blue)]",
-        /** На ink: білий, листок lime. */
+        /** На ink: білий, крапка lime. */
         "on-dark": "text-surface [--wordmark-accent:var(--lime)]",
         /** Великий вордмарк у футері (тільки на ink): lime, крапка blue. */
         lime: "text-lime [--wordmark-accent:var(--blue)]",

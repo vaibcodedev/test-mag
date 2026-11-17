@@ -9,9 +9,9 @@ import type { Route } from "./+types/search";
 
 const TITLE_MAX_LENGTH = 60;
 const DESCRIPTION =
-  "Пошук техніки Apple в магазині «Сад»: iPhone, Mac, iPad, Watch, AirPods та аксесуари. Шоурум у Вінниці, доставка по Україні завтра.";
+  "Пошук техніки Apple в магазині Ionov Store: iPhone, Mac, iPad, Watch, AirPods та аксесуари. Шоурум у Вінниці, доставка по Україні завтра.";
 
-/** «Пошук: iphone 17 — Сад», але не довше 60 символів. */
+/** «Пошук: iphone 17 — Ionov Store», але не довше 60 символів. */
 function pageTitle(term: string): string {
   const suffix = ` — ${STORE_INFO.name}`;
   if (!term) return `Пошук товарів${suffix}`;

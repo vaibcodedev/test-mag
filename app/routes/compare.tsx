@@ -1,7 +1,7 @@
 import { CompareView } from "~/components/saved/compare-view";
 
 export function meta() {
-  return [{ title: "Порівняння — Сад" }, { name: "robots", content: "noindex" }];
+  return [{ title: "Порівняння — Ionov Store" }, { name: "robots", content: "noindex" }];
 }
 
 export default function Compare() {

@@ -16,7 +16,7 @@ export const ABOUT_DEMO_POINTS: string[] = [
 ];
 
 export const ABOUT_DEMO_TEAM: AboutTeamMember[] = [
-  { name: "Олег Садовий", role: "засновник" },
+  { name: "Олег Іонов", role: "засновник" },
   { name: "Марина Ткачук", role: "консультантка шоуруму" },
   { name: "Андрій Бондар", role: "сервіс і trade-in" },
 ];

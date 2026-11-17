@@ -49,7 +49,7 @@ export function organizationJsonLd(store: StoreInfo, origin: string): JsonLdObje
   };
 }
 
-export function webSiteJsonLd(origin: string, name = "Сад"): JsonLdObject {
+export function webSiteJsonLd(origin: string, name = "Ionov Store"): JsonLdObject {
   const url = baseUrl(origin);
 
   return {

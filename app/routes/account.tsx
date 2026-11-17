@@ -9,8 +9,11 @@ const ORDERS_PAGE_SIZE = 10;
 
 export function meta() {
   return [
-    { title: "Особистий кабінет — Сад" },
-    { name: "description", content: "Ваші замовлення в магазині «Сад»: дати, статуси й суми." },
+    { title: "Особистий кабінет — Ionov Store" },
+    {
+      name: "description",
+      content: "Ваші замовлення в магазині Ionov Store: дати, статуси й суми.",
+    },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

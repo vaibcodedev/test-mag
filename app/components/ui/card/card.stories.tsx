@@ -141,7 +141,7 @@ export const Panel: Story = {
   render: (args) => (
     <Card {...args}>
       <CardTitle asChild size="h2-panel">
-        <h2>Про «Сад»</h2>
+        <h2>Про Ionov Store</h2>
       </CardTitle>
       <CardDescription className="text-body">
         Шоурум у центрі Вінниці: техніку можна потримати в руках, перш ніж купити.

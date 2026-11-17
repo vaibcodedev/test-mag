@@ -11,7 +11,7 @@ const meta = {
     title: "Як вибрати iPhone у 2026 році",
     publishedAt: "2026-11-10T09:00:00+02:00",
     readingMinutes: 5,
-    authorName: "Олена з «Сад»",
+    authorName: "Олена з Ionov Store",
     image: ARTICLES_DEMO[0]?.image ?? null,
   },
 } satisfies Meta<typeof ArticleHeader>;

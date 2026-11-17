@@ -34,7 +34,7 @@ export function Header({ categories }: { categories: readonly MegaMenuCategory[]
 
         <Link
           to="/"
-          aria-label="Сад — на головну"
+          aria-label="Ionov Store — на головну"
           className="inline-flex min-h-11 shrink-0 items-center rounded-sm focus-ring"
         >
           <Wordmark size="sm" aria-hidden="true" />

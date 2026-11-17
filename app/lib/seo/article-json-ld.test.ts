@@ -14,7 +14,7 @@ describe("articleJsonLd", () => {
         description: "Порівнюємо моделі.",
         image: "https://cdn.shopify.com/a.png",
         publishedAt: "2026-11-10T09:00:00+02:00",
-        authorName: "Олег Садовий",
+        authorName: "Олег Іонов",
         wordCount: 420,
       },
       `${ORIGIN}/`,
@@ -33,7 +33,7 @@ describe("articleJsonLd", () => {
       description: "Порівнюємо моделі.",
       image: ["https://cdn.shopify.com/a.png"],
       wordCount: 420,
-      author: { "@type": "Person", name: "Олег Садовий" },
+      author: { "@type": "Person", name: "Олег Іонов" },
       publisher: { "@id": `${ORIGIN}/#organization` },
     });
   });
@@ -67,7 +67,7 @@ describe("articleJsonLd", () => {
 
 describe("metaTitle", () => {
   it("додає назву магазину, коли вміщається у 60 символів", () => {
-    expect(metaTitle("Гарантія")).toBe("Гарантія — Сад");
+    expect(metaTitle("Гарантія")).toBe("Гарантія — Ionov Store");
   });
 
   it("довгий заголовок обрізає до 60 символів по межі слова", () => {
@@ -96,7 +96,7 @@ describe("contentMeta", () => {
       origin: ORIGIN,
     });
 
-    expect(meta).toContainEqual({ title: "Гарантія — Сад" });
+    expect(meta).toContainEqual({ title: "Гарантія — Ionov Store" });
     expect(meta).toContainEqual({ name: "description", content: "Опис сторінки." });
     expect(meta).toContainEqual({
       tagName: "link",

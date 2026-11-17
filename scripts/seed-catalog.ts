@@ -78,7 +78,7 @@ export const TAG_HIT = "hit";
 export const TAG_NEW = "new";
 
 /** Власні товари магазину без бренду виробника: скло, чохли. */
-const HOUSE_BRAND = "Сад";
+const HOUSE_BRAND = "Ionov Store";
 
 const WARRANTY_NEW = "Гарантія 12 місяців.";
 const WARRANTY_USED = "Гарантія 6 місяців.";
@@ -211,8 +211,8 @@ export function buildProduct(input: ProductInput): ProductSeed {
       input.specs,
       input.used ? WARRANTY_USED : WARRANTY_NEW,
     ),
-    seoTitle: `${input.title} — купити у Вінниці | Сад`,
-    seoDescription: `${input.text[0] ?? ""} Від ${formatAmount(input.price)} ₴ у шоурумі «Сад» у Вінниці.`,
+    seoTitle: `${input.title} — купити у Вінниці | Ionov Store`,
+    seoDescription: `${input.text[0] ?? ""} Від ${formatAmount(input.price)} ₴ у шоурумі Ionov Store у Вінниці.`,
     options,
     variants,
     badge: input.badge,

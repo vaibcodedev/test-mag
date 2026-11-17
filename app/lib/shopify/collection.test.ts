@@ -331,24 +331,30 @@ describe("підписи", () => {
 
 describe("SEO", () => {
   it("title до 60 символів", () => {
-    expect(collectionSeo({ title: "iPhone" }, "Сад").title).toBe("iPhone — купити у Вінниці | Сад");
+    expect(collectionSeo({ title: "iPhone" }, "Ionov Store").title).toBe(
+      "iPhone — купити у Вінниці | Ionov Store",
+    );
 
     const long = collectionSeo(
       { title: "Захисне скло, чохли та зарядні пристрої для iPhone 17 Pro" },
-      "Сад",
+      "Ionov Store",
     ).title;
     expect(long.length).toBeLessThanOrEqual(60);
   });
 
   it("description бере SEO-поле, далі опис, далі запасний текст", () => {
     expect(
-      collectionSeo({ title: "Mac", description: "Опис", seo: { description: "SEO-опис" } }, "Сад")
-        .description,
+      collectionSeo(
+        { title: "Mac", description: "Опис", seo: { description: "SEO-опис" } },
+        "Ionov Store",
+      ).description,
     ).toBe("SEO-опис");
-    expect(collectionSeo({ title: "Mac", description: "Опис" }, "Сад").description).toBe("Опис");
+    expect(collectionSeo({ title: "Mac", description: "Опис" }, "Ionov Store").description).toBe(
+      "Опис",
+    );
 
-    const fallback = collectionSeo({ title: "Mac", description: "" }, "Сад").description;
-    expect(fallback).toContain("Mac у магазині «Сад»");
+    const fallback = collectionSeo({ title: "Mac", description: "" }, "Ionov Store").description;
+    expect(fallback).toContain("Mac у магазині Ionov Store");
     expect(fallback.length).toBeLessThanOrEqual(155);
   });
 

@@ -1,6 +1,6 @@
 import type { MetaDescriptor } from "react-router";
 
-const SITE_NAME = "Сад";
+const SITE_NAME = "Ionov Store";
 const TITLE_SUFFIX = ` — ${SITE_NAME}`;
 const TITLE_LIMIT = 60;
 const DESCRIPTION_LIMIT = 160;
@@ -16,7 +16,7 @@ export function truncateText(text: string, limit: number): string {
   return `${base.replace(/[\s.,;:—–-]+$/, "")}${ELLIPSIS}`;
 }
 
-/** Заголовок вкладки до 60 символів: «Гарантія — Сад»; назва магазину додається, коли вміщається. */
+/** Заголовок вкладки до 60 символів: «Гарантія — Ionov Store»; назва магазину додається, коли вміщається. */
 export function metaTitle(title: string): string {
   const clean = title.replace(/\s+/g, " ").trim();
   if (clean.length + TITLE_SUFFIX.length <= TITLE_LIMIT) return `${clean}${TITLE_SUFFIX}`;

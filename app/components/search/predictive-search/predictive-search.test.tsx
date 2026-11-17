@@ -219,7 +219,7 @@ describe("PredictiveSearch", () => {
     expect(await screen.findByText(/Нічого не знайшли\. Перевірте назву або/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "напишіть нам у Telegram" })).toHaveAttribute(
       "href",
-      "https://t.me/sad_vinnytsia",
+      "https://t.me/ionov_store",
     );
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     expect(input()).toHaveAttribute("aria-expanded", "false");
