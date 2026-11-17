@@ -10,11 +10,7 @@ import {
 import { ContactCard } from "~/components/content/contact-card";
 import { Container } from "~/components/layout/container";
 import { Button } from "~/components/ui/button";
-import {
-  PROFILE_MARKETING_QUERY,
-  PROFILE_PHONE_QUERY,
-  PROFILE_QUERY,
-} from "~/graphql/queries/account-profile.query";
+import { PROFILE_MARKETING_QUERY, PROFILE_QUERY } from "~/graphql/queries/account-profile.query";
 import {
   getCustomerAccess,
   logAccountErrors,
@@ -40,18 +36,15 @@ export async function loader({ context }: Route.LoaderArgs) {
   if (!access) throw redirect(ACCOUNT_PATH);
 
   const { client, accessToken } = access;
-  // Ім'я й пошта вирішують долю сторінки; розсилка й телефон — окремі запити: якщо магазин
-  // їх не віддасть, відповідний блок стане недоступним, а решта працюватиме.
-  const [base, marketing, phone] = await Promise.all([
+  // Ім'я й пошта вирішують долю сторінки; розсилка — окремий запит: якщо магазин її
+  // не віддасть, перемикач стане недоступним, а решта працюватиме.
+  const [base, marketing] = await Promise.all([
     client.graphql(PROFILE_QUERY, { accessToken }).catch((error: unknown) => {
       logAccountFailure("AccountProfile", error);
       return null;
     }),
     optionalAccountData("AccountProfileMarketing", () =>
       client.graphql(PROFILE_MARKETING_QUERY, { accessToken }),
-    ),
-    optionalAccountData("AccountProfilePhone", () =>
-      client.graphql(PROFILE_PHONE_QUERY, { accessToken }),
     ),
   ]);
 
@@ -62,17 +55,11 @@ export async function loader({ context }: Route.LoaderArgs) {
 
   const { customer } = base.data;
   const email = customer.emailAddress?.emailAddress ?? null;
-  const defaultAddress = phone?.customer.defaultAddress;
 
   const profile: ProfileData = {
     firstName: customer.firstName,
     lastName: customer.lastName,
     email,
-    phone: !phone
-      ? { status: "unavailable" }
-      : defaultAddress
-        ? { status: "editable", value: defaultAddress.phoneNumber ?? "" }
-        : { status: "no-address" },
     // Без пошти підписувати нікуди, тож перемикач недоступний.
     marketing: email
       ? marketingStatus(marketing?.customer.emailAddress?.marketingState)

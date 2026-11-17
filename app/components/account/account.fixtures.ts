@@ -388,15 +388,13 @@ export const DEMO_PROFILE: ProfileData = {
   firstName: "Олена",
   lastName: "Коваль",
   email: "olena.koval@example.com",
-  phone: { status: "editable", value: "+380671234567" },
   marketing: "subscribed",
 };
 
-/** Новий покупець: без імені, без адреси доставки (телефон зберегти нікуди), без підписки. */
+/** Новий покупець: без імені й без підписки, з довгою поштою. */
 export const DEMO_PROFILE_NEW: ProfileData = {
   firstName: null,
   lastName: null,
   email: "very.long.customer.address.for.wrapping@example-company.com.ua",
-  phone: { status: "no-address" },
   marketing: "unsubscribed",
 };

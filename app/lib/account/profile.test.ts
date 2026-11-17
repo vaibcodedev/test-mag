@@ -3,8 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   MARKETING_SUBSCRIBE_MUTATION,
   MARKETING_UNSUBSCRIBE_MUTATION,
-  PROFILE_PHONE_MUTATION,
-  PROFILE_PHONE_QUERY,
   PROFILE_QUERY,
   PROFILE_UPDATE_MUTATION,
 } from "~/graphql/queries/account-profile.query";
@@ -14,7 +12,6 @@ import {
   firstInvalidField,
   mapCustomerUserErrors,
   mapMarketingUserErrors,
-  mapPhoneUserErrors,
   marketingStatus,
   readProfileForm,
   runProfileAction,
@@ -29,31 +26,30 @@ function form(fields: Record<string, string>): FormData {
 
 describe("readProfileForm", () => {
   it("обрізає краї й зайві пробіли всередині", () => {
-    expect(
-      readProfileForm(form({ firstName: "  Олена ", lastName: "Коваль   Петренко", phone: " " })),
-    ).toEqual({ firstName: "Олена", lastName: "Коваль Петренко", phone: "" });
+    expect(readProfileForm(form({ firstName: "  Олена ", lastName: "Коваль   Петренко" }))).toEqual(
+      { firstName: "Олена", lastName: "Коваль Петренко" },
+    );
   });
 
-  it("відсутні поля читає як порожні", () => {
-    expect(readProfileForm(new FormData())).toEqual({ firstName: "", lastName: "", phone: "" });
+  it("відсутні поля читає як порожні, зайві — не бере", () => {
+    expect(readProfileForm(new FormData())).toEqual({ firstName: "", lastName: "" });
+    expect(readProfileForm(form({ firstName: "Олена", phone: "067 123 45 67" }))).toEqual({
+      firstName: "Олена",
+      lastName: "",
+    });
   });
 });
 
 describe("validateProfile", () => {
-  it("приймає звичайні й незвичні імена та нормалізує телефон", () => {
+  it("приймає звичайні й незвичні імена", () => {
     for (const firstName of ["Олена", "Анна-Марія", "Мар'яна", "Д’Артаньян", "John", "Ян"]) {
-      expect(validateProfile({ firstName, lastName: "", phone: "" })).toEqual({
-        errors: {},
-        phone: null,
-      });
+      expect(validateProfile({ firstName, lastName: "" })).toEqual({});
     }
-    expect(
-      validateProfile({ firstName: "Олена", lastName: "Коваль", phone: "(067) 123-45-67" }),
-    ).toEqual({ errors: {}, phone: "+380671234567" });
+    expect(validateProfile({ firstName: "Олена", lastName: "Коваль-Петренко" })).toEqual({});
   });
 
-  it("вимагає ім'я, прізвище й телефон лишає необов'язковими", () => {
-    expect(validateProfile({ firstName: "", lastName: "", phone: "" }).errors).toEqual({
+  it("вимагає ім'я, прізвище лишає необов'язковим", () => {
+    expect(validateProfile({ firstName: "", lastName: "" })).toEqual({
       firstName: "Вкажіть ім'я.",
     });
   });
@@ -65,27 +61,20 @@ describe("validateProfile", () => {
     ["HTML", "<b>Олена</b>", "Ім'я не може містити посилань і символів < >."],
     ["задовге", "О".repeat(61), "Ім'я задовге: до 60 символів."],
   ])("відсікає сміття в імені: %s", (_name, firstName, message) => {
-    expect(validateProfile({ firstName, lastName: "", phone: "" }).errors.firstName).toBe(message);
+    expect(validateProfile({ firstName, lastName: "" }).firstName).toBe(message);
   });
 
   it("перевіряє прізвище за тими самими правилами й називає його в повідомленні", () => {
-    expect(
-      validateProfile({ firstName: "Олена", lastName: "http://x.example", phone: "" }).errors,
-    ).toEqual({ lastName: "Прізвище не може містити посилань і символів < >." });
-  });
-
-  it("незрозумілий телефон — помилка з прикладом формату", () => {
-    const { errors, phone } = validateProfile({ firstName: "Олена", lastName: "", phone: "12345" });
-
-    expect(phone).toBeNull();
-    expect(errors.phone).toBe("Перевірте номер: потрібні код оператора й сім цифр, як у прикладі.");
+    expect(validateProfile({ firstName: "Олена", lastName: "http://x.example" })).toEqual({
+      lastName: "Прізвище не може містити посилань і символів < >.",
+    });
   });
 });
 
 describe("firstInvalidField", () => {
   it("повертає перше поле з помилкою в порядку форми", () => {
-    expect(firstInvalidField({ phone: "x", lastName: "y" })).toBe("lastName");
-    expect(firstInvalidField({ phone: "x" })).toBe("phone");
+    expect(firstInvalidField({ lastName: "y", firstName: "x" })).toBe("firstName");
+    expect(firstInvalidField({ lastName: "y" })).toBe("lastName");
     expect(firstInvalidField({})).toBeNull();
   });
 });
@@ -112,28 +101,6 @@ describe("переклад userErrors", () => {
     ).toBe("Магазин не прийняв це значення. Перевірте, чи ім'я написано без зайвих символів.");
     expect(
       mapCustomerUserErrors([{ code: "CUSTOMER_DOES_NOT_EXIST", field: null, message: "Gone" }]),
-    ).toEqual({ errors: {}, failure: "failed" });
-  });
-
-  it("customerAddressUpdate: відхилений номер — помилка поля телефону", () => {
-    const byCode = mapPhoneUserErrors([
-      { code: "PHONE_NUMBER_NOT_VALID", field: ["address"], message: "Phone number is not valid" },
-    ]);
-    const byField = mapPhoneUserErrors([
-      { code: "INVALID", field: ["address", "phoneNumber"], message: "Invalid" },
-    ]);
-
-    expect(byCode.errors.phone).toMatch(/Магазин не прийняв цей номер/);
-    expect(byCode.errors.phone).not.toMatch(/not valid/i);
-    expect(byField.errors.phone).toBe(byCode.errors.phone);
-    expect(byCode.failure).toBeUndefined();
-  });
-
-  it("customerAddressUpdate: інші помилки адреси — загальна відмова", () => {
-    expect(
-      mapPhoneUserErrors([
-        { code: "ADDRESS_ID_DOES_NOT_EXIST", field: ["addressId"], message: "x" },
-      ]),
     ).toEqual({ errors: {}, failure: "failed" });
   });
 
@@ -174,28 +141,12 @@ function mockAccess(handlers: Map<unknown, Handler>) {
 const CURRENT = {
   data: { customer: { firstName: "Олена", lastName: "Коваль", emailAddress: null } },
 };
-const ADDRESS = {
-  data: {
-    customer: {
-      defaultAddress: { id: "gid://shopify/CustomerAddress/7", phoneNumber: "+380671234567" },
-    },
-  },
-};
 const NAME_OK = {
   data: { customerUpdate: { customer: { firstName: "x", lastName: "y" }, userErrors: [] } },
 };
-const PHONE_OK = {
-  data: {
-    customerAddressUpdate: { customerAddress: { id: "a", phoneNumber: "p" }, userErrors: [] },
-  },
-};
 
-const PROFILE_FORM = {
-  intent: "profile",
-  firstName: " Олена ",
-  lastName: "Коваль",
-  phone: "067 123 45 67",
-};
+const PROFILE_FORM = { intent: "profile", firstName: " Олена ", lastName: "Коваль" };
+const RENAMED_FORM = { ...PROFILE_FORM, firstName: "Олеся" };
 
 describe("runProfileAction", () => {
   beforeEach(() => {
@@ -221,25 +172,25 @@ describe("runProfileAction", () => {
 
     const result = await runProfileAction(
       access,
-      form({ intent: "profile", firstName: "", lastName: "Коваль", phone: "абв" }),
+      form({ intent: "profile", firstName: "", lastName: "www.spam.example" }),
     );
 
     expect(result).toEqual({
       intent: "profile",
       ok: false,
-      values: { firstName: "", lastName: "Коваль", phone: "абв" },
-      errors: { firstName: "Вкажіть ім'я.", phone: expect.stringMatching(/Перевірте номер/) },
+      values: { firstName: "", lastName: "www.spam.example" },
+      errors: {
+        firstName: "Вкажіть ім'я.",
+        lastName: "Прізвище не може містити посилань і символів < >.",
+      },
       failure: undefined,
     });
     expect(graphql).not.toHaveBeenCalled();
   });
 
-  it("нічого не змінилось: мутацій немає, результат успішний", async () => {
+  it("нічого не змінилось: мутації немає, результат успішний", async () => {
     const { access, calls } = mockAccess(
-      new Map<unknown, Handler>([
-        [PROFILE_QUERY, () => CURRENT],
-        [PROFILE_PHONE_QUERY, () => ADDRESS],
-      ]),
+      new Map<unknown, Handler>([[PROFILE_QUERY, () => CURRENT]]),
     );
 
     const result = await runProfileAction(access, form(PROFILE_FORM));
@@ -247,108 +198,52 @@ describe("runProfileAction", () => {
     expect(result).toEqual({
       intent: "profile",
       ok: true,
-      values: { firstName: "Олена", lastName: "Коваль", phone: "067 123 45 67" },
+      values: { firstName: "Олена", lastName: "Коваль" },
     });
     expect(calls(PROFILE_UPDATE_MUTATION)).toHaveLength(0);
-    expect(calls(PROFILE_PHONE_MUTATION)).toHaveLength(0);
   });
 
-  it("зберігає нове ім'я й телефон основної адреси у форматі E.164", async () => {
-    const { access, calls } = mockAccess(
+  it("зберігає нове ім'я; порожнє прізвище надсилає як null", async () => {
+    const { access, graphql, calls } = mockAccess(
       new Map<unknown, Handler>([
         [PROFILE_QUERY, () => CURRENT],
-        [PROFILE_PHONE_QUERY, () => ADDRESS],
         [PROFILE_UPDATE_MUTATION, () => NAME_OK],
-        [PROFILE_PHONE_MUTATION, () => PHONE_OK],
       ]),
     );
 
     const result = await runProfileAction(
       access,
-      form({ intent: "profile", firstName: "Олеся", lastName: "", phone: "(050) 111-22-33" }),
+      form({ intent: "profile", firstName: "Олеся", lastName: "" }),
     );
 
-    expect(result?.ok).toBe(true);
-    expect(calls(PROFILE_PHONE_MUTATION)[0]?.[1]).toEqual({
-      accessToken: "token",
-      variables: {
-        addressId: "gid://shopify/CustomerAddress/7",
-        address: { phoneNumber: "+380501112233" },
-      },
+    expect(result).toEqual({
+      intent: "profile",
+      ok: true,
+      values: { firstName: "Олеся", lastName: "" },
     });
     expect(calls(PROFILE_UPDATE_MUTATION)[0]?.[1]).toEqual({
       accessToken: "token",
       variables: { input: { firstName: "Олеся", lastName: null } },
     });
+    // Лише читання профілю й одна мутація: адрес і телефону форма не чіпає.
+    expect(graphql).toHaveBeenCalledTimes(2);
   });
 
-  it("порожнє поле телефону прибирає номер з адреси", async () => {
-    const { access, calls } = mockAccess(
+  it("userErrors імені стають помилками полів без тексту API й потрапляють у журнал", async () => {
+    const { access } = mockAccess(
       new Map<unknown, Handler>([
         [PROFILE_QUERY, () => CURRENT],
-        [PROFILE_PHONE_QUERY, () => ADDRESS],
-        [PROFILE_PHONE_MUTATION, () => PHONE_OK],
-      ]),
-    );
-
-    const result = await runProfileAction(access, form({ ...PROFILE_FORM, phone: "" }));
-
-    expect(result?.ok).toBe(true);
-    expect(calls(PROFILE_PHONE_MUTATION)[0]?.[1]).toMatchObject({
-      variables: { address: { phoneNumber: null } },
-    });
-  });
-
-  it("вимкнене поле телефону не надсилається — номер в адресі не чіпаємо", async () => {
-    const { access, calls } = mockAccess(
-      new Map<unknown, Handler>([
-        [PROFILE_QUERY, () => CURRENT],
-        [PROFILE_PHONE_QUERY, () => ADDRESS],
-      ]),
-    );
-
-    const result = await runProfileAction(
-      access,
-      form({ intent: "profile", firstName: "Олена", lastName: "Коваль" }),
-    );
-
-    expect(result?.ok).toBe(true);
-    expect(calls(PROFILE_PHONE_MUTATION)).toHaveLength(0);
-  });
-
-  it("без адреси доставки телефон зберегти нікуди: помилка поля, ім'я не змінюється", async () => {
-    const { access, calls } = mockAccess(
-      new Map<unknown, Handler>([
-        [PROFILE_QUERY, () => CURRENT],
-        [PROFILE_PHONE_QUERY, () => ({ data: { customer: { defaultAddress: null } } })],
-      ]),
-    );
-
-    const result = await runProfileAction(access, form({ ...PROFILE_FORM, firstName: "Олеся" }));
-
-    expect(result).toMatchObject({
-      ok: false,
-      errors: { phone: expect.stringMatching(/разом з адресою доставки/) },
-    });
-    expect(calls(PROFILE_UPDATE_MUTATION)).toHaveLength(0);
-  });
-
-  it("userErrors телефону стають помилкою поля; ім'я після цього не зберігається", async () => {
-    const { access, calls } = mockAccess(
-      new Map<unknown, Handler>([
-        [PROFILE_QUERY, () => CURRENT],
-        [PROFILE_PHONE_QUERY, () => ADDRESS],
         [
-          PROFILE_PHONE_MUTATION,
+          PROFILE_UPDATE_MUTATION,
           () => ({
             data: {
-              customerAddressUpdate: {
-                customerAddress: null,
+              customerUpdate: {
+                customer: null,
                 userErrors: [
                   {
-                    code: "PHONE_NUMBER_NOT_VALID",
-                    field: ["address", "phoneNumber"],
-                    message: "Phone number is not valid",
+                    code: "TOO_LONG",
+                    field: ["input", "firstName"],
+                    message: "First name is too long",
                   },
                 ],
               },
@@ -358,21 +253,17 @@ describe("runProfileAction", () => {
       ]),
     );
 
-    const result = await runProfileAction(
-      access,
-      form({ ...PROFILE_FORM, firstName: "Олеся", phone: "050 111 22 33" }),
-    );
+    const result = await runProfileAction(access, form(RENAMED_FORM));
 
     expect(result).toMatchObject({
       intent: "profile",
       ok: false,
-      values: { firstName: "Олеся", phone: "050 111 22 33" },
-      errors: { phone: expect.stringMatching(/Магазин не прийняв цей номер/) },
+      values: { firstName: "Олеся", lastName: "Коваль" },
+      errors: { firstName: "Ім'я задовге: скоротіть його." },
     });
-    expect(JSON.stringify(result)).not.toMatch(/not valid/i);
-    expect(calls(PROFILE_UPDATE_MUTATION)).toHaveLength(0);
+    expect(JSON.stringify(result)).not.toMatch(/too long/i);
     expect(console.error).toHaveBeenCalledWith(
-      expect.stringMatching(/^\[customer-account\] AccountProfilePhoneUpdate userErrors: /),
+      expect.stringMatching(/^\[customer-account\] AccountProfileUpdate userErrors: TOO_LONG /),
     );
   });
 
@@ -380,7 +271,6 @@ describe("runProfileAction", () => {
     const denied = mockAccess(
       new Map<unknown, Handler>([
         [PROFILE_QUERY, () => CURRENT],
-        [PROFILE_PHONE_QUERY, () => ADDRESS],
         [
           PROFILE_UPDATE_MUTATION,
           () => ({
@@ -399,7 +289,6 @@ describe("runProfileAction", () => {
     const broken = mockAccess(
       new Map<unknown, Handler>([
         [PROFILE_QUERY, () => CURRENT],
-        [PROFILE_PHONE_QUERY, () => ADDRESS],
         [
           PROFILE_UPDATE_MUTATION,
           () => {
@@ -408,14 +297,13 @@ describe("runProfileAction", () => {
         ],
       ]),
     );
-    const renamed = form({ ...PROFILE_FORM, firstName: "Олеся" });
 
-    expect(await runProfileAction(denied.access, renamed)).toMatchObject({
+    expect(await runProfileAction(denied.access, form(RENAMED_FORM))).toMatchObject({
       ok: false,
       errors: {},
       failure: "forbidden",
     });
-    expect(await runProfileAction(broken.access, renamed)).toMatchObject({
+    expect(await runProfileAction(broken.access, form(RENAMED_FORM))).toMatchObject({
       ok: false,
       errors: {},
       failure: "failed",
@@ -432,7 +320,6 @@ describe("runProfileAction", () => {
     const { access, calls } = mockAccess(
       new Map<unknown, Handler>([
         [PROFILE_QUERY, () => ({ data: null, errors: [{ message: "boom" }] })],
-        [PROFILE_PHONE_QUERY, () => ADDRESS],
         [PROFILE_UPDATE_MUTATION, () => NAME_OK],
       ]),
     );

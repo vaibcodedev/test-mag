@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   MARKETING_SUBSCRIBE_MUTATION,
   PROFILE_MARKETING_QUERY,
-  PROFILE_PHONE_QUERY,
   PROFILE_QUERY,
 } from "~/graphql/queries/account-profile.query";
 import { accountTestContext, thrownResponse } from "~/lib/account/testing";
@@ -24,18 +23,9 @@ const BASE = {
   },
 };
 const MARKETING = { data: { customer: { emailAddress: { marketingState: "SUBSCRIBED" } } } };
-const PHONE = {
-  data: {
-    customer: {
-      defaultAddress: { id: "gid://shopify/CustomerAddress/7", phoneNumber: "+380671234567" },
-    },
-  },
-};
-
 const READY = new Map<unknown, Handler>([
   [PROFILE_QUERY, () => BASE],
   [PROFILE_MARKETING_QUERY, () => MARKETING],
-  [PROFILE_PHONE_QUERY, () => PHONE],
 ]);
 
 function load(options: Parameters<typeof accountTestContext>[0] = {}) {
@@ -73,14 +63,13 @@ afterEach(() => {
 });
 
 describe("GET /account/profile", () => {
-  it("збирає профіль із трьох запитів", async () => {
+  it("збирає профіль з основного запиту й запиту розсилки", async () => {
     expect(await load({ customer: READY }).run()).toEqual({
       status: "ready",
       profile: {
         firstName: "Олена",
         lastName: "Коваль",
         email: "olena@example.com",
-        phone: { status: "editable", value: "+380671234567" },
         marketing: "subscribed",
       },
     });
@@ -119,42 +108,38 @@ describe("GET /account/profile", () => {
     expect(console.error).toHaveBeenCalledWith("[customer-account] AccountProfile: timeout");
   });
 
-  it("без розсилки й адреси з API ці блоки стають недоступними, решта працює", async () => {
+  it("без стану розсилки з API перемикач стає недоступним, решта працює", async () => {
     const { run } = load({
-      customer: new Map(READY)
-        .set(PROFILE_MARKETING_QUERY, () => ({
-          data: null,
-          errors: [{ message: "Field 'marketingState' doesn't exist" }],
-        }))
-        .set(PROFILE_PHONE_QUERY, () => {
-          throw new Error("boom");
-        }),
-    });
-
-    expect(await run()).toMatchObject({
-      status: "ready",
-      profile: { firstName: "Олена", phone: { status: "unavailable" }, marketing: "unavailable" },
-    });
-  });
-
-  it("покупець без адреси й без пошти: телефон зберегти нікуди, розсилка недоступна", async () => {
-    const { run } = load({
-      customer: new Map(READY)
-        .set(PROFILE_QUERY, () => ({
-          data: { customer: { firstName: null, lastName: null, emailAddress: null } },
-        }))
-        .set(PROFILE_PHONE_QUERY, () => ({ data: { customer: { defaultAddress: null } } })),
+      customer: new Map(READY).set(PROFILE_MARKETING_QUERY, () => ({
+        data: null,
+        errors: [{ message: "Field 'marketingState' doesn't exist" }],
+      })),
     });
 
     expect(await run()).toEqual({
       status: "ready",
       profile: {
-        firstName: null,
-        lastName: null,
-        email: null,
-        phone: { status: "no-address" },
+        firstName: "Олена",
+        lastName: "Коваль",
+        email: "olena@example.com",
         marketing: "unavailable",
       },
+    });
+    expect(console.error).toHaveBeenCalledWith(
+      "[customer-account] AccountProfileMarketing: Field 'marketingState' doesn't exist (-)",
+    );
+  });
+
+  it("покупець без імені й пошти: розсилка недоступна", async () => {
+    const { run } = load({
+      customer: new Map(READY).set(PROFILE_QUERY, () => ({
+        data: { customer: { firstName: null, lastName: null, emailAddress: null } },
+      })),
+    });
+
+    expect(await run()).toEqual({
+      status: "ready",
+      profile: { firstName: null, lastName: null, email: null, marketing: "unavailable" },
     });
   });
 });
@@ -182,15 +167,17 @@ describe("POST /account/profile", () => {
     const { run, customerGraphql } = submit({
       intent: "profile",
       firstName: "  ",
-      lastName: "Коваль",
-      phone: "12",
+      lastName: "<b>Коваль</b>",
     });
 
     expect(await run()).toMatchObject({
       intent: "profile",
       ok: false,
-      values: { firstName: "", lastName: "Коваль", phone: "12" },
-      errors: { firstName: "Вкажіть ім'я.", phone: expect.any(String) },
+      values: { firstName: "", lastName: "<b>Коваль</b>" },
+      errors: {
+        firstName: "Вкажіть ім'я.",
+        lastName: "Прізвище не може містити посилань і символів < >.",
+      },
     });
     expect(customerGraphql).not.toHaveBeenCalled();
   });

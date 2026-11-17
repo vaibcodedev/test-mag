@@ -5,7 +5,7 @@ import { Link } from "react-router";
 import { customerFullName, customerInitials } from "~/components/account/customer-profile";
 import { LogoutForm } from "~/components/account/logout-form";
 import { MarketingForm } from "~/components/account/marketing-form";
-import { ProfileForm, type ProfilePhone } from "~/components/account/profile-form";
+import { ProfileForm } from "~/components/account/profile-form";
 import { Container } from "~/components/layout/container";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import {
@@ -24,7 +24,6 @@ export type ProfileData = {
   firstName?: string | null;
   lastName?: string | null;
   email?: string | null;
-  phone: ProfilePhone;
   marketing: MarketingStatus;
 };
 
@@ -81,7 +80,7 @@ function useSavedToast(result: ProfileActionResult | null | undefined) {
 }
 
 /**
- * Сторінка профілю: особисті дані (ім'я, прізвище, телефон) і підписка на листи.
+ * Сторінка профілю: особисті дані (ім'я та прізвище) і підписка на листи.
  * Аватар і підпис угорі беруться з тих самих даних, що й привітання в кабінеті,
  * тож після збереження імені оновлюються разом із ним.
  */
@@ -148,7 +147,6 @@ export function ProfileView({ profile, result = null, pending = null }: ProfileV
           <ProfileForm
             firstName={profile.firstName ?? ""}
             lastName={profile.lastName ?? ""}
-            phone={profile.phone}
             result={result?.intent === "profile" ? result : null}
             pending={pending?.intent === "profile"}
           />

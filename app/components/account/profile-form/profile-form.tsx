@@ -4,36 +4,18 @@ import { Form } from "react-router";
 
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  fieldProps,
-} from "~/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel, fieldProps } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
-import { formatPhone } from "~/lib/account/phone";
 import {
   firstInvalidField,
   NAME_MAX_LENGTH,
-  PHONE_HINT,
   type ProfileActionResult,
-  type ProfileField,
   type SaveFailure,
 } from "~/lib/account/profile";
-
-/**
- * Телефон у кабінеті — це номер основної адреси доставки: інакше API його не змінює.
- * `no-address` — адреси ще немає, `unavailable` — магазин не віддав адресу.
- */
-export type ProfilePhone =
-  { status: "editable"; value: string } | { status: "no-address" } | { status: "unavailable" };
 
 export type ProfileFormProps = {
   firstName: string;
   lastName: string;
-  phone: ProfilePhone;
   /** Відповідь action на останнє надсилання цієї форми. */
   result?: Extract<ProfileActionResult, { intent: "profile" }> | null;
   /** Форма надсилається: кнопка показує спінер і не приймає повторних натискань. */
@@ -52,46 +34,32 @@ export const SAVE_FAILURE: Record<SaveFailure, { title: string; description: str
   },
 };
 
-const PHONE_NOTES: Record<Exclude<ProfilePhone["status"], "editable">, string> = {
-  "no-address":
-    "Номер зберігається разом з адресою доставки. Він з'явиться тут після першого замовлення.",
-  unavailable: "Зараз номер змінити не вдасться. Напишіть нам — оновимо його вручну.",
-};
-
 /**
- * Форма профілю: ім'я, прізвище, телефон. Працює і без JavaScript (звичайний POST на цю ж
+ * Форма профілю: ім'я та прізвище. Працює і без JavaScript (звичайний POST на цю ж
  * сторінку), а з ним надсилається без перезавантаження. Помилки приходять із сервера:
  * значення лишаються у формі, фокус переходить на перше поле з помилкою.
  */
 export function ProfileForm({
   firstName,
   lastName,
-  phone,
   result = null,
   pending = false,
 }: ProfileFormProps) {
   const id = useId();
   const form = useRef<HTMLFormElement>(null);
-  const ids: Record<ProfileField, string> = {
-    firstName: `${id}-first-name`,
-    lastName: `${id}-last-name`,
-    phone: `${id}-phone`,
-  };
 
   const failed = result && !result.ok ? result : null;
   const errors = failed?.errors ?? {};
   const invalidField = firstInvalidField(errors);
-  const phoneEditable = phone.status === "editable";
   const fields = {
-    firstName: fieldProps(ids.firstName, { invalid: Boolean(errors.firstName) }),
-    lastName: fieldProps(ids.lastName, { invalid: Boolean(errors.lastName) }),
-    phone: fieldProps(ids.phone, { invalid: Boolean(errors.phone), description: true }),
+    firstName: fieldProps(`${id}-first-name`, { invalid: Boolean(errors.firstName) }),
+    lastName: fieldProps(`${id}-last-name`, { invalid: Boolean(errors.lastName) }),
   };
 
   useEffect(() => {
     if (!result) return;
     if (result.ok) {
-      // Поля показують збережене: з обрізаними пробілами й номером у звичному записі.
+      // Поля показують збережене: з обрізаними пробілами.
       form.current?.reset();
       return;
     }
@@ -141,33 +109,6 @@ export function ProfileForm({
             <FieldError {...fields.lastName.error}>{errors.lastName}</FieldError>
           </Field>
         </div>
-
-        <Field {...fields.phone.field} data-disabled={phoneEditable ? undefined : "true"}>
-          <FieldLabel {...fields.phone.label}>Телефон для доставки</FieldLabel>
-          <Input
-            {...fields.phone.control}
-            name="phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            disabled={!phoneEditable}
-            defaultValue={
-              failed && phoneEditable
-                ? failed.values.phone
-                : phone.status === "editable"
-                  ? formatPhone(phone.value)
-                  : ""
-            }
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus={invalidField === "phone"}
-          />
-          <FieldDescription {...fields.phone.description}>
-            {phone.status === "editable"
-              ? `${PHONE_HINT} За цим номером зв'яжеться кур'єр або відділення.`
-              : PHONE_NOTES[phone.status]}
-          </FieldDescription>
-          <FieldError {...fields.phone.error}>{errors.phone}</FieldError>
-        </Field>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <Button type="submit" loading={pending}>

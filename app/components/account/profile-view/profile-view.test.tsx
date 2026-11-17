@@ -20,7 +20,7 @@ function renderView(props: Partial<ProfileViewProps> = {}) {
   return render(<RouterProvider router={router} />);
 }
 
-const VALUES = { firstName: "Олена", lastName: "Коваль", phone: "067 123 45 67" };
+const VALUES = { firstName: "Олена", lastName: "Коваль" };
 
 /** Radix Switch усередині форми вимірює себе через ResizeObserver, якого в jsdom немає. */
 class ResizeObserverStub {
@@ -65,7 +65,7 @@ describe("ProfileView", () => {
     );
   });
 
-  it("форма профілю — звичайний POST із полями й підказкою формату телефону", () => {
+  it("форма профілю — звичайний POST з ім'ям і прізвищем, без поля телефону", () => {
     const { container } = renderView();
 
     const form = container.querySelector('[data-slot="profile-form"]') as HTMLFormElement;
@@ -74,10 +74,8 @@ describe("ProfileView", () => {
     expect(screen.getByLabelText("Ім'я")).toHaveValue("Олена");
     expect(screen.getByLabelText("Прізвище")).toHaveValue("Коваль");
 
-    const phone = screen.getByLabelText("Телефон для доставки");
-    expect(phone).toHaveValue("+380 67 123 45 67");
-    expect(phone).toHaveAttribute("type", "tel");
-    expect(phone).toHaveAccessibleDescription(/067 123 45 67 або \+380 67 123 45 67/);
+    expect(screen.queryByLabelText(/Телефон/)).toBeNull();
+    expect(form.querySelector('input[name="phone"]')).toBeNull();
     expect(screen.getByRole("button", { name: "Зберегти зміни" })).toHaveAttribute(
       "type",
       "submit",
@@ -89,29 +87,23 @@ describe("ProfileView", () => {
       result: {
         intent: "profile",
         ok: false,
-        values: { firstName: "", lastName: "www.spam.example", phone: "067 12" },
-        errors: {
-          lastName: "Прізвище не може містити посилань і символів < >.",
-          phone: "Перевірте номер.",
-        },
+        values: { firstName: "Олена", lastName: "www.spam.example" },
+        errors: { lastName: "Прізвище не може містити посилань і символів < >." },
       },
     });
 
     const firstName = screen.getByLabelText("Ім'я");
     const lastName = screen.getByLabelText("Прізвище");
-    const phone = screen.getByLabelText("Телефон для доставки");
 
+    expect(firstName).toHaveValue("Олена");
     expect(firstName).not.toHaveAttribute("aria-invalid");
     expect(lastName).toHaveValue("www.spam.example");
     expect(lastName).toHaveAttribute("aria-invalid", "true");
     expect(lastName).toHaveAccessibleDescription(
       "Прізвище не може містити посилань і символів < >.",
     );
-    expect(phone).toHaveValue("067 12");
-    expect(phone).toHaveAttribute("aria-invalid", "true");
-    expect(phone).toHaveAccessibleDescription(/Перевірте номер\./);
     expect(lastName).toHaveFocus();
-    expect(screen.getAllByRole("alert")).toHaveLength(2);
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
     expect(toast.success).not.toHaveBeenCalled();
   });
 
@@ -147,16 +139,19 @@ describe("ProfileView", () => {
     const alert = screen.getByRole("alert");
     expect(alert).toHaveTextContent("Не вдалося зберегти");
     expect(alert).toHaveTextContent(message);
-    expect(screen.getByLabelText("Телефон для доставки")).toHaveValue("067 123 45 67");
+    expect(screen.getByLabelText("Ім'я")).toHaveValue("Олена");
+    expect(screen.getByLabelText("Прізвище")).toHaveValue("Коваль");
   });
 
-  it("без адреси доставки поле телефону вимкнене й пояснює чому", () => {
-    renderView({ profile: DEMO_PROFILE_NEW });
+  it("новий покупець без імені бачить порожні поля й підпис із поштою", () => {
+    const { container } = renderView({ profile: DEMO_PROFILE_NEW });
 
-    const phone = screen.getByLabelText("Телефон для доставки");
-    expect(phone).toBeDisabled();
-    expect(phone).toHaveAccessibleDescription(/після першого замовлення/);
     expect(screen.getByLabelText("Ім'я")).toHaveValue("");
+    expect(screen.getByLabelText("Прізвище")).toHaveValue("");
+    expect(container.querySelector('[data-slot="customer-name"]')).toBeNull();
+    expect(container.querySelector('[data-slot="customer-email"]')).toHaveTextContent(
+      "very.long.customer.address.for.wrapping@example-company.com.ua",
+    );
   });
 
   it("перемикач розсилки показує справжній стан і надсилає протилежний", () => {

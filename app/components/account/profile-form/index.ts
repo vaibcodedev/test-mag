@@ -1,6 +1,1 @@
-export {
-  ProfileForm,
-  SAVE_FAILURE,
-  type ProfileFormProps,
-  type ProfilePhone,
-} from "./profile-form";
+export { ProfileForm, SAVE_FAILURE, type ProfileFormProps } from "./profile-form";

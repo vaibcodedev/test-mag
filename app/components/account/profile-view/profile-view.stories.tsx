@@ -4,7 +4,7 @@ import { DEMO_PROFILE, DEMO_PROFILE_NEW } from "~/components/account/account.fix
 
 import { ProfileView } from "./profile-view";
 
-const VALUES = { firstName: "Олена", lastName: "Коваль", phone: "067 123 45 67" };
+const VALUES = { firstName: "Олена", lastName: "Коваль" };
 
 const meta = {
   title: "Account/ProfileView",
@@ -31,11 +31,10 @@ export const WithErrors: Story = {
     result: {
       intent: "profile",
       ok: false,
-      values: { firstName: "", lastName: "https://spam.example", phone: "067 123" },
+      values: { firstName: "", lastName: "https://spam.example" },
       errors: {
         firstName: "Вкажіть ім'я.",
         lastName: "Прізвище не може містити посилань і символів < >.",
-        phone: "Перевірте номер: потрібні код оператора й сім цифр, як у прикладі.",
       },
     },
   },
@@ -55,7 +54,7 @@ export const SaveForbidden: Story = {
   },
 };
 
-/** Новий покупець: без імені й адреси (телефон зберегти нікуди), розсилку вимкнено. */
+/** Новий покупець: без імені, з довгою поштою, розсилку вимкнено. */
 export const NewCustomer: Story = { args: { profile: DEMO_PROFILE_NEW } };
 
 /** Розсилку вимкнено. */
@@ -78,9 +77,7 @@ export const MarketingPendingConfirmation: Story = {
 
 /** Магазин не віддав стан підписки або не дозволяє нею керувати. */
 export const MarketingUnavailable: Story = {
-  args: {
-    profile: { ...DEMO_PROFILE, marketing: "unavailable", phone: { status: "unavailable" } },
-  },
+  args: { profile: { ...DEMO_PROFILE, marketing: "unavailable" } },
 };
 
 /** Перемкнути не вдалося: стан лишився попереднім. */
