@@ -11,7 +11,8 @@ const LINK =
 export function TopBar({ store = STORE_INFO }: { store?: StoreInfo }) {
   return (
     <div data-slot="top-bar" className="bg-ink text-surface">
-      <Container className="flex items-center justify-between gap-6">
+      {/* py-1: кільцю фокуса посилань потрібне місце зверху й знизу. */}
+      <Container className="flex items-center justify-between gap-6 py-1">
         <nav aria-label="Сервіс і шоурум" className="min-w-0">
           <ul className="flex items-center gap-x-6">
             <li>
