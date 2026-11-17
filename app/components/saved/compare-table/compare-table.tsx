@@ -1,11 +1,12 @@
-import { Info, ShoppingCart, X } from "lucide-react";
-import { useId, useMemo, useState, type ComponentProps } from "react";
+import { Info, Plus, ShoppingCart, X } from "lucide-react";
+import { Fragment, useId, useMemo, useState, type ComponentProps } from "react";
 import { Link } from "react-router";
 
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
+import { Price } from "~/components/ui/price";
 import { ShopImage } from "~/components/ui/shop-image";
 import { Switch } from "~/components/ui/switch";
 import {
@@ -13,25 +14,43 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import type { CompareCategory } from "~/lib/compare/spec-schema";
 import { plural } from "~/lib/format";
-import type { SavedProduct } from "~/lib/saved-lists";
+import { COMPARE_LIMIT, type SavedProduct } from "~/lib/saved-lists";
 import { cn } from "~/lib/utils";
 
-import { buildCompareRows } from "./compare-rows";
+import { buildCompareSections } from "./compare-rows";
 
 const IMAGE_FALLBACK_SIZE = 600;
-const IMAGE_SIZES = "(min-width: 48rem) 15rem, 10rem";
+const IMAGE_SIZES = "(min-width: 48rem) 12rem, 9rem";
 
-/** Ширини колонок: назви рядків вужчі, товари ширші; на телефоні таблиця прокручується. */
-const LABEL_CELL = "w-32 min-w-32 align-top break-words hyphens-auto md:w-48 md:min-w-48";
-const PRODUCT_CELL = "w-44 min-w-44 align-top md:w-60 md:min-w-60";
+/**
+ * Колонка назв рядків. На телефоні вона забрала б третину екрана, тому там її бачать лише
+ * читачі екрана, а назва рядка стоїть окремим рядком над значеннями (MobileLabelRow).
+ * Від md колонка лишається на місці під час горизонтальної прокрутки.
+ */
+const LABEL_CELL =
+  "max-md:sr-only md:sticky md:inset-s-0 md:z-10 md:w-52 md:min-w-52 md:bg-surface md:align-top";
+/** На телефоні в екран уміщаються два товари й видно край третього. */
+const PRODUCT_CELL = "w-40 min-w-40 px-3 align-top md:w-60 md:min-w-60 md:px-4";
+/** Текст у широкій клітинці, який не тікає за край під час горизонтальної прокрутки. */
+const PINNED_TEXT = "sticky inset-s-3 inline-block md:inset-s-4";
+/**
+ * Рядок із назвою, ціною та «Купити» лишається під шапкою сайту, поки гортаємо характеристики.
+ * Лише від lg: там таблиця вміщується без горизонтальної прокрутки, а прокрутка всередині
+ * обгортки вимикає прилипання до вікна. Межу малює тінь: border у sticky-клітинці зникає.
+ */
+const STICKY_CELL =
+  "bg-surface lg:sticky lg:top-(--header-height) lg:z-20 lg:shadow-[0_1px_0_var(--line)]";
 
 export type CompareTableProps = Omit<ComponentProps<"div">, "children"> & {
+  /** Категорія задає групи й рядки характеристик. */
+  category: CompareCategory;
+  /** Товари однієї категорії; показуються перші чотири. */
   products: readonly SavedProduct[];
   onRemove?: (product: SavedProduct) => void;
   onAddToCart?: (product: SavedProduct) => void;
@@ -40,11 +59,12 @@ export type CompareTableProps = Omit<ComponentProps<"div">, "children"> & {
 };
 
 /**
- * Таблиця порівняння: товари в колонках, характеристики в рядках.
- * Прокручується горизонтально всередині себе, тож сторінка на телефоні не ширшає.
+ * Таблиця порівняння однієї категорії: товари в колонках, характеристики в рядках за групами.
+ * На телефоні прокручується горизонтально всередині себе, тож сторінка не ширшає.
  */
 export function CompareTable({
-  products,
+  category,
+  products: allProducts,
   onRemove,
   onAddToCart,
   addingHandle,
@@ -54,42 +74,64 @@ export function CompareTable({
   const [onlyDifferences, setOnlyDifferences] = useState(false);
   const toggleId = useId();
 
-  const rows = useMemo(() => buildCompareRows(products), [products]);
+  const products = useMemo(() => allProducts.slice(0, COMPARE_LIMIT), [allProducts]);
+  const sections = useMemo(() => buildCompareSections(products, category), [products, category]);
   const canCompare = products.length > 1;
   const filtering = canCompare && onlyDifferences;
-  const visibleRows = filtering ? rows.filter((row) => row.differs) : rows;
+  const visibleSections = sections
+    .map((section) => ({
+      ...section,
+      rows: filtering ? section.rows.filter((row) => row.differs) : section.rows,
+    }))
+    .filter((section) => section.rows.length > 0);
 
   if (products.length === 0) return null;
 
+  const freeSlots = COMPARE_LIMIT - products.length;
+  const columns = products.length + 1 + (freeSlots > 0 ? 1 : 0);
+  const collectionHref = `/collections/${category.key}`;
+
   return (
-    <div data-slot="compare-table" className={cn("flex flex-col gap-4", className)} {...props}>
-      {canCompare ? (
-        <div className="flex min-h-11 w-fit items-center gap-3">
-          <Switch id={toggleId} checked={onlyDifferences} onCheckedChange={setOnlyDifferences} />
-          <Label htmlFor={toggleId} className="min-h-11 cursor-pointer">
-            Лише відмінності
-          </Label>
-        </div>
-      ) : null}
+    <div
+      data-slot="compare-table"
+      className={cn("flex w-fit max-w-full flex-col gap-4", className)}
+      {...props}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+        <p className="text-body text-ink-2">
+          {products.length} з {COMPARE_LIMIT}{" "}
+          {plural(COMPARE_LIMIT, { one: "моделі", few: "моделей", many: "моделей" })}{" "}
+          {category.title}
+          {freeSlots === 0 ? ". Щоб додати іншу, приберіть одну зі списку." : null}
+        </p>
+        {canCompare ? (
+          <div className="flex min-h-11 w-fit items-center gap-3">
+            <Switch id={toggleId} checked={onlyDifferences} onCheckedChange={setOnlyDifferences} />
+            <Label htmlFor={toggleId} className="min-h-11 cursor-pointer">
+              Лише відмінності
+            </Label>
+          </div>
+        ) : null}
+      </div>
 
       <Table
-        stickyFirstColumn
-        scrollLabel="Таблиця порівняння товарів"
-        containerClassName="w-fit max-w-full rounded-xl bg-surface"
-        className="w-auto"
+        scrollLabel={`Таблиця порівняння: ${category.title}`}
+        containerClassName="w-fit max-w-full rounded-xl bg-surface lg:overflow-visible"
+        className="w-auto md:[&_tbody_tr:last-child>*:first-child]:rounded-es-xl"
       >
         <TableCaption className="sr-only">
-          Порівняння характеристик: {products.length}{" "}
+          Порівняння характеристик {category.title}: {products.length}{" "}
           {plural(products.length, { one: "товар", few: "товари", many: "товарів" })}
         </TableCaption>
         <TableHeader>
-          <TableRow>
-            <TableHead className={LABEL_CELL}>
+          {/* Фото та «прибрати»: цей рядок гортається разом зі сторінкою. */}
+          <TableRow className="border-b-0">
+            <TableHead className={cn(LABEL_CELL, "rounded-ss-xl")}>
               <span className="sr-only">Характеристика</span>
             </TableHead>
             {products.map((product) => (
-              <TableHead key={product.handle} className={PRODUCT_CELL}>
-                <div className="relative flex flex-col gap-3 text-start">
+              <TableHead key={product.handle} className={cn(PRODUCT_CELL, "pt-4 pb-0")}>
+                <div className="relative">
                   <AspectRatio ratio={1} className="overflow-hidden rounded-md bg-photo">
                     {product.image ? (
                       <ShopImage
@@ -105,14 +147,6 @@ export function CompareTable({
                       />
                     ) : null}
                   </AspectRatio>
-                  {/* Назва товару лишається звичайним ink-посиланням, як у картці товару. */}
-                  <Link
-                    to={`/products/${product.handle}`}
-                    prefetch="intent"
-                    className="inline-flex min-h-11 items-center rounded-sm text-card-title text-ink focus-ring hover:text-blue"
-                  >
-                    <span className="line-clamp-3">{product.title}</span>
-                  </Link>
                   {onRemove ? (
                     <Button
                       variant="surface"
@@ -127,57 +161,120 @@ export function CompareTable({
                 </div>
               </TableHead>
             ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {visibleRows.map((row) => (
-            <TableRow key={row.id} data-row={row.id} data-differs={row.differs}>
-              <TableHead scope="row" className={LABEL_CELL}>
-                {row.label}
+            {freeSlots > 0 ? (
+              <TableHead rowSpan={2} className={cn(PRODUCT_CELL, "rounded-se-xl py-4")}>
+                {/* Вільне місце в таблиці веде до каталогу цієї ж категорії. */}
+                <Link
+                  to={collectionHref}
+                  prefetch="intent"
+                  data-slot="compare-add"
+                  className="flex h-full min-h-44 flex-col items-center justify-center gap-3 rounded-md border border-dashed border-line p-4 text-center text-small font-semibold text-ink-2 focus-ring transition-colors duration-150 hover:border-blue hover:text-blue"
+                >
+                  <span className="flex size-11 items-center justify-center rounded-pill bg-page text-ink">
+                    <Plus strokeWidth={2} aria-hidden="true" className="size-5" />
+                  </span>
+                  Додати {category.title}
+                  <span className="text-caption font-medium text-muted-foreground">
+                    Ще {freeSlots}{" "}
+                    {plural(freeSlots, { one: "місце", few: "місця", many: "місць" })}
+                  </span>
+                </Link>
               </TableHead>
-              {row.cells.map((cell, index) => (
-                <TableCell key={products[index]?.handle ?? index} className={PRODUCT_CELL}>
-                  {cell.content}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableHead scope="row" className={LABEL_CELL}>
-              Купівля
+            ) : null}
+          </TableRow>
+
+          {/* Назва, ціна й «Купити»: від lg рядок прилипає під шапкою сайту. */}
+          <TableRow data-slot="compare-summary" className="border-b-0">
+            <TableHead className={cn(LABEL_CELL, STICKY_CELL, "lg:z-30")}>
+              <span className="sr-only">Товар</span>
             </TableHead>
             {products.map((product) => (
-              <TableCell key={product.handle} className={PRODUCT_CELL}>
-                {product.availableForSale ? (
-                  <Button
-                    className="w-full"
-                    onClick={onAddToCart ? () => onAddToCart(product) : undefined}
-                    loading={addingHandle === product.handle}
+              <TableHead key={product.handle} className={cn(PRODUCT_CELL, STICKY_CELL, "pb-4")}>
+                <div className="flex h-full flex-col gap-2 text-start">
+                  {/* Назва товару лишається звичайним ink-посиланням, як у картці товару. */}
+                  <Link
+                    to={`/products/${product.handle}`}
+                    prefetch="intent"
+                    className="inline-flex min-h-11 items-center rounded-sm text-card-title text-ink focus-ring hover:text-blue"
                   >
-                    <ShoppingCart strokeWidth={2} aria-hidden="true" />
-                    Купити
-                    <span className="sr-only">: {product.title}</span>
-                  </Button>
-                ) : (
-                  <Button asChild variant="secondary" className="w-full">
-                    <Link
-                      to={`/products/${product.handle}`}
-                      prefetch="intent"
-                      aria-label={`Докладніше: ${product.title}`}
+                    <span className="line-clamp-2">{product.title}</span>
+                  </Link>
+                  <Price
+                    price={product.price}
+                    compareAt={product.availableForSale ? product.compareAtPrice : null}
+                    from={product.priceFrom}
+                    showSavings={false}
+                    className="text-ink"
+                  />
+                  {product.availableForSale && product.variantId ? (
+                    <Button
+                      className="mt-1 w-full"
+                      onClick={onAddToCart ? () => onAddToCart(product) : undefined}
+                      loading={addingHandle === product.handle}
                     >
-                      Докладніше
-                    </Link>
-                  </Button>
-                )}
-              </TableCell>
+                      <ShoppingCart strokeWidth={2} aria-hidden="true" />
+                      Купити
+                      <span className="sr-only">: {product.title}</span>
+                    </Button>
+                  ) : (
+                    <Button asChild variant="secondary" className="mt-1 w-full">
+                      <Link
+                        to={`/products/${product.handle}`}
+                        prefetch="intent"
+                        aria-label={`${product.availableForSale ? "Обрати варіант" : "Докладніше"}: ${product.title}`}
+                      >
+                        {product.availableForSale ? "Обрати варіант" : "Докладніше"}
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </TableHead>
             ))}
           </TableRow>
-        </TableFooter>
+        </TableHeader>
+
+        <TableBody>
+          {visibleSections.map((section) => (
+            <Fragment key={section.id}>
+              <TableRow data-section={section.id} className="border-b-0">
+                <TableHead
+                  scope="colgroup"
+                  colSpan={columns}
+                  className="h-auto bg-page px-3 pt-5 pb-2 text-small font-semibold text-ink md:px-4"
+                >
+                  <span className={PINNED_TEXT}>{section.title}</span>
+                </TableHead>
+              </TableRow>
+              {section.rows.map((row) => (
+                <Fragment key={row.id}>
+                  {/* Лише для ока на телефоні: читачі екрана беруть назву із заголовка рядка. */}
+                  <TableRow aria-hidden="true" className="border-b-0 md:hidden">
+                    <TableCell
+                      colSpan={columns}
+                      className="px-3 pt-3 pb-0 text-caption font-semibold text-muted-foreground"
+                    >
+                      <span className={PINNED_TEXT}>{row.label}</span>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow data-row={row.id} data-differs={row.differs}>
+                    <TableHead scope="row" className={LABEL_CELL}>
+                      {row.label}
+                    </TableHead>
+                    {row.cells.map((cell, index) => (
+                      <TableCell key={products[index]?.handle ?? index} className={PRODUCT_CELL}>
+                        {cell.content}
+                      </TableCell>
+                    ))}
+                    {freeSlots > 0 ? <TableCell className={PRODUCT_CELL} /> : null}
+                  </TableRow>
+                </Fragment>
+              ))}
+            </Fragment>
+          ))}
+        </TableBody>
       </Table>
 
-      {filtering && visibleRows.length === 0 ? (
+      {filtering && visibleSections.length === 0 ? (
         <Alert variant="surface">
           <Info aria-hidden="true" strokeWidth={2} />
           <AlertDescription>
