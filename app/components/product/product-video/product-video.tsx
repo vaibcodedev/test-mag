@@ -10,7 +10,6 @@ import type { ProductPageImage, ProductVideoSource } from "~/lib/shopify/product
 import { cn } from "~/lib/utils";
 
 import { useVideoPlayer } from "./use-video-player";
-import { VideoControls } from "./video-controls";
 import { VideoPlayButton } from "./video-play-button";
 
 const IMAGE_FALLBACK_SIZE = 1200;
@@ -36,13 +35,22 @@ export type ProductVideoProps = Omit<ComponentProps<"div">, "children"> &
 
 /** Сам плеєр: з'являється після натискання «Відтворити» й одразу запускає відео. */
 function VideoPlayer({ sources, poster, label }: VideoContent) {
-  const player = useVideoPlayer();
-  const playButtonRef = useRef<HTMLButtonElement>(null);
-  const { play, waiting, failed, retry, frameProps, videoProps, onSourceError } = player;
+  const {
+    play,
+    togglePlay,
+    playing,
+    waiting,
+    failed,
+    retry,
+    frameProps,
+    videoProps,
+    onSourceError,
+  } = useVideoPlayer();
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    // Велика кнопка зникла разом з обкладинкою: фокус переходить на панель, а не губиться.
-    playButtonRef.current?.focus({ preventScroll: true });
+    // Кнопка обкладинки зникла разом з обкладинкою: фокус переходить на кнопку плеєра.
+    buttonRef.current?.focus({ preventScroll: true });
     play();
   }, [play]);
 
@@ -54,8 +62,8 @@ function VideoPlayer({ sources, poster, label }: VideoContent) {
       aria-label={`Відео: ${label}`}
       className="relative size-full bg-ink text-surface"
     >
-      {/* Без атрибута controls: керування — панель VideoControls. Субтитрів Shopify для відео
-          товару не віддає, тож <track> додати нема з чого. */}
+      {/* Без атрибута controls і без панелі: клік по відео чи кнопка по центру — пауза або
+          відтворення. Субтитрів Shopify для відео товару не віддає, тож <track> додати нема з чого. */}
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video
         {...videoProps}
@@ -82,7 +90,7 @@ function VideoPlayer({ sources, poster, label }: VideoContent) {
       ) : null}
 
       {failed ? (
-        <div className="absolute inset-0 grid place-items-center p-4 pb-16">
+        <div className="absolute inset-0 grid place-items-center p-4">
           <Alert variant="danger" className="max-w-sm">
             <CircleAlert aria-hidden="true" strokeWidth={2} />
             <AlertTitle>Відео не завантажилось</AlertTitle>
@@ -96,17 +104,20 @@ function VideoPlayer({ sources, poster, label }: VideoContent) {
         </div>
       ) : null}
 
-      <VideoControls player={player} playButtonRef={playButtonRef} />
+      {/* Під час завантаження й помилки кнопки немає: на її місці індикатор або пояснення. */}
+      {waiting || failed ? null : (
+        <VideoPlayButton ref={buttonRef} playing={playing} onClick={togglePlay} />
+      )}
     </div>
   );
 }
 
 /**
- * Відео товару з власною панеллю керування замість рідної браузерної.
- * Спершу — обкладинка з кнопкою «Відтворити»: саме відео не вантажиться, доки його не запустили.
+ * Відео товару без панелі керування: лише кнопка «Відтворити» по центру.
+ * Спершу — обкладинка з кнопкою: саме відео не вантажиться, доки його не запустили.
+ * Поки відео грає, кнопки не видно; клік по кадру ставить на паузу, і кнопка повертається.
  * Заповнює батьківський блок і вписує кадр (object-contain) на ink, тож пропорції задає той,
- * хто його використовує. Клавіші всередині плеєра: пробіл або K — пауза, ← → — 5 секунд,
- * ↑ ↓ — гучність, M — звук, F — на весь екран.
+ * хто його використовує. З клавіатури: пробіл або K — пауза й відтворення.
  */
 export function ProductVideo({
   sources,

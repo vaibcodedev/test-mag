@@ -16,16 +16,16 @@ export default async function handleRequest(
 ) {
   const env = context.get(envContext);
 
+  const storeDomain = shouldUseMockShop(env) ? getMockShopDomain(env) : getStoreDomain(env);
   const csp = createContentSecurityPolicy({
-    shop: {
-      storeDomain: shouldUseMockShop(env) ? getMockShopDomain(env) : getStoreDomain(env),
-      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
-    },
+    shop: { storeDomain, checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN },
     directives: {
       // Відео товару з YouTube і Vimeo в галереї (<iframe> з'являється після натискання
       // «Відтворити»). Адреси плеєрів будує externalVideoEmbedUrl у lib/shopify/product.ts.
-      // Відео й обкладинки з Shopify вже дозволені типовими media-src та img-src (cdn.shopify.com).
       frameSrc: ["https://www.youtube-nocookie.com", "https://player.vimeo.com"],
+      // Файли відео товару Shopify віддає не лише з cdn.shopify.com, а й із домену магазину
+      // (/cdn/shop/videos/…): без нього браузер блокує відео й плеєр показує помилку.
+      mediaSrc: ["'self'", "https://cdn.shopify.com", `https://${storeDomain}`],
     },
   });
 

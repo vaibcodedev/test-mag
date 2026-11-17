@@ -314,8 +314,10 @@ describe("ProductGallery: відео Shopify", () => {
       [DEMO_VIDEO_URL, "video/mp4"],
     ]);
     expect(play).toHaveBeenCalledTimes(1);
-    expect(within(player).getByRole("slider", { name: "Перемотування" })).toBeInTheDocument();
-    expect(within(player).getByRole("button", { name: "На весь екран" })).toBeInTheDocument();
+    // Панелі керування немає. Тут play() лише обіцяє запуск (події playing ще не було),
+    // тож на місці кнопки — індикатор завантаження.
+    expect(within(player).queryByRole("slider")).toBeNull();
+    expect(within(player).getByLabelText("Відео завантажується")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Відтворити відео" })).toBeNull();
   });
 
@@ -358,9 +360,6 @@ describe("ProductGallery: відео Shopify", () => {
 
     await user.click(screen.getByRole("button", { name: "Відтворити відео" }));
     expect(watchDrag(null, from(document.querySelector("video")))).toBe(false);
-    expect(watchDrag(null, from(screen.getByRole("slider", { name: "Перемотування" })))).toBe(
-      false,
-    );
   });
 });
 
