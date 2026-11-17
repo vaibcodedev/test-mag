@@ -33,3 +33,22 @@ export const Cancelled: Story = { args: { order: order(4) } };
 
 /** Невідомий код оплати не показуємо; позицій немає — лишаються номер, дата й сума. */
 export const UnknownStatusNoItems: Story = { args: { order: order(5) } };
+
+/** Переповнення: довгий номер, велика сума, найдовші підписи станів і довгі назви товарів. */
+export const Overflow: Story = {
+  args: {
+    order: {
+      ...order(1),
+      name: "#UA-2026-0000123456789-ПОВТОРНЕ",
+      financialStatus: "PARTIALLY_REFUNDED",
+      fulfillmentStatus: "ON_HOLD",
+      totalPrice: { ...order(1).totalPrice, amount: "12345678.00" },
+      lineItems: {
+        nodes: (order(1).lineItems?.nodes ?? []).map((item) => ({
+          ...item,
+          title: `${item.title} — подарункове видання з гравіюванням і подовженою гарантією`,
+        })),
+      },
+    } as AccountOrder,
+  },
+};

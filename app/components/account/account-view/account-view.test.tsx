@@ -171,7 +171,8 @@ describe("AccountView", () => {
       "2026-11-18",
     );
     expect(within(card).getByText("Оплачено")).toBeInTheDocument();
-    expect(within(card).getByText("Готуємо до відправлення")).toBeInTheDocument();
+    // Стан названо двічі: рядком у шапці й останнім кроком шляху.
+    expect(within(card).getAllByText("Готуємо до відправлення")).not.toHaveLength(0);
     expect(within(card).getByText("iPhone 17 Pro 256 ГБ")).toBeInTheDocument();
     expect(text(card)).toContain("1 товар");
     expect(text(card)).toContain("64 999 ₴");

@@ -62,3 +62,89 @@ export function orderStatuses(
     delivery: order.cancelledAt ? CANCELLED : fulfillmentStatus(order.fulfillmentStatus),
   };
 }
+
+/** Крок шляху замовлення на картці. */
+export type OrderProgressStep = {
+  key: "placed" | "payment" | "delivery";
+  /** Що описує крок — для зчитувача екрана. */
+  prefix: string;
+  label: string;
+  state: "done" | "current" | "upcoming" | "problem";
+};
+
+/** Оплату отримано (або вже й повернено): крок пройдено. */
+const PAYMENT_DONE = new Set(["PAID", "PARTIALLY_REFUNDED", "REFUNDED"]);
+const PAYMENT_PROBLEM = new Set(["EXPIRED", "VOIDED"]);
+const DELIVERY_DONE = new Set(["FULFILLED"]);
+const DELIVERY_PROBLEM = new Set(["ON_HOLD"]);
+
+/**
+ * Шлях замовлення трьома кроками: оформлено → оплата → доставка. Підписи ті самі, що й у
+ * бейджів. Скасоване замовлення шляху не має (null): йому лишаються бейджі «Скасовано».
+ * Крок із невідомим кодом пропускаємо, щоб не показувати англійський текст.
+ */
+export function orderProgress(
+  order: Pick<AccountOrder, "cancelledAt" | "financialStatus" | "fulfillmentStatus">,
+): OrderProgressStep[] | null {
+  if (order.cancelledAt) return null;
+  const { payment, delivery } = orderStatuses(order);
+  if (!payment && !delivery) return null;
+
+  const steps: OrderProgressStep[] = [
+    { key: "placed", prefix: "Замовлення", label: "Оформлено", state: "done" },
+  ];
+
+  const paymentCode = order.financialStatus ?? "";
+  const paid = PAYMENT_DONE.has(paymentCode);
+  if (payment) {
+    steps.push({
+      key: "payment",
+      prefix: "Оплата",
+      label: payment.label,
+      state: paid ? "done" : PAYMENT_PROBLEM.has(paymentCode) ? "problem" : "current",
+    });
+  }
+
+  if (delivery) {
+    const code = order.fulfillmentStatus ?? "";
+    const started = code !== "UNFULFILLED" && code !== "OPEN" && code !== "PENDING_FULFILLMENT";
+    steps.push({
+      key: "delivery",
+      prefix: "Доставка",
+      label: delivery.label,
+      state: DELIVERY_DONE.has(code)
+        ? "done"
+        : DELIVERY_PROBLEM.has(code)
+          ? "problem"
+          : // Доставка «триває», коли вже щось зроблено або оплату отримано й черга за нами.
+            started || paid || !payment
+            ? "current"
+            : "upcoming",
+    });
+  }
+
+  return steps;
+}
+
+/**
+ * Головний стан замовлення одним рядком — відповідь на «що з моїм замовленням?».
+ * Скасування важливіше за все; далі — оплата, якщо вона чекає на покупця; далі — доставка.
+ */
+export function orderHeadline(
+  order: Pick<AccountOrder, "cancelledAt" | "financialStatus" | "fulfillmentStatus">,
+): OrderStatus & { cancelled: boolean } {
+  const { payment, delivery } = orderStatuses(order);
+  if (order.cancelledAt) return { ...CANCELLED, cancelled: true };
+  const status =
+    payment?.tone === "attention"
+      ? payment
+      : (delivery ?? payment ?? { label: "Оформлено", tone: "neutral" as const });
+  return { ...status, cancelled: false };
+}
+
+/** Замовлення ще в дорозі: є крок, який не пройдено. Лише такому потрібен шлях кроками. */
+export function orderInProgress(
+  order: Pick<AccountOrder, "cancelledAt" | "financialStatus" | "fulfillmentStatus">,
+): boolean {
+  return orderProgress(order)?.some((step) => step.state !== "done") ?? false;
+}

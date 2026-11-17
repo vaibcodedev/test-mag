@@ -5,7 +5,14 @@ import { describe, expect, it } from "vitest";
 import { OrderCard } from "./order-card";
 import type { AccountOrder, OrderLineItem } from "./order-card.types";
 import { itemCountLabel, orderItemsPreview, orderItemsSummary } from "./order-items";
-import { fulfillmentStatus, orderStatuses, paymentStatus } from "./order-status";
+import {
+  fulfillmentStatus,
+  orderStatuses,
+  paymentStatus,
+  orderHeadline,
+  orderInProgress,
+  orderProgress,
+} from "./order-status";
 
 const text = (element: HTMLElement) => (element.textContent ?? "").replace(/\s/g, " ");
 
@@ -85,6 +92,55 @@ describe("paymentStatus і fulfillmentStatus", () => {
 
     for (const code of financial) expect(paymentStatus(code)?.label).toMatch(/^[А-ЯІЇЄҐ]/);
     for (const code of fulfillment) expect(fulfillmentStatus(code)?.label).toMatch(/^[А-ЯІЇЄҐ]/);
+  });
+});
+
+describe("orderHeadline і шлях кроками", () => {
+  it("скасування важливіше за решту станів", () => {
+    expect(
+      orderHeadline({
+        cancelledAt: "2026-08-22T09:00:00Z",
+        financialStatus: "REFUNDED",
+        fulfillmentStatus: "FULFILLED",
+      }),
+    ).toEqual({ label: "Скасовано", tone: "attention", cancelled: true });
+  });
+
+  it("оплата, що чекає на покупця, стає головним станом", () => {
+    const order = { financialStatus: "PENDING", fulfillmentStatus: "UNFULFILLED" };
+    expect(orderHeadline(order).label).toBe("Очікує оплати");
+    expect(orderInProgress(order)).toBe(true);
+    expect(orderProgress(order)?.map((step) => step.state)).toEqual([
+      "done",
+      "current",
+      "upcoming",
+    ]);
+  });
+
+  it("оплачене замовлення показує стан доставки, а доставка триває", () => {
+    const order = { financialStatus: "PAID", fulfillmentStatus: "PARTIALLY_FULFILLED" };
+    expect(orderHeadline(order).label).toBe("Відправлено частково");
+    expect(orderProgress(order)?.map((step) => step.state)).toEqual(["done", "done", "current"]);
+  });
+
+  it("виконане й скасоване замовлення шляху не показують", () => {
+    expect(orderInProgress({ financialStatus: "PAID", fulfillmentStatus: "FULFILLED" })).toBe(
+      false,
+    );
+    expect(
+      orderInProgress({
+        cancelledAt: "2026-08-22T09:00:00Z",
+        financialStatus: "PENDING",
+        fulfillmentStatus: "UNFULFILLED",
+      }),
+    ).toBe(false);
+    expect(orderInProgress({ financialStatus: "X", fulfillmentStatus: "Y" })).toBe(false);
+  });
+
+  it("призупинене відправлення позначено як проблему", () => {
+    expect(
+      orderProgress({ financialStatus: "PAID", fulfillmentStatus: "ON_HOLD" })?.at(-1)?.state,
+    ).toBe("problem");
   });
 });
 
@@ -190,11 +246,10 @@ describe("OrderCard", () => {
     expect(text(card)).toContain("8 товарів");
     expect(text(card)).toContain("64 999 ₴");
 
-    const statuses = within(card).getByRole("list", { name: "Стан замовлення" });
-    expect(within(statuses).getAllByRole("listitem").map(text)).toEqual([
-      "Оплата: Оплачено",
-      "Доставка: Виконано",
-    ]);
+    // Виконане замовлення: стан — рядком у шапці, оплата — біля суми, шляху кроками немає.
+    expect(text(card.querySelector('[data-slot="order-headline"]')!)).toBe("Стан: Виконано");
+    expect(text(card.querySelector('[data-slot="order-payment"]')!)).toBe("Оплата: Оплачено");
+    expect(within(card).queryByRole("list", { name: "Стан замовлення" })).toBeNull();
 
     expect(within(card).getByRole("link", { name: "Стан замовлення #1001" })).toHaveAttribute(
       "href",
