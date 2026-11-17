@@ -20,7 +20,8 @@
     "build-storybook": "storybook build -o storybook-static",
     "test:e2e": "playwright test",
     "seed": "node --experimental-strip-types scripts/seed.ts",
-    "seed:verify": "node --experimental-strip-types scripts/seed-verify.ts"
+    "seed:verify": "node --experimental-strip-types scripts/seed-verify.ts",
+    "map": "node --experimental-strip-types scripts/build-map.ts"
   },
   "dependencies": {
     "@fontsource-variable/onest": "^5.3.1",

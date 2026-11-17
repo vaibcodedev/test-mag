@@ -7,16 +7,18 @@ import { Wordmark } from "~/components/ui/wordmark";
 import { mapsUrl, type StoreInfo } from "~/lib/content/site";
 import { cn } from "~/lib/utils";
 
+import { SHOWROOM_MAP } from "./showroom-map.data";
+
 export type ShowroomMapProps = Omit<ComponentProps<"div">, "children"> & {
   /** Метаоб'єкт `store_info`: з нього беруться координати позначки й посилання. */
   store: StoreInfo;
 };
 
 /** Полотно схеми в одиницях SVG; пропорція 5:4 повторена в класах aspect-[5/4]. */
-const VIEW = { width: 600, height: 480 };
+const VIEW = SHOWROOM_MAP.view;
 
-/** Ділянка центру Вінниці, яку зображає схема. */
-const BOUNDS = { north: 49.241, south: 49.225, west: 28.45, east: 28.49 };
+/** Ділянка міста, яку зображає схема: її задає генератор (npm run map). */
+const BOUNDS = SHOWROOM_MAP.bounds;
 
 /** Позначка не підходить до краю ближче, ніж на цю частку полотна. */
 const EDGE = 0.12;
@@ -34,14 +36,13 @@ export function projectToMap(latitude: number, longitude: number): { left: strin
   return { left: percent(x), top: percent(y) };
 }
 
-const STREET = "fill-none stroke-on-ink-10";
-const LABEL = "fill-on-ink-muted text-caption";
-const RIVER = "M470 -20C430 80 560 150 520 250S400 400 450 500";
+const ROAD = "fill-none [stroke-linecap:round] [stroke-linejoin:round]";
+const LABEL = "fill-on-ink-muted text-caption [paint-order:stroke] stroke-ink [stroke-width:4px]";
 
 /**
- * Статична стилізована схема центру Вінниці: без iframe і без JS-карт.
- * Керування масштабом немає навмисно: це малюнок, справжня карта відкривається посиланням.
- */
+ * Статична схема району шоуруму в кольорах теми: без iframe і без JS-карт.
+ * Вулиці, вода й парки справжні — з OpenStreetMap, їх готує scripts/build-map.ts.
+/* Керування масштабом немає навмисно: це малюнок, справжня карта відкривається посиланням. */
 export function ShowroomMap({ store, className, ...props }: ShowroomMapProps) {
   const position = projectToMap(store.latitude, store.longitude);
 
@@ -58,55 +59,41 @@ export function ShowroomMap({ store, className, ...props }: ShowroomMapProps) {
       <div className="absolute top-1/2 left-1/2 aspect-[5/4] w-[max(100cqw,125cqh)] min-w-full -translate-1/2">
         <svg
           role="img"
-          aria-label={`Схема центру Вінниці з позначкою шоуруму: ${store.street}`}
+          aria-label={`Схема району з позначкою шоуруму: ${store.city}, ${store.street}`}
           viewBox={`0 0 ${VIEW.width} ${VIEW.height}`}
           className="absolute inset-0 size-full"
         >
-          {/* Вулиці, паралельні Соборній. */}
-          <g className={STREET} strokeWidth={6} strokeLinecap="round">
-            <path d="M-10 137L450 70" />
-            <path d="M-10 207L450 140" />
-            <path d="M-10 347L460 279" />
-            <path d="M-10 417L400 358" />
-          </g>
-          {/* Поперечні вулиці. */}
-          <g className={STREET} strokeWidth={6} strokeLinecap="round">
-            <path d="M60 -10L133 490" />
-            <path d="M150 -10L223 490" />
-            <path d="M240 -10L313 490" />
-            <path d="M330 -10L403 490" />
-            <path d="M420 -10L465 300" />
-          </g>
-
-          {/* Центральний парк. Підписи тримаються ближче до центру: краї схеми обрізаються рамкою. */}
-          <g transform="rotate(-8.3 126 190)">
-            <rect x={70} y={128} width={112} height={104} rx={16} className="fill-ink" />
-            <rect x={70} y={128} width={112} height={104} rx={16} className="fill-on-ink-12" />
-          </g>
-          <text x={80} y={176} className={LABEL}>
-            <tspan x={80}>Центральний</tspan>
-            <tspan x={80} dy={16}>
-              парк
-            </tspan>
-          </text>
-
-          {/* Південний Буг. */}
-          <path d={RIVER} strokeWidth={40} className="fill-none stroke-ink" />
-          <path d={RIVER} strokeWidth={36} className="fill-none stroke-on-ink-20" />
-          <text x={410} y={452} className={LABEL}>
-            Південний Буг
-          </text>
-
-          {/* Соборна з мостом через річку. */}
+          <path d={SHOWROOM_MAP.parks} className="fill-on-ink-12" />
+          <path d={SHOWROOM_MAP.water} className="fill-on-ink-20" />
           <path
-            d="M-10 277L610 187"
-            strokeWidth={12}
-            strokeLinecap="round"
-            className="fill-none stroke-on-ink-muted"
+            d={SHOWROOM_MAP.minorRoads}
+            strokeWidth={3}
+            className={cn(ROAD, "stroke-on-ink-10")}
           />
-          <text x={300} y={262} transform="rotate(-8.3 300 262)" className={LABEL}>
-            вул. Соборна
-          </text>
+          <path
+            d={SHOWROOM_MAP.majorRoads}
+            strokeWidth={6}
+            className={cn(ROAD, "stroke-on-ink-20")}
+          />
+          {/* Вулиця шоуруму виділена: за нею покупець орієнтується. */}
+          <path
+            d={SHOWROOM_MAP.homeStreet}
+            strokeWidth={9}
+            className={cn(ROAD, "stroke-on-ink-muted")}
+          />
+          {SHOWROOM_MAP.labels.map((label) => (
+            <text
+              key={label.text}
+              x={label.x}
+              y={label.y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              transform={label.angle ? `rotate(${label.angle} ${label.x} ${label.y})` : undefined}
+              className={LABEL}
+            >
+              {label.text}
+            </text>
+          ))}
         </svg>
 
         <span
@@ -129,6 +116,16 @@ export function ShowroomMap({ store, className, ...props }: ShowroomMapProps) {
           </span>
         </Card>
       </div>
+
+      <a
+        href="https://www.openstreetmap.org/copyright"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute end-3 bottom-3 rounded-sm px-1 text-caption text-on-ink-muted hover:text-surface focus-visible:shadow-focus-on-ink"
+      >
+        © OpenStreetMap
+        <span className="sr-only"> (відкриється в новій вкладці)</span>
+      </a>
 
       {/* surface, а не on-dark: напівпрозора кнопка губиться на лініях вулиць. */}
       <Button
