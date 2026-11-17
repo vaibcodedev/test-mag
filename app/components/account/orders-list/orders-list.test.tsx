@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { DEMO_ORDERS } from "~/components/account/account.fixtures";
 import { DEFAULT_ORDERS_CHOICE } from "~/lib/account/orders-list";
@@ -50,6 +50,30 @@ describe("OrdersList", () => {
     );
     expect(list).toHaveAttribute("aria-busy", "true");
     expect(screen.getByRole("status", { name: "Завантажуємо замовлення" })).toBeInTheDocument();
+  });
+
+  it("після переходу на іншу сторінку показує початок списку, а не лишає покупця внизу", () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    const { rerender } = renderList({ orders: DEMO_ORDERS.slice(0, 2), nextHref: "?after=b" });
+
+    fireEvent.click(screen.getByRole("link", { name: "Наступні замовлення" }));
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    rerender(
+      <MemoryRouter initialEntries={["/account"]}>
+        <OrdersList orders={DEMO_ORDERS.slice(2, 4)} previousHref="?before=c" />
+      </MemoryRouter>,
+    );
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+
+    // Звичайне оновлення списку (без кліку по сторінках) прокрутку не чіпає.
+    rerender(
+      <MemoryRouter initialEntries={["/account"]}>
+        <OrdersList orders={DEMO_ORDERS.slice(0, 2)} />
+      </MemoryRouter>,
+    );
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
   });
 
   it("показує вибір періоду й сортування з поточними значеннями", () => {

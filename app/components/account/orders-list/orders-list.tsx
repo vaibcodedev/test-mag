@@ -1,5 +1,5 @@
 import { CalendarX, Package } from "lucide-react";
-import { useId, type ComponentProps } from "react";
+import { useEffect, useId, useRef, type ComponentProps } from "react";
 import { Link } from "react-router";
 
 import { OrderCard, type AccountOrder } from "~/components/account/order-card";
@@ -123,6 +123,21 @@ export function OrdersList({
   ...props
 }: OrdersListProps) {
   const titleId = useId();
+  const sectionRef = useRef<HTMLElement>(null);
+  const pageTurned = useRef(false);
+  const firstOrderId = orders[0]?.id;
+
+  // Нова сторінка може бути коротшою за попередню: без цього покупець опинявся б у підвалі
+  // сайту. Після «Попередні / Наступні» показуємо початок списку.
+  useEffect(() => {
+    if (!pageTurned.current) return;
+    pageTurned.current = false;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    sectionRef.current?.scrollIntoView({ block: "start", behavior: reduced ? "auto" : "smooth" });
+  }, [firstOrderId]);
+  const turnPage = () => {
+    pageTurned.current = true;
+  };
   const filtered = choice ? ordersListFiltered(choice) : false;
   // Покупцеві без жодного замовлення вибирати нема з чого.
   const showToolbar = choice && (orders.length > 0 || filtered);
@@ -130,8 +145,10 @@ export function OrdersList({
   return (
     <section
       aria-labelledby={titleId}
+      ref={sectionRef}
       data-slot="orders-list"
-      className={cn("flex min-w-0 flex-col gap-4", className)}
+      // Відступ під липку шапку сайту, щоб заголовок списку не ховався під нею.
+      className={cn("flex min-w-0 scroll-mt-28 flex-col gap-4", className)}
       {...props}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
@@ -180,7 +197,7 @@ export function OrdersList({
                   text="Попередні"
                   aria-label="Попередні замовлення"
                 >
-                  <Link to={previousHref} preventScrollReset />
+                  <Link to={previousHref} preventScrollReset onClick={turnPage} />
                 </PaginationPrevious>
               </PaginationItem>
             ) : null}
@@ -192,7 +209,7 @@ export function OrdersList({
                   text="Наступні"
                   aria-label="Наступні замовлення"
                 >
-                  <Link to={nextHref} preventScrollReset />
+                  <Link to={nextHref} preventScrollReset onClick={turnPage} />
                 </PaginationNext>
               </PaginationItem>
             ) : null}
