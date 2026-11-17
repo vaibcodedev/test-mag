@@ -202,9 +202,14 @@ describe("CompareTable", () => {
     renderTable();
 
     expect(screen.getByText("2 з 4 моделей iPhone")).toBeVisible();
-    const add = screen.getByRole("link", { name: /Додати iPhone/ });
-    expect(add).toHaveAttribute("href", "/collections/iphone");
-    expect(add).toHaveTextContent("Ще 2 місця");
+    // Плитка з двох половин: верхня в рядку фото, нижня — в рядку, що прилипає.
+    expect(screen.getByRole("link", { name: /Додати iPhone/ })).toHaveAttribute(
+      "href",
+      "/collections/iphone",
+    );
+    const more = screen.getByRole("link", { name: /Обрати в каталозі: iPhone/ });
+    expect(more).toHaveAttribute("href", "/collections/iphone");
+    expect(more).toHaveTextContent("Ще 2 місця");
   });
 
   it("повна таблиця не пропонує додати ще й показує не більше чотирьох товарів", () => {

@@ -1,4 +1,4 @@
-import { Info, Plus, ShoppingCart, X } from "lucide-react";
+import { ArrowRight, Info, Plus, ShoppingCart, X } from "lucide-react";
 import { Fragment, useId, useMemo, useState, type ComponentProps } from "react";
 import { Link } from "react-router";
 
@@ -37,6 +37,9 @@ const LABEL_CELL =
   "max-md:sr-only md:sticky md:inset-s-0 md:z-10 md:w-52 md:min-w-52 md:bg-surface md:align-top";
 /** На телефоні в екран уміщаються два товари й видно край третього. */
 const PRODUCT_CELL = "w-40 min-w-40 px-3 align-top md:w-60 md:min-w-60 md:px-4";
+/** Пунктирна плитка «Додати»: спільний вигляд двох її половин. */
+const ADD_TILE =
+  "flex flex-col items-center justify-center gap-3 rounded-md border border-dashed border-line px-4 text-center text-small font-semibold text-ink-2 focus-ring transition-colors duration-150 hover:text-blue";
 /** Текст у широкій клітинці, який не тікає за край під час горизонтальної прокрутки. */
 const PINNED_TEXT = "sticky inset-s-3 inline-block md:inset-s-4";
 /**
@@ -168,21 +171,18 @@ export function CompareTable({
             ))}
             {freeSlots > 0 ? (
               <TableHead className={cn(PRODUCT_CELL, "rounded-se-xl pt-4 pb-0")}>
-                {/* Вільне місце в таблиці веде до каталогу цієї ж категорії. */}
+                {/* Вільне місце в таблиці веде до каталогу цієї ж категорії. Плитка тягнеться
+                    на два рядки шапки: це її верхня половина, нижня — в липкому рядку. */}
                 <Link
                   to={collectionHref}
                   prefetch="intent"
                   data-slot="compare-add"
-                  className="flex aspect-square flex-col items-center justify-center gap-3 rounded-md border border-dashed border-line p-4 text-center text-small font-semibold text-ink-2 focus-ring transition-colors duration-150 hover:border-blue hover:text-blue"
+                  className={cn(ADD_TILE, "aspect-square rounded-b-none border-b-0 pt-4")}
                 >
                   <span className="flex size-11 items-center justify-center rounded-pill bg-page text-ink">
                     <Plus strokeWidth={2} aria-hidden="true" className="size-5" />
                   </span>
                   Додати {category.title}
-                  <span className="text-caption font-medium text-muted-foreground">
-                    Ще {freeSlots}{" "}
-                    {plural(freeSlots, { one: "місце", few: "місця", many: "місць" })}
-                  </span>
                 </Link>
               </TableHead>
             ) : null}
@@ -238,7 +238,30 @@ export function CompareTable({
                 </div>
               </TableHead>
             ))}
-            {freeSlots > 0 ? <TableHead className={cn(PRODUCT_CELL, STICKY_CELL)} /> : null}
+            {freeSlots > 0 ? (
+              <TableHead className={cn(PRODUCT_CELL, STICKY_CELL, "relative")}>
+                {/* Нижня половина плитки. Коли рядок прилип, вона лишається на видноті. */}
+                <Link
+                  to={collectionHref}
+                  prefetch="intent"
+                  data-slot="compare-add-more"
+                  className={cn(
+                    ADD_TILE,
+                    "absolute inset-x-3 top-0 bottom-4 rounded-t-none border-t-0 pb-4 md:inset-x-4",
+                  )}
+                >
+                  <span className="text-caption font-medium text-muted-foreground">
+                    Ще {freeSlots}{" "}
+                    {plural(freeSlots, { one: "місце", few: "місця", many: "місць" })}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-blue">
+                    Обрати в каталозі
+                    <span className="sr-only">: {category.title}</span>
+                    <ArrowRight strokeWidth={2} aria-hidden="true" className="size-4" />
+                  </span>
+                </Link>
+              </TableHead>
+            ) : null}
           </TableRow>
         </TableHeader>
 
