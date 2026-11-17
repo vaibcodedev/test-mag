@@ -10,7 +10,7 @@ export type CustomerProfileProps = Omit<ComponentProps<"header">, "children"> & 
   firstName?: string | null;
   lastName?: string | null;
   email?: string | null;
-  /** Дії профілю: вихід з кабінету. */
+  /** Дії профілю: перехід до редагування й вихід з кабінету. */
   actions?: ReactNode;
 };
 
@@ -63,7 +63,7 @@ export function CustomerProfile({
           ) : null}
         </div>
       </div>
-      {actions ? <div className="flex shrink-0 items-center gap-3">{actions}</div> : null}
+      {actions ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
     </header>
   );
 }

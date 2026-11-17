@@ -1,4 +1,4 @@
-import { CircleAlert, RotateCw, Send, UserRoundX } from "lucide-react";
+import { CircleAlert, RotateCw, Send, UserRoundPen, UserRoundX } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link, useNavigation } from "react-router";
 
@@ -143,7 +143,17 @@ function SignedIn({ customer, store }: { customer: AccountCustomer; store: Store
         firstName={customer.firstName}
         lastName={customer.lastName}
         email={customer.emailAddress?.emailAddress}
-        actions={<LogoutForm variant="surface" size="sm" />}
+        actions={
+          <>
+            <Button asChild variant="surface" size="sm">
+              <Link viewTransition to="/account/profile">
+                <UserRoundPen aria-hidden="true" strokeWidth={2} />
+                Профіль
+              </Link>
+            </Button>
+            <LogoutForm variant="surface" size="sm" />
+          </>
+        }
       />
       <div className={`${LAYOUT} lg:items-start`}>
         <OrdersList
