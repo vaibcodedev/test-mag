@@ -72,6 +72,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const catalog = useRouteLoaderData<typeof rootLoader>("root")?.catalog ?? [];
   const nonce = useNonce();
   const { addToCart, addingHandle } = useAddToCart();
+  // Товарні плитки, рядок знижок і фото iPhone — з магазину; запасний вміст лише там, де їх немає.
+  const promo = {
+    ...content.promo,
+    newProduct: products.promoNew ?? content.promo.newProduct,
+    saleProduct: products.promoSale ?? content.promo.saleProduct,
+  };
+  const tickerItems = products.ticker.length > 0 ? products.ticker : content.deals.tickerItems;
+  const iphoneLineup = content.iphoneLineup.map((model) => ({
+    ...model,
+    ...products.iphones[model.to.split("/").pop() ?? ""],
+  }));
 
   return (
     <main
@@ -79,7 +90,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       tabIndex={-1}
       className="flex flex-1 flex-col gap-section pt-4 outline-none"
     >
-      <HeroArea title={H1} banners={content.banners} promo={content.promo} categories={catalog} />
+      <HeroArea title={H1} banners={content.banners} promo={promo} categories={catalog} />
 
       <UspStrip usps={content.usps} />
       <CategoryBento {...content.bento} />
@@ -87,7 +98,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       {products.deals.length > 0 ? (
         <Deals
           content={content.deals.content}
-          tickerItems={content.deals.tickerItems}
+          tickerItems={tickerItems}
           products={products.deals}
           endsAt={products.dealsEndAt}
           now={products.now}
@@ -111,7 +122,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           addingHandle={addingHandle}
         />
       ) : null}
-      <IphoneLineup models={content.iphoneLineup} />
+      <IphoneLineup models={iphoneLineup} />
       <Services content={content.services} />
       <About {...content.about} />
       <Reviews rating={content.reviews.rating} reviews={content.reviews.items} />

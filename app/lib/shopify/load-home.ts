@@ -1,7 +1,11 @@
 import { Cache } from "@shopify/hydrogen";
 
+import type { DealsTickerItem } from "~/components/home/deals-ticker";
+import type { IphoneLineupModel } from "~/components/home/iphone-lineup";
+import type { PromoProductTile } from "~/components/home/promo-tiles";
 import type { ProductCardData } from "~/components/product/product-card";
 import { HOME_PRODUCTS_QUERY } from "~/graphql/queries/home.query";
+import { discountPercent } from "~/lib/format";
 import type { StorefrontGraphqlClient } from "~/lib/storefront";
 
 import { requireData } from "./errors";
@@ -9,6 +13,9 @@ import { toProductCard } from "./product-card";
 
 const PRODUCT_LIMIT = 16;
 const DEALS_COUNT = 4;
+/** Товарів колекції deals у запиті: чотири картки плюс позиції рухомого рядка. */
+const DEALS_LIMIT = 12;
+const IPHONE_LIMIT = 24;
 const POPULAR_COUNT = 10;
 const USED_COUNT = 3;
 
@@ -96,6 +103,13 @@ export type HomeProducts = {
   popular: ProductCardData[];
   /** «Вживана техніка»: товари колекції `used`. Порожній список — секцію не показуємо. */
   used: ProductCardData[];
+  /** Рухомий рядок «Знижок тижня»: товари колекції `deals` з відсотком знижки. */
+  ticker: DealsTickerItem[];
+  /** Плитки біля банера: перший товар колекції `new` і перший товар зі знижкою. */
+  promoNew: PromoProductTile | null;
+  promoSale: PromoProductTile | null;
+  /** Фото й найнижча ціна iPhone з магазину за handle — для секції «Який iPhone купити». */
+  iphones: Record<string, Pick<IphoneLineupModel, "image" | "price">>;
   /** Серверний час і кінець акції для відліку без розбіжності під час гідратації. */
   now: string;
   dealsEndAt: string;
@@ -109,6 +123,23 @@ export type HomeProducts = {
  *    Вживані пристрої сюди не потрапляють.
  * Якщо колекції `deals` чи `used` немає або вона порожня, список порожній і маршрут секцію не показує.
  */
+function toPromoTile(product: ProductCardData | undefined): PromoProductTile | null {
+  if (!product) return null;
+  return {
+    title: product.title,
+    to: `/products/${product.handle}`,
+    image: product.image,
+    price: product.price,
+    compareAtPrice: product.compareAtPrice,
+  };
+}
+
+function toTickerItem(product: ProductCardData): DealsTickerItem[] {
+  const percent = discountPercent(product.price, product.compareAtPrice);
+  if (!percent) return [];
+  return [{ title: product.title, discount: `−${percent}%`, to: `/products/${product.handle}` }];
+}
+
 export async function loadHomeProducts(
   storefrontClient: StorefrontGraphqlClient,
   now: Date = new Date(),
@@ -116,7 +147,12 @@ export async function loadHomeProducts(
   const data = requireData(
     "HomeProducts",
     await storefrontClient.graphql(HOME_PRODUCTS_QUERY, {
-      variables: { first: PRODUCT_LIMIT, deals: DEALS_COUNT, used: USED_COUNT },
+      variables: {
+        first: PRODUCT_LIMIT,
+        deals: DEALS_LIMIT,
+        used: USED_COUNT,
+        iphones: IPHONE_LIMIT,
+      },
       cache: Cache.short(),
     }),
   );
@@ -127,7 +163,19 @@ export async function loadHomeProducts(
   const deals = (data.deals?.products?.nodes ?? []).map(toProductCard);
   const used = (data.used?.products?.nodes ?? []).map(toProductCard);
 
+  const newest = (data.newest?.products?.nodes ?? []).map(toProductCard);
+  const iphones = Object.fromEntries(
+    (data.iphones?.products?.nodes ?? []).map((item) => [
+      item.handle,
+      { image: item.featuredImage ?? null, price: item.priceRange.minVariantPrice },
+    ]),
+  );
+
   return {
+    ticker: deals.flatMap(toTickerItem),
+    promoNew: toPromoTile(newest[0]),
+    promoSale: toPromoTile(deals.find((item) => discountPercent(item.price, item.compareAtPrice))),
+    iphones,
     deals: deals.slice(0, DEALS_COUNT),
     popular: products.filter((product) => !product.used).slice(0, POPULAR_COUNT),
     used: used.slice(0, USED_COUNT),

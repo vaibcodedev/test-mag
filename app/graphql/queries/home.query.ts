@@ -13,6 +13,7 @@ export const HOME_PRODUCTS_QUERY = gql(
       $first: Int!
       $deals: Int!
       $used: Int!
+      $iphones: Int!
       $country: CountryCode
       $language: LanguageCode
     )
@@ -40,6 +41,32 @@ export const HOME_PRODUCTS_QUERY = gql(
         products(first: $used) {
           nodes {
             ...ProductCardFields
+          }
+        }
+      }
+      newest: collection(handle: "new") {
+        products(first: 1) {
+          nodes {
+            ...ProductCardFields
+          }
+        }
+      }
+      iphones: collection(handle: "iphone") {
+        products(first: $iphones) {
+          nodes {
+            handle
+            featuredImage {
+              url
+              altText
+              width
+              height
+            }
+            priceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
           }
         }
       }

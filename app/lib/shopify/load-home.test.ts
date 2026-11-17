@@ -70,9 +70,62 @@ describe("loadHomeProducts", () => {
     expect(home.popular.map((item) => item.handle)).toEqual(["iphone-17", "airpods"]);
     expect(home.now).toBe(NOW.toISOString());
     expect(graphql).toHaveBeenCalledWith(expect.any(String), {
-      variables: { first: 16, deals: 4, used: 3 },
+      variables: { first: 16, deals: 12, used: 3, iphones: 24 },
       cache: expect.objectContaining({ mode: "public", maxAge: 1 }),
     });
+  });
+
+  it("рядок знижок, плитки біля банера й фото iPhone збираються з товарів магазину", async () => {
+    const sale = product("macbook-air", {
+      selectedOrFirstAvailableVariant: {
+        id: "gid://shopify/ProductVariant/macbook-air",
+        availableForSale: true,
+        price: { amount: "900.0", currencyCode: "UAH" },
+        compareAtPrice: { amount: "1000.0", currencyCode: "UAH" },
+      },
+    });
+    const image = { url: "https://cdn.shopify.com/i.jpg", altText: null, width: 800, height: 800 };
+    const { client } = clientWith({
+      data: {
+        products: { nodes: [] },
+        deals: { products: { nodes: [product("no-discount"), sale] } },
+        used: null,
+        newest: collectionOf("watch-11"),
+        iphones: {
+          products: {
+            nodes: [
+              {
+                handle: "iphone-17",
+                featuredImage: image,
+                priceRange: { minVariantPrice: { amount: "44999.0", currencyCode: "UAH" } },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    const home = await loadHomeProducts(client, NOW);
+
+    expect(home.ticker).toEqual([
+      { title: "macbook-air", discount: "−10%", to: "/products/macbook-air" },
+    ]);
+    expect(home.promoNew).toMatchObject({ to: "/products/watch-11" });
+    expect(home.promoSale).toMatchObject({ to: "/products/macbook-air" });
+    expect(home.iphones["iphone-17"]).toEqual({
+      image,
+      price: { amount: "44999.0", currencyCode: "UAH" },
+    });
+  });
+
+  it("магазин без колекцій new та iphone: плиток і фото немає", async () => {
+    const { client } = clientWith({
+      data: { products: { nodes: [] }, deals: null, used: null },
+    });
+
+    const home = await loadHomeProducts(client, NOW);
+
+    expect(home).toMatchObject({ ticker: [], promoNew: null, promoSale: null, iphones: {} });
   });
 
   it("популярне береться з колекції hits, коли вона є", async () => {
