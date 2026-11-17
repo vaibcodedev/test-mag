@@ -2,8 +2,10 @@ import { gql } from "@shopify/hydrogen/customer-account";
 
 /**
  * Профіль покупця та його замовлення (Customer Account API) з курсорною пагінацією.
- * З кожного замовлення беремо перші чотири позиції для мініатюр; скільки їх усього —
- * каже `lineItemsSummary`.
+ * З кожного замовлення беремо до тридцяти позицій: перші йдуть у мініатюри, а з усіх
+ * рахуємо кількість товарів. Поля `lineItemsSummary` у запиті немає навмисно: воно є
+ * у схемі, що йде з бібліотекою, але живий API магазину відповідає «Field doesn't exist»,
+ * і через нього не завантажувався весь кабінет.
  */
 export const ACCOUNT_QUERY = gql(`
   query AccountPage($first: Int, $after: String, $last: Int, $before: String) {
@@ -33,11 +35,7 @@ export const ACCOUNT_QUERY = gql(`
             amount
             currencyCode
           }
-          lineItemsSummary {
-            lineItemCount
-            totalQuantityOfLineItems
-          }
-          lineItems(first: 4) {
+          lineItems(first: 30) {
             nodes {
               id
               title

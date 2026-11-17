@@ -37,10 +37,23 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   try {
     const { data, errors } = await client.graphql(ACCOUNT_QUERY, { accessToken, variables });
-    // Текст помилки API англійський і технічний, тому покупцю показуємо власне пояснення.
-    if (errors || !data.customer) return { status: "error" } as const;
+    // Текст помилки API англійський і технічний, тому покупцю показуємо власне пояснення,
+    // а подробиці лишаємо в журналі сервера: без них причину збою не знайти.
+    if (errors || !data.customer) {
+      console.error(
+        `[customer-account] AccountPage: ${
+          errors
+            ? errors.map((error) => `${error.message} (${error.path?.join(".") ?? "-"})`).join("; ")
+            : "відповідь без customer"
+        }`,
+      );
+      return { status: "error" } as const;
+    }
     return { status: "signed-in", customer: data.customer } as const;
-  } catch {
+  } catch (error) {
+    console.error(
+      `[customer-account] AccountPage: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return { status: "error" } as const;
   }
 }
