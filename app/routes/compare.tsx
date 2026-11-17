@@ -1,7 +1,15 @@
 import { CompareView } from "~/components/saved/compare-view";
 
 export function meta() {
-  return [{ title: "Порівняння — Ionov Store" }, { name: "robots", content: "noindex" }];
+  return [
+    { title: "Порівняння — Ionov Store" },
+    {
+      name: "description",
+      content:
+        "Порівняння техніки Apple в Ionov Store: характеристики обраних моделей поруч в одній таблиці.",
+    },
+    { name: "robots", content: "noindex" },
+  ];
 }
 
 export default function Compare() {

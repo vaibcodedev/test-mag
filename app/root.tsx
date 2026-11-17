@@ -159,6 +159,27 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
 // Кореневий loader не перезапускається, коли змінився лише рядок запиту тієї самої сторінки
 // (фільтри, сортування, пагінація, варіант товару). Правило й пояснення — у ~/lib/root-revalidation.
+/**
+ * Заголовок вкладки для сторінок, які малює ErrorBoundary. Коли loader товару чи колекції
+ * викидає 404, meta самого маршруту не викликається — без цього у вкладці було б порожньо.
+ * У звичайному випадку повертаємо порожній список: теги дає маршрут сторінки.
+ */
+export function meta({ error }: Route.MetaArgs) {
+  if (!error) return [];
+
+  const notFound = isRouteErrorResponse(error) && error.status === 404;
+  return [
+    { title: `${notFound ? "Сторінку не знайдено" : "Щось пішло не так"} — Ionov Store` },
+    {
+      name: "description",
+      content: notFound
+        ? "Такої сторінки немає: можливо, товар зняли з продажу або адресу змінено. Перейдіть до каталогу Ionov Store."
+        : "Сторінка не завантажилась через помилку на нашому боці. Оновіть її або поверніться на головну.",
+    },
+    { name: "robots", content: "noindex" },
+  ];
+}
+
 export function shouldRevalidate(args: ShouldRevalidateFunctionArgs) {
   return shouldRevalidateRoot(args);
 }

@@ -1,7 +1,15 @@
 import { WishlistView } from "~/components/saved/wishlist-view";
 
 export function meta() {
-  return [{ title: "Обране — Ionov Store" }, { name: "robots", content: "noindex" }];
+  return [
+    { title: "Обране — Ionov Store" },
+    {
+      name: "description",
+      content:
+        "Товари, які ви зберегли в Ionov Store: порівняйте ціни й додайте в кошик одним натисканням.",
+    },
+    { name: "robots", content: "noindex" },
+  ];
 }
 
 export default function Wishlist() {

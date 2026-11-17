@@ -3,7 +3,15 @@ import { data } from "react-router";
 import { NotFound } from "~/components/layout/not-found";
 
 export function meta() {
-  return [{ title: "Сторінку не знайдено — Ionov Store" }, { name: "robots", content: "noindex" }];
+  return [
+    { title: "Сторінку не знайдено — Ionov Store" },
+    {
+      name: "description",
+      content:
+        "Такої сторінки немає: можливо, товар зняли з продажу або адресу змінено. Перейдіть до каталогу Ionov Store.",
+    },
+    { name: "robots", content: "noindex" },
+  ];
 }
 
 /**
