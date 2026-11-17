@@ -231,6 +231,8 @@ describe("ціна", () => {
   it("верхня межа береться з фільтра PRICE_RANGE і округлюється до кроку", () => {
     expect(priceCeiling([PRICE], 0)).toBe(650);
     expect(priceCeiling([MEMORY], 119999)).toBe(120000);
+    // Покупець звузив ціну: фільтр віддає межу вибірки, шкала лишається шкалою колекції.
+    expect(priceCeiling([PRICE], 93000)).toBe(93000);
     expect(priceCeiling([], 0)).toBe(0);
     expect(priceCeiling([], Number.NaN)).toBe(0);
   });

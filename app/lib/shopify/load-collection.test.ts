@@ -258,7 +258,8 @@ describe("loadCollectionPage", () => {
 
     expect(data.filters.map((filter) => filter.label)).toEqual(["Ціна", "Колір"]);
     expect(data.filters[1]?.values[0]?.swatch?.color).toBe("#000000");
-    expect(data.priceCeiling).toBe(65000);
+    // Шкала ціни — найдорожчий товар колекції, а не межа поточної вибірки з фільтра.
+    expect(data.priceCeiling).toBe(120000);
   });
 
   it("коли товарів більше, ніж рахуємо, загальна кількість невідома", async () => {

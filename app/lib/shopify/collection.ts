@@ -344,7 +344,10 @@ export function priceStep(ceiling: number): number {
 }
 
 /**
- * Верхня межа повзунка ціни: з фільтра PRICE_RANGE, а якщо його немає — із запасного значення.
+ * Верхня межа повзунка ціни: більше з двох — значення фільтра PRICE_RANGE і найдорожчий товар
+ * колекції (`fallback`). Фільтр магазин рахує по вже відфільтрованих товарах: якщо покупець
+ * обмежив ціну до 40 500 ₴, межа фільтра теж стає 40 500, і повзунок знову стояв би на краю,
+ * а підняти ціну назад було б нікуди. Шкала лишається шкалою всієї колекції.
  * Округлюється вгору до кроку, щоб повзунок доходив до найдорожчого товару.
  */
 export function priceCeiling(filters: readonly CollectionFilter[], fallback: number): number {
@@ -353,7 +356,7 @@ export function priceCeiling(filters: readonly CollectionFilter[], fallback: num
     .map((value) => parseFilterInput(value.input)?.price?.max)
     .find((max): max is number => typeof max === "number" && max > 0);
 
-  const ceiling = fromFilter ?? fallback;
+  const ceiling = Math.max(fromFilter ?? 0, Number.isFinite(fallback) ? fallback : 0);
   if (!Number.isFinite(ceiling) || ceiling <= 0) return 0;
 
   const step = priceStep(ceiling);
