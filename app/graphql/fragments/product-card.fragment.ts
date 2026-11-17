@@ -15,6 +15,7 @@ export const PRODUCT_CARD_FRAGMENT = gql(`
     handle
     title
     availableForSale
+    productType
     featuredImage {
       url
       altText

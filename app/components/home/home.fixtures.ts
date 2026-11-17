@@ -34,6 +34,7 @@ export function uah(amount: number): Money {
 export const DEMO_PRODUCTS: ProductCardData[] = [
   {
     handle: "iphone-17-pro-256-blue",
+    compareCategory: "iphone",
     title: "iPhone 17 Pro 256 ГБ, синій титан",
     image: demoImage(0),
     price: uah(64999),
@@ -44,6 +45,7 @@ export const DEMO_PRODUCTS: ProductCardData[] = [
   },
   {
     handle: "macbook-air-13-m4-256-midnight",
+    compareCategory: "mac",
     title: "MacBook Air 13 M4 16/256 ГБ, темна ніч",
     image: demoImage(1),
     price: uah(49999),
@@ -54,6 +56,7 @@ export const DEMO_PRODUCTS: ProductCardData[] = [
   },
   {
     handle: "apple-watch-series-11-46-black",
+    compareCategory: "watch",
     title: "Apple Watch Series 11 46 мм, чорний",
     image: demoImage(2),
     price: uah(21999),
@@ -65,6 +68,7 @@ export const DEMO_PRODUCTS: ProductCardData[] = [
   },
   {
     handle: "airpods-pro-3",
+    compareCategory: "airpods",
     title: "AirPods Pro 3 з MagSafe",
     image: demoImage(3),
     price: uah(11999),
@@ -75,6 +79,7 @@ export const DEMO_PRODUCTS: ProductCardData[] = [
   },
   {
     handle: "ipad-air-11-m3-128-blue",
+    compareCategory: "ipad",
     title: "iPad Air 11 M3 128 ГБ Wi-Fi, синій",
     image: demoImage(4),
     price: uah(28999),
@@ -84,6 +89,7 @@ export const DEMO_PRODUCTS: ProductCardData[] = [
   },
   {
     handle: "iphone-air-256-sky",
+    compareCategory: "iphone",
     title: "iPhone Air 256 ГБ, небесний",
     image: demoImage(0),
     price: uah(54999),
@@ -98,6 +104,7 @@ export const DEMO_PRODUCTS: ProductCardData[] = [
 export const DEMO_USED_PRODUCTS: ProductCardData[] = [
   {
     handle: "used-iphone-15-pro-128-natural",
+    compareCategory: "iphone",
     title: "iPhone 15 Pro 128 ГБ, натуральний титан",
     image: demoImage(0),
     price: uah(31999),
@@ -107,6 +114,7 @@ export const DEMO_USED_PRODUCTS: ProductCardData[] = [
   },
   {
     handle: "used-iphone-14-128-blue",
+    compareCategory: "iphone",
     title: "iPhone 14 128 ГБ, синій",
     image: demoImage(4),
     price: uah(19999),
@@ -116,6 +124,7 @@ export const DEMO_USED_PRODUCTS: ProductCardData[] = [
   },
   {
     handle: "used-macbook-air-13-m2-256",
+    compareCategory: "mac",
     title: "MacBook Air 13 M2 8/256 ГБ, сріблястий",
     image: demoImage(1),
     price: uah(29999),

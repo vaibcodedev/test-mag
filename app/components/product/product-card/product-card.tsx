@@ -58,7 +58,7 @@ export function ProductCard({
   className,
   ...props
 }: ProductCardProps) {
-  const { image, availableForSale } = product;
+  const { image, availableForSale, compareCategory } = product;
   const href = `/products/${product.handle}`;
 
   const storedWishlisted = useIsWishlisted(product.handle);
@@ -98,12 +98,19 @@ export function ProductCard({
             onClick={wishlistControlled ? onToggleWishlist : () => toggleWishlist(product.handle)}
             className={PHOTO_BUTTON}
           />
-          <CompareButton
-            productTitle={product.title}
-            active={compareControlled ? (compared ?? false) : storedCompared}
-            onClick={compareControlled ? onToggleCompare : () => toggleCompare(product.handle)}
-            className={PHOTO_BUTTON}
-          />
+          {/* Аксесуари не порівнюються: категорії немає — немає й кнопки. */}
+          {compareCategory ? (
+            <CompareButton
+              productTitle={product.title}
+              active={compareControlled ? (compared ?? false) : storedCompared}
+              onClick={
+                compareControlled
+                  ? onToggleCompare
+                  : () => toggleCompare(product.handle, compareCategory)
+              }
+              className={PHOTO_BUTTON}
+            />
+          ) : null}
         </CardAction>
 
         <CardContent className="flex flex-1 flex-col gap-2">

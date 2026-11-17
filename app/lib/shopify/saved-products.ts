@@ -1,6 +1,7 @@
 import type { StorefrontApi } from "@shopify/hydrogen";
 
 import { SAVED_PRODUCTS_QUERY, SAVED_PRODUCTS_SLOTS } from "~/graphql/queries/saved-products.query";
+import { parseSpecs } from "~/lib/compare/spec-schema";
 import { isValidHandle, SAVED_PRODUCTS_PAGE_SIZE, type SavedProduct } from "~/lib/saved-lists";
 import type { StorefrontGraphqlClient } from "~/lib/storefront";
 
@@ -87,6 +88,7 @@ export function toSavedProduct(product: SavedProductFields): SavedProduct {
           !(option.values.length === 1 && option.values[0] === DEFAULT_OPTION_VALUE),
       ),
     shortSpecs: parseShortSpecs(product.shortSpecs?.value),
+    specs: parseSpecs(product.specs?.value),
   };
 }
 

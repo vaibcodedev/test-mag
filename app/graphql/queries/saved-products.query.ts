@@ -18,6 +18,9 @@ export const SAVED_PRODUCT_FRAGMENT = gql(
       shortSpecs: metafield(namespace: "custom", key: "short_specs") {
         value
       }
+      specs: metafield(namespace: "custom", key: "specs") {
+        value
+      }
     }
   `,
   [PRODUCT_CARD_FRAGMENT],

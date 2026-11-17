@@ -100,6 +100,7 @@ export const PRODUCT_QUERY = gql(
         handle
         title
         vendor
+        productType
         description
         descriptionHtml
         availableForSale

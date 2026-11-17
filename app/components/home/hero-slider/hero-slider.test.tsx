@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { addToCompare } from "~/hooks/use-compare";
 import { COMPARE_LIMIT, compareStore } from "~/lib/saved-lists";
 
 import { HeroSlider } from "./hero-slider";
@@ -201,7 +202,7 @@ describe("HeroSlider", () => {
     const user = userEvent.setup();
     const [first] = DEMO_HOME_BANNERS;
     if (!first) throw new Error("Немає демо-банера");
-    renderSlider([{ ...first, productHandle: "iphone-17-pro" }]);
+    renderSlider([{ ...first, productHandle: "iphone-17-pro", compareCategory: "iphone" }]);
 
     const link = screen.getByRole("link", { name: "Порівняти: iPhone 17 Pro" });
     expect(link).toHaveAttribute("href", "/compare");
@@ -221,9 +222,10 @@ describe("HeroSlider", () => {
     const [first] = DEMO_HOME_BANNERS;
     if (!first) throw new Error("Немає демо-банера");
     act(() => {
-      for (let index = 0; index < COMPARE_LIMIT; index += 1) compareStore.toggle(`item-${index}`);
+      for (let index = 0; index < COMPARE_LIMIT; index += 1)
+        addToCompare(`item-${index}`, "iphone");
     });
-    renderSlider([{ ...first, productHandle: "iphone-17-pro" }]);
+    renderSlider([{ ...first, productHandle: "iphone-17-pro", compareCategory: "iphone" }]);
 
     await user.click(screen.getByRole("link", { name: "Порівняти: iPhone 17 Pro" }));
 

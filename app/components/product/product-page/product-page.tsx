@@ -18,6 +18,7 @@ import { Card } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { useAddToCart } from "~/hooks/use-add-to-cart";
 import { toggleCompare, useIsCompared } from "~/hooks/use-compare";
+import { compareCategoryOf } from "~/lib/compare/spec-schema";
 import { toggleWishlist, useIsWishlisted } from "~/hooks/use-wishlist";
 import { ProductProvider } from "~/lib/product";
 import {
@@ -42,6 +43,7 @@ function ProductPageContent({ product, related }: ProductPageProps) {
   const { addToCart, addingHandle } = useAddToCart();
   const wishlisted = useIsWishlisted(product.handle);
   const compared = useIsCompared(product.handle);
+  const compareCategory = compareCategoryOf(product.productType)?.key ?? null;
 
   // Елементи зберігаються у стані, щоб спостерігач помітив появу й зникнення кнопки.
   const [buyButton, setBuyButton] = useState<HTMLButtonElement | null>(null);
@@ -78,11 +80,13 @@ function ProductPageContent({ product, related }: ProductPageProps) {
                   active={wishlisted}
                   onClick={() => toggleWishlist(product.handle)}
                 />
-                <CompareButton
-                  productTitle={product.title}
-                  active={compared}
-                  onClick={() => toggleCompare(product.handle)}
-                />
+                {compareCategory ? (
+                  <CompareButton
+                    productTitle={product.title}
+                    active={compared}
+                    onClick={() => toggleCompare(product.handle, compareCategory)}
+                  />
+                ) : null}
               </div>
             </div>
 

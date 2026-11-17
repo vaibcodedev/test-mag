@@ -10,9 +10,8 @@ import { CarouselItem, useCarousel } from "~/components/ui/carousel";
 import { Price } from "~/components/ui/price";
 import { ShopImage } from "~/components/ui/shop-image";
 import { toast } from "~/components/ui/sonner";
-import { COMPARE_FULL_MESSAGE } from "~/hooks/use-compare";
+import { addToCompare, compareFullMessage } from "~/hooks/use-compare";
 import { formatPrice, installmentPayment } from "~/lib/format";
-import { compareStore } from "~/lib/saved-lists";
 
 import type { HomeBanner } from "./hero-slider.types";
 
@@ -80,14 +79,15 @@ export function HeroSlide({ banner, index, count, priority = false }: HeroSlideP
   const months = banner.installmentMonths ?? DEFAULT_INSTALLMENT_MONTHS;
   const payment = banner.price ? installmentPayment(banner.price, months) : null;
 
-  const productHandle = banner.productHandle;
+  const { productHandle, compareCategory } = banner;
+  const comparable = Boolean(productHandle && compareCategory);
   /** Додає товар банера до порівняння. Якщо список повний, лишаємося на місці й пояснюємо. */
-  const addToCompare = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (!productHandle) return;
+  const compareBanner = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!productHandle || !compareCategory) return;
     // add, а не toggle: повторний клік не має прибирати товар зі списку.
-    if (compareStore.add(productHandle) === "full") {
+    if (addToCompare(productHandle, compareCategory) === "full") {
       event.preventDefault();
-      toast.warning(COMPARE_FULL_MESSAGE);
+      toast.warning(compareFullMessage(compareCategory));
     }
   };
 
@@ -179,10 +179,10 @@ export function HeroSlide({ banner, index, count, priority = false }: HeroSlideP
                     <span className="sr-only">: {banner.title}</span>
                   </Link>
                 </Button>
-                {productHandle ? (
+                {comparable ? (
                   <Button asChild variant="on-dark" size="lg">
                     {/* Посилання веде на /compare; перед переходом товар банера потрапляє у список. */}
-                    <Link to="/compare" onClick={addToCompare}>
+                    <Link to="/compare" onClick={compareBanner}>
                       <Scale aria-hidden="true" strokeWidth={2} />
                       Порівняти
                       <span className="sr-only">: {banner.title}</span>

@@ -13,6 +13,7 @@ import {
   HOME_COLLECTIONS_QUERY,
   HOME_METAOBJECTS_QUERY,
 } from "~/graphql/queries/home-content.query";
+import { compareCategoryOf } from "~/lib/compare/spec-schema";
 import { FALLBACK_BLOG } from "~/lib/content/articles";
 import { HOME_CONTENT, type HomeContent } from "~/lib/content/home";
 import { CATALOG_LINKS, STORE_INFO, type NavLink, type StoreInfo } from "~/lib/content/site";
@@ -252,6 +253,7 @@ export function mapHomeBanners(
       image: toImage(ownImage) ?? toImage(product?.featuredImage),
       href,
       productHandle: product?.handle || undefined,
+      compareCategory: compareCategoryOf(product?.productType)?.key ?? null,
       compareHref: link(text(fields, "compare_link")),
       delivery: text(fields, "delivery"),
     };

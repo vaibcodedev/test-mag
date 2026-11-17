@@ -4,6 +4,7 @@ import type { ColorSwatch } from "~/components/product/color-swatches";
 import type { ProductBadge, ProductCardData } from "~/components/product/product-card";
 import type { ConditionGrade } from "~/components/product/used-grade";
 import type { HOME_PRODUCTS_QUERY } from "~/graphql/queries/home.query";
+import { compareCategoryOf } from "~/lib/compare/spec-schema";
 
 /** Форма фрагмента ProductCardFields. Тип виводиться із запиту: сам фрагмент gql.tada маскує. */
 export type ProductCardFields = StorefrontApi.ResultOf<
@@ -106,6 +107,7 @@ export function toProductCard(product: ProductCardFields): ProductCardData {
     badge: oneOf(product.badge?.value, BADGES),
     installmentMonths: toInteger(product.installmentMonths?.value),
     colors: colors.length > 0 ? colors : undefined,
+    compareCategory: compareCategoryOf(product.productType)?.key ?? null,
     used: grade ? { grade, batteryHealth: toInteger(product.batteryHealth?.value) } : null,
     // TODO(реальний магазин): рейтинг із застосунку відгуків і дата доставки з налаштувань.
     rating: null,

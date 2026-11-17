@@ -7,12 +7,7 @@ import { toast } from "~/components/ui/sonner";
 import { registerAppNavigate } from "~/lib/app-navigate";
 import { COMPARE_LIMIT, compareStore, wishlistStore } from "~/lib/saved-lists";
 
-import {
-  COMPARE_FULL_MESSAGE,
-  OPEN_COMPARE_ACTION,
-  useCompare,
-  useIsCompared,
-} from "./use-compare";
+import { compareFullMessage, OPEN_COMPARE_ACTION, useCompare, useIsCompared } from "./use-compare";
 import { OPEN_WISHLIST_ACTION, useIsWishlisted, useWishlist } from "./use-wishlist";
 
 vi.mock("~/components/ui/sonner", () => ({
@@ -114,24 +109,47 @@ describe("useCompare", () => {
     const { result } = renderHook(() => useCompare());
 
     act(() => {
-      for (const handle of ["a", "b", "c", "d"]) result.current.toggle(handle);
+      for (const handle of ["a", "b", "c", "d"]) result.current.toggle(handle, "iphone");
     });
     expect(result.current.count).toBe(COMPARE_LIMIT);
-    expect(result.current.isFull).toBe(true);
     expect(toast.success).toHaveBeenCalledWith("Додано до порівняння", {
       action: expect.objectContaining({ label: "Відкрити порівняння" }),
     });
 
     let outcome: string | undefined;
     act(() => {
-      outcome = result.current.toggle("e");
+      outcome = result.current.toggle("e", "iphone");
     });
     expect(outcome).toBe("full");
     expect(result.current.handles).toEqual(["a", "b", "c", "d"]);
-    expect(COMPARE_FULL_MESSAGE).toBe(
-      "У порівнянні вже 4 товари. Приберіть один, щоб додати новий.",
+    expect(compareFullMessage("iphone")).toBe(
+      "У порівнянні вже 4 товари категорії iPhone. Приберіть один, щоб додати новий.",
     );
-    expect(toast.warning).toHaveBeenCalledWith(COMPARE_FULL_MESSAGE);
+    expect(toast.warning).toHaveBeenCalledWith(compareFullMessage("iphone"));
+  });
+
+  it("ліміт рахується окремо в кожній категорії", () => {
+    const { result } = renderHook(() => useCompare());
+
+    act(() => {
+      for (const handle of ["a", "b", "c", "d"]) result.current.toggle(handle, "iphone");
+    });
+
+    let outcome: string | undefined;
+    act(() => {
+      outcome = result.current.toggle("macbook", "mac");
+    });
+    expect(outcome).toBe("added");
+    expect(result.current.handles).toEqual(["a", "b", "c", "d", "macbook"]);
+
+    // Прибрали один iPhone — місце в категорії звільнилося.
+    act(() => {
+      result.current.remove("a");
+    });
+    act(() => {
+      outcome = result.current.toggle("e", "iphone");
+    });
+    expect(outcome).toBe("added");
   });
 
   it("прибирає товар із порівняння", () => {
@@ -139,12 +157,12 @@ describe("useCompare", () => {
     const compared = renderHook(() => useIsCompared("a"));
 
     act(() => {
-      result.current.toggle("a");
+      result.current.toggle("a", "iphone");
     });
     expect(compared.result.current).toBe(true);
 
     act(() => {
-      result.current.toggle("a");
+      result.current.toggle("a", "iphone");
     });
     expect(compared.result.current).toBe(false);
     expect(toast).toHaveBeenCalledWith("Прибрано з порівняння");

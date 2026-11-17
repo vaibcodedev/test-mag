@@ -11,6 +11,7 @@ function product(overrides: Partial<ProductCardFields> = {}): ProductCardFields 
     handle: "one-smartphone",
     title: "One Smartphone",
     availableForSale: true,
+    productType: "",
     featuredImage: IMAGE,
     selectedOrFirstAvailableVariant: variant(),
     priceRange: { minVariantPrice: money("64999.0"), maxVariantPrice: money("64999.0") },
@@ -53,6 +54,12 @@ function option(name: string, values: (string | [string, string | null])[]): Car
 }
 
 describe("toProductCard", () => {
+  it("тип товару визначає категорію порівняння; аксесуари її не мають", () => {
+    expect(toProductCard(product({ productType: "Смартфони" })).compareCategory).toBe("iphone");
+    expect(toProductCard(product({ productType: "Навушники" })).compareCategory).toBe("airpods");
+    expect(toProductCard(product({ productType: "Аксесуари" })).compareCategory).toBeNull();
+  });
+
   it("збирає картку з товару без метаполів (mock.shop)", () => {
     expect(toProductCard(product())).toEqual({
       handle: "one-smartphone",
@@ -65,6 +72,7 @@ describe("toProductCard", () => {
       availableForSale: true,
       badge: null,
       installmentMonths: null,
+      compareCategory: null,
       used: null,
       rating: null,
       delivery: "доставимо завтра",

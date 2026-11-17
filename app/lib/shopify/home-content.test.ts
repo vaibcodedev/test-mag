@@ -282,6 +282,7 @@ describe("mapHomeBanners", () => {
         href: "/collections/iphone",
         // Handle товару з поля product: з ним кнопка «Порівняти» додає товар до порівняння.
         productHandle: "one-smartphone",
+        compareCategory: null,
         compareHref: "/collections/iphone?sort=price",
         delivery: "Доставимо завтра",
       },

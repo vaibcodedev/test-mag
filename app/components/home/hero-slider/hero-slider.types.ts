@@ -1,5 +1,6 @@
 import type { ColorSwatch } from "~/components/product/color-swatches";
 import type { ProductCardImage } from "~/components/product/product-card";
+import type { CompareCategoryKey } from "~/lib/compare/spec-schema";
 import type { Money } from "~/lib/format";
 
 /** Колір у банері. Якщо в кольору є власне посилання чи фото, вибір їх підміняє. */
@@ -35,6 +36,11 @@ export type HomeBanner = {
    * /compare. Є лише в банерів, прив'язаних до товару (поле `product` метаоб'єкта).
    */
   productHandle?: string | null;
+  /**
+   * Категорія порівняння товару банера. Без неї (аксесуар чи невідомий тип товару)
+   * кнопки «Порівняти» немає.
+   */
+  compareCategory?: CompareCategoryKey | null;
   /**
    * Посилання на всі моделі лінійки (колекцію). Без productHandle показується кнопкою
    * «Усі моделі»; без обох другої кнопки немає.

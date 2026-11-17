@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { toast } from "~/components/ui/sonner";
+import { addToCompare } from "~/hooks/use-compare";
 import { compareStore, wishlistStore } from "~/lib/saved-lists";
 
 import { ProductCard, type ProductCardProps } from "./product-card";
@@ -20,6 +21,7 @@ const PRODUCT: ProductCardData = {
     height: 800,
   },
   price: { amount: "64999", currencyCode: "UAH" },
+  compareCategory: "iphone",
   availableForSale: true,
   rating: { value: 4.9, count: 128 },
   delivery: "доставимо завтра",
@@ -161,6 +163,13 @@ describe("ProductCard: обране й порівняння без пропсі�
     expect(toast).toHaveBeenCalledWith("Прибрано з обраного");
   });
 
+  it("аксесуар без категорії порівняння не має кнопки з терезами", () => {
+    renderCard({ product: { ...PRODUCT, compareCategory: null } });
+
+    expect(screen.queryByRole("button", { name: /порівняння/ })).toBeNull();
+    expect(wishlistButton("Додати в обране")).toBeInTheDocument();
+  });
+
   it("терези додають товар до порівняння й прибирають його", async () => {
     renderCard();
 
@@ -177,7 +186,7 @@ describe("ProductCard: обране й порівняння без пропсі�
 
   it("п'ятий товар до порівняння не додається, картка пояснює чому", async () => {
     act(() => {
-      for (const handle of ["a", "b", "c", "d"]) compareStore.add(handle);
+      for (const handle of ["a", "b", "c", "d"]) addToCompare(handle, "iphone");
     });
     renderCard();
 
@@ -186,7 +195,7 @@ describe("ProductCard: обране й порівняння без пропсі�
     expect(compareButton("Додати до порівняння")).toHaveAttribute("aria-pressed", "false");
     expect(compareStore.getSnapshot()).toEqual(["a", "b", "c", "d"]);
     expect(toast.warning).toHaveBeenCalledWith(
-      "У порівнянні вже 4 товари. Приберіть один, щоб додати новий.",
+      "У порівнянні вже 4 товари категорії iPhone. Приберіть один, щоб додати новий.",
     );
   });
 

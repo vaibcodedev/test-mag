@@ -23,6 +23,7 @@ const HOME_METAOBJECT_FRAGMENT = gql(`
         }
         ... on Product {
           handle
+          productType
           featuredImage {
             url
             altText

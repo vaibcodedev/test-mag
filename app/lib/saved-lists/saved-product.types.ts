@@ -10,6 +10,8 @@ export type SavedProduct = ProductCardData & {
   options: SavedProductOption[];
   /** Метаполе custom.short_specs. */
   shortSpecs: string[];
+  /** Метаполе custom.specs: «ключ рядка схеми → значення» (див. ~/lib/compare/spec-schema). */
+  specs: Record<string, string>;
 };
 
 /** Відповідь маршруту /api/saved-products. */

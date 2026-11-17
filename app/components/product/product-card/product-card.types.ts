@@ -1,5 +1,6 @@
 import type { ColorSwatch } from "~/components/product/color-swatches";
 import type { ConditionGrade } from "~/components/product/used-grade";
+import type { CompareCategoryKey } from "~/lib/compare/spec-schema";
 import type { Money } from "~/lib/format";
 
 /** Значення метаполя custom.badge. */
@@ -38,6 +39,11 @@ export type ProductCardData = {
   colors?: readonly ColorSwatch[];
   /** Готовий підпис про доставку: «доставимо завтра». */
   delivery?: string | null;
+  /**
+   * Категорія порівняння (iPhone, Mac…). Без неї товар не порівнюється — це аксесуари, —
+   * і кнопки з терезами в картці немає.
+   */
+  compareCategory?: CompareCategoryKey | null;
   /** Лише для вживаних пристроїв. */
   used?: { grade: ConditionGrade; batteryHealth?: number | null } | null;
 };
