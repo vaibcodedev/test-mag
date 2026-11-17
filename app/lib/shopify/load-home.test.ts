@@ -75,6 +75,36 @@ describe("loadHomeProducts", () => {
     });
   });
 
+  it("популярне береться з колекції hits, коли вона є", async () => {
+    const { client } = clientWith({
+      data: {
+        products: { nodes: [product("first-in-store")] },
+        hits: collectionOf("hit-1", "hit-2"),
+        deals: null,
+        used: null,
+      },
+    });
+
+    const home = await loadHomeProducts(client, NOW);
+
+    expect(home.popular.map((item) => item.handle)).toEqual(["hit-1", "hit-2"]);
+  });
+
+  it("порожня колекція hits: популярне — перші товари магазину", async () => {
+    const { client } = clientWith({
+      data: {
+        products: { nodes: [product("first-in-store")] },
+        hits: collectionOf(),
+        deals: null,
+        used: null,
+      },
+    });
+
+    const home = await loadHomeProducts(client, NOW);
+
+    expect(home.popular.map((item) => item.handle)).toEqual(["first-in-store"]);
+  });
+
   it("магазин без колекцій deals і used: списки порожні, вигаданих товарів немає", async () => {
     const { client } = clientWith({
       data: { products: { nodes: [product("iphone-17")] }, deals: null, used: null },

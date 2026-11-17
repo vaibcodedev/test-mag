@@ -105,9 +105,9 @@ export type HomeProducts = {
  * Товари для секцій головної — лише справжні товари магазину.
  *  - «Знижки тижня» — колекція `deals`;
  *  - «Вживана техніка» — колекція `used`;
- *  - «Популярне» — перші товари магазину, крім вживаних.
- * Якщо колекції немає або вона порожня, список порожній і маршрут секцію не показує.
- * TODO(реальний магазин): «Популярне» брати з колекції `hits`.
+ *  - «Популярне» — колекція `hits`; якщо її немає або вона порожня — перші товари магазину.
+ *    Вживані пристрої сюди не потрапляють.
+ * Якщо колекції `deals` чи `used` немає або вона порожня, список порожній і маршрут секцію не показує.
  */
 export async function loadHomeProducts(
   storefrontClient: StorefrontGraphqlClient,
@@ -122,7 +122,8 @@ export async function loadHomeProducts(
   );
 
   // Часткова відповідь (помилка в одній із колекцій) уже в журналі: секція просто не показується.
-  const products = (data.products?.nodes ?? []).map(toProductCard);
+  const hits = data.hits?.products?.nodes ?? [];
+  const products = (hits.length > 0 ? hits : (data.products?.nodes ?? [])).map(toProductCard);
   const deals = (data.deals?.products?.nodes ?? []).map(toProductCard);
   const used = (data.used?.products?.nodes ?? []).map(toProductCard);
 

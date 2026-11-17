@@ -21,7 +21,7 @@ describe("loadCatalog", () => {
   it("бере фото з колекції з тим самим handle і кешує запит надовго", async () => {
     const handle = CATALOG_LINKS[0]?.to.split("/").pop() ?? "";
     const { client, graphql } = clientWith(async () => ({
-      data: { collections: { nodes: [{ handle, image: IMAGE }] }, products: { nodes: [] } },
+      data: { collections: { nodes: [{ handle, image: IMAGE, products: { nodes: [] } }] } },
     }));
 
     const catalog = await loadCatalog(client);
@@ -32,6 +32,25 @@ describe("loadCatalog", () => {
       expect.any(String),
       expect.objectContaining({ cache: expect.objectContaining({ mode: "public", maxAge: 3600 }) }),
     );
+  });
+
+  it("колекція без фото показує фото свого першого товару, а не чужого", async () => {
+    const [first, second] = CATALOG_LINKS.map((link) => link.to.split("/").pop() ?? "");
+    const { client } = clientWith(async () => ({
+      data: {
+        collections: {
+          nodes: [
+            { handle: first, image: null, products: { nodes: [{ featuredImage: IMAGE }] } },
+            { handle: second, image: null, products: { nodes: [] } },
+          ],
+        },
+      },
+    }));
+
+    const catalog = await loadCatalog(client);
+
+    expect(catalog[0]?.image).toEqual(IMAGE);
+    expect(catalog[1]?.image).toBeNull();
   });
 
   it("помилка GraphQL: меню лишається без фото, помилка в журналі", async () => {

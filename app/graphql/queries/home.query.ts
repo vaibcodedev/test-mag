@@ -3,7 +3,7 @@ import { gql } from "@shopify/hydrogen";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments/product-card.fragment";
 
 /**
- * Товари для секцій головної: перші товари магазину («Популярне») і дві колекції —
+ * Товари для секцій головної: «Популярне» (колекція `hits`, а якщо її немає — перші товари магазину) і дві колекції —
  * `deals` («Знижки тижня») та `used` («Вживана техніка»). Колекції, якої в магазині немає,
  * відповідає `null`, і її секція на головній не показується.
  */
@@ -20,6 +20,13 @@ export const HOME_PRODUCTS_QUERY = gql(
       products(first: $first) {
         nodes {
           ...ProductCardFields
+        }
+      }
+      hits: collection(handle: "hits") {
+        products(first: $first) {
+          nodes {
+            ...ProductCardFields
+          }
         }
       }
       deals: collection(handle: "deals") {
@@ -41,9 +48,9 @@ export const HOME_PRODUCTS_QUERY = gql(
   [PRODUCT_CARD_FRAGMENT],
 );
 
-/** Колекції каталогу з фото та кількома товарами для мініатюр. */
+/** Колекції каталогу з фото; якщо свого фото в колекції немає — фото її першого товару. */
 export const LAYOUT_CATALOG_QUERY = gql(`
-  query LayoutCatalog($collections: Int!, $products: Int!, $country: CountryCode, $language: LanguageCode)
+  query LayoutCatalog($collections: Int!, $country: CountryCode, $language: LanguageCode)
   @inContext(country: $country, language: $language) {
     collections(first: $collections) {
       nodes {
@@ -54,15 +61,15 @@ export const LAYOUT_CATALOG_QUERY = gql(`
           width
           height
         }
-      }
-    }
-    products(first: $products) {
-      nodes {
-        featuredImage {
-          url
-          altText
-          width
-          height
+        products(first: 1) {
+          nodes {
+            featuredImage {
+              url
+              altText
+              width
+              height
+            }
+          }
         }
       }
     }
