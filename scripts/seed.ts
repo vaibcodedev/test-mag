@@ -1546,6 +1546,7 @@ async function seedBlog(): Promise<void> {
         body: string;
         summary: string | null;
         isPublished: boolean;
+        author: { name: string } | null;
         image: { url: string } | null;
         blog: { id: string };
       }[];
@@ -1554,7 +1555,7 @@ async function seedBlog(): Promise<void> {
     `query SeedBlog {
       blogs(first: 50) { nodes { id handle title } }
       articles(first: 250) {
-        nodes { id handle title body summary isPublished image { url } blog { id } }
+        nodes { id handle title body summary isPublished author { name } image { url } blog { id } }
       }
     }`,
   );
@@ -1621,6 +1622,7 @@ async function seedBlog(): Promise<void> {
       sameHtml(current.body, seed.body) &&
       sameHtml(current.summary, seed.summary) &&
       current.isPublished &&
+      current.author?.name === ARTICLE_AUTHOR &&
       (Boolean(current.image) || !image);
     if (unchanged) {
       counts.skipped += 1;
