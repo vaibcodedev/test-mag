@@ -112,7 +112,7 @@ export function FilterCheckboxList({ filter, activeFilters, labelId }: FilterChe
           aria-hidden={expanded ? undefined : true}
           className="grid transition-[grid-template-rows,visibility] duration-300 ease-in-out data-[state=closed]:invisible data-[state=closed]:grid-rows-[0fr] data-[state=open]:grid-rows-[1fr]"
         >
-          <div className="-m-1 min-h-0 overflow-hidden p-1">
+          <div className="relative -m-1 min-h-0 overflow-hidden p-1">
             <FieldGroup data-slot="checkbox-group">
               {rest.map((option) => (
                 <FilterCheckbox key={option.value.id} filter={filter} option={option} />

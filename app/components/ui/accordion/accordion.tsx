@@ -90,9 +90,11 @@ export function AccordionContent({
     >
       {forceMount ? (
         <div data-slot="accordion-collapse" className={COLLAPSE}>
-          {/* Рамка згортання обрізає вміст; поля з від'ємним відступом лишають місце
+          {/* Рамка згортання обрізає вміст. relative: приховані поля прапорців Radix стоять
+              абсолютно, і без цього виходили б за рамку й розтягували область прокрутки.
+              Поля з від'ємним відступом лишають місце
               кільцям фокуса й бігункам повзунка, що виступають за край. */}
-          <div className="-m-1 min-h-0 overflow-hidden p-1">
+          <div className="relative -m-1 min-h-0 overflow-hidden p-1">
             <div className={cn("pb-4", className)}>{children}</div>
           </div>
         </div>
