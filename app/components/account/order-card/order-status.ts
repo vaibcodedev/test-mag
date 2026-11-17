@@ -63,25 +63,30 @@ export function orderStatuses(
   };
 }
 
-/** Крок шляху замовлення на картці. */
+/** Етап шляху замовлення на картці. */
 export type OrderProgressStep = {
-  key: "placed" | "payment" | "delivery";
-  /** Що описує крок — для зчитувача екрана. */
-  prefix: string;
+  key: "placed" | "payment" | "packing" | "shipping";
   label: string;
+  /** done — пройдено, current — триває зараз, upcoming — ще попереду, problem — зупинився. */
   state: "done" | "current" | "upcoming" | "problem";
 };
 
-/** Оплату отримано (або вже й повернено): крок пройдено. */
+/** Оплату отримано (або вже й повернено): етап пройдено. */
 const PAYMENT_DONE = new Set(["PAID", "PARTIALLY_REFUNDED", "REFUNDED"]);
 const PAYMENT_PROBLEM = new Set(["EXPIRED", "VOIDED"]);
-const DELIVERY_DONE = new Set(["FULFILLED"]);
-const DELIVERY_PROBLEM = new Set(["ON_HOLD"]);
+/** Замовлення зібране: його вже передали (хоча б частково) або воно чекає на видачу. */
+const PACKED = new Set([
+  "FULFILLED",
+  "PARTIALLY_FULFILLED",
+  "READY_FOR_DELIVERY",
+  "READY_FOR_PICKUP",
+]);
+const SHIPPING_STOPPED = new Set(["ON_HOLD", "RESTOCKED"]);
 
 /**
- * Шлях замовлення трьома кроками: оформлено → оплата → доставка. Підписи ті самі, що й у
- * бейджів. Скасоване замовлення шляху не має (null): йому лишаються бейджі «Скасовано».
- * Крок із невідомим кодом пропускаємо, щоб не показувати англійський текст.
+ * Шлях замовлення — завжди той самий повний ланцюжок із чотирьох етапів, щоб було видно і
+ * пройдене, і те, що попереду: оформлення → оплата → комплектування → відправлення.
+ * Скасоване замовлення й замовлення з невідомими кодами шляху не мають (null).
  */
 export function orderProgress(
   order: Pick<AccountOrder, "cancelledAt" | "financialStatus" | "fulfillmentStatus">,
@@ -90,40 +95,32 @@ export function orderProgress(
   const { payment, delivery } = orderStatuses(order);
   if (!payment && !delivery) return null;
 
-  const steps: OrderProgressStep[] = [
-    { key: "placed", prefix: "Замовлення", label: "Оформлено", state: "done" },
-  ];
-
   const paymentCode = order.financialStatus ?? "";
+  const code = order.fulfillmentStatus ?? "";
   const paid = PAYMENT_DONE.has(paymentCode);
-  if (payment) {
-    steps.push({
+  const packed = PACKED.has(code);
+  const shipped = code === "FULFILLED";
+  const stopped = SHIPPING_STOPPED.has(code);
+
+  return [
+    { key: "placed", label: "Оформлення", state: "done" },
+    {
       key: "payment",
-      prefix: "Оплата",
-      label: payment.label,
+      label: "Оплата",
       state: paid ? "done" : PAYMENT_PROBLEM.has(paymentCode) ? "problem" : "current",
-    });
-  }
-
-  if (delivery) {
-    const code = order.fulfillmentStatus ?? "";
-    const started = code !== "UNFULFILLED" && code !== "OPEN" && code !== "PENDING_FULFILLMENT";
-    steps.push({
-      key: "delivery",
-      prefix: "Доставка",
-      label: delivery.label,
-      state: DELIVERY_DONE.has(code)
-        ? "done"
-        : DELIVERY_PROBLEM.has(code)
-          ? "problem"
-          : // Доставка «триває», коли вже щось зроблено або оплату отримано й черга за нами.
-            started || paid || !payment
-            ? "current"
-            : "upcoming",
-    });
-  }
-
-  return steps;
+    },
+    {
+      key: "packing",
+      label: "Комплектування",
+      // Збирати починаємо після оплати; зібране замовлення пройшло етап за будь-якої оплати.
+      state: packed ? "done" : stopped ? "problem" : paid ? "current" : "upcoming",
+    },
+    {
+      key: "shipping",
+      label: "Відправлення",
+      state: shipped ? "done" : packed ? "current" : "upcoming",
+    },
+  ];
 }
 
 /**
@@ -140,11 +137,4 @@ export function orderHeadline(
       ? payment
       : (delivery ?? payment ?? { label: "Оформлено", tone: "neutral" as const });
   return { ...status, cancelled: false };
-}
-
-/** Замовлення ще в дорозі: є крок, який не пройдено. Лише такому потрібен шлях кроками. */
-export function orderInProgress(
-  order: Pick<AccountOrder, "cancelledAt" | "financialStatus" | "fulfillmentStatus">,
-): boolean {
-  return orderProgress(order)?.some((step) => step.state !== "done") ?? false;
 }

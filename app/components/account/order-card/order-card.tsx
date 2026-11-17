@@ -15,7 +15,7 @@ import { cn } from "~/lib/utils";
 import type { AccountOrder, OrderLineItem } from "./order-card.types";
 import { itemCountLabel, orderItemsPreview, orderItemsSummary } from "./order-items";
 import { OrderProgress } from "./order-progress";
-import { orderHeadline, orderInProgress, paymentStatus } from "./order-status";
+import { orderHeadline, orderProgress, paymentStatus } from "./order-status";
 
 export type OrderCardProps = Omit<ComponentProps<"article">, "children"> & {
   order: AccountOrder;
@@ -50,7 +50,7 @@ function Thumb({ item, className }: { item: OrderLineItem; className?: string })
 
 /**
  * Картка замовлення. Угорі — стан одним рядком, номер, дата й сума; нижче — що всередині та,
- * доки замовлення в дорозі, шлях кроками. Дії: сторінка замовлення в кабінеті, «Повторити» і
+ * повний шлях етапами. Дії: сторінка замовлення в кабінеті, «Повторити» і
  * сторінка стану в Shopify (відстеження, повернення).
  */
 export function OrderCard({ order, className, ...props }: OrderCardProps) {
@@ -59,7 +59,7 @@ export function OrderCard({ order, className, ...props }: OrderCardProps) {
   const preview = orderItemsPreview(order);
   const summary = orderItemsSummary(preview);
   const headline = orderHeadline(order);
-  const inProgress = orderInProgress(order);
+  const hasProgress = orderProgress(order) !== null;
   const payment = paymentStatus(order.financialStatus);
   const HeadlineIcon = headline.cancelled
     ? X
@@ -104,11 +104,11 @@ export function OrderCard({ order, className, ...props }: OrderCardProps) {
               </div>
             </div>
           </div>
-          <div className="flex max-w-full min-w-0 flex-col gap-0.5 sm:items-end">
+          <div className="flex max-w-full min-w-0 flex-col gap-0.5 sm:ms-auto sm:items-end">
             <span className="text-caption text-ink-2">Разом</span>
             <Price price={order.totalPrice} className="wrap-anywhere" />
-            {/* Оплата поруч із сумою; у замовлення в дорозі її вже показує шлях кроками. */}
-            {payment && !inProgress ? (
+            {/* Оплата поруч із сумою — коли шляху немає (скасоване замовлення). */}
+            {payment && !hasProgress ? (
               <span data-slot="order-payment" className="text-caption text-ink-2">
                 <span className="sr-only">Оплата: </span>
                 {payment.label}
@@ -158,8 +158,8 @@ export function OrderCard({ order, className, ...props }: OrderCardProps) {
             </div>
           ) : null}
 
-          {/* Шлях «оформлено → оплата → доставка» потрібен, доки замовлення в дорозі. */}
-          {inProgress ? <OrderProgress order={order} /> : null}
+          {/* Повний шлях замовлення: пройдене зафарбовано, поточний етап виділено. */}
+          <OrderProgress order={order} />
         </div>
 
         <footer

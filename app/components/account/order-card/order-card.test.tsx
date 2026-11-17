@@ -10,7 +10,6 @@ import {
   orderStatuses,
   paymentStatus,
   orderHeadline,
-  orderInProgress,
   orderProgress,
 } from "./order-status";
 
@@ -106,41 +105,74 @@ describe("orderHeadline і шлях кроками", () => {
     ).toEqual({ label: "Скасовано", tone: "attention", cancelled: true });
   });
 
-  it("оплата, що чекає на покупця, стає головним станом", () => {
+  const states = (order: Parameters<typeof orderProgress>[0]) =>
+    orderProgress(order)?.map((step) => step.state);
+
+  it("шлях — завжди чотири етапи в одному порядку", () => {
+    expect(
+      orderProgress({ financialStatus: "PAID", fulfillmentStatus: "UNFULFILLED" })?.map(
+        (step) => step.label,
+      ),
+    ).toEqual(["Оформлення", "Оплата", "Комплектування", "Відправлення"]);
+  });
+
+  it("оплата, що чекає на покупця, стає головним станом, решта етапів попереду", () => {
     const order = { financialStatus: "PENDING", fulfillmentStatus: "UNFULFILLED" };
     expect(orderHeadline(order).label).toBe("Очікує оплати");
-    expect(orderInProgress(order)).toBe(true);
-    expect(orderProgress(order)?.map((step) => step.state)).toEqual([
+    expect(states(order)).toEqual(["done", "current", "upcoming", "upcoming"]);
+  });
+
+  it("оплачене замовлення збирають, відправлення ще попереду", () => {
+    expect(states({ financialStatus: "PAID", fulfillmentStatus: "UNFULFILLED" })).toEqual([
+      "done",
       "done",
       "current",
       "upcoming",
     ]);
   });
 
-  it("оплачене замовлення показує стан доставки, а доставка триває", () => {
+  it("частково відправлене: зібрано, відправлення триває", () => {
     const order = { financialStatus: "PAID", fulfillmentStatus: "PARTIALLY_FULFILLED" };
     expect(orderHeadline(order).label).toBe("Відправлено частково");
-    expect(orderProgress(order)?.map((step) => step.state)).toEqual(["done", "done", "current"]);
+    expect(states(order)).toEqual(["done", "done", "done", "current"]);
   });
 
-  it("виконане й скасоване замовлення шляху не показують", () => {
-    expect(orderInProgress({ financialStatus: "PAID", fulfillmentStatus: "FULFILLED" })).toBe(
-      false,
-    );
+  it("виконане замовлення пройшло всі етапи", () => {
+    expect(states({ financialStatus: "PAID", fulfillmentStatus: "FULFILLED" })).toEqual([
+      "done",
+      "done",
+      "done",
+      "done",
+    ]);
+  });
+
+  it("відправлене з оплатою при отриманні: оплата ще триває", () => {
+    expect(states({ financialStatus: "PENDING", fulfillmentStatus: "FULFILLED" })).toEqual([
+      "done",
+      "current",
+      "done",
+      "done",
+    ]);
+  });
+
+  it("призупинене відправлення позначено як проблему на етапі комплектування", () => {
+    expect(states({ financialStatus: "PAID", fulfillmentStatus: "ON_HOLD" })).toEqual([
+      "done",
+      "done",
+      "problem",
+      "upcoming",
+    ]);
+  });
+
+  it("скасоване замовлення й невідомі коди шляху не мають", () => {
     expect(
-      orderInProgress({
+      orderProgress({
         cancelledAt: "2026-08-22T09:00:00Z",
         financialStatus: "PENDING",
         fulfillmentStatus: "UNFULFILLED",
       }),
-    ).toBe(false);
-    expect(orderInProgress({ financialStatus: "X", fulfillmentStatus: "Y" })).toBe(false);
-  });
-
-  it("призупинене відправлення позначено як проблему", () => {
-    expect(
-      orderProgress({ financialStatus: "PAID", fulfillmentStatus: "ON_HOLD" })?.at(-1)?.state,
-    ).toBe("problem");
+    ).toBeNull();
+    expect(orderProgress({ financialStatus: "X", fulfillmentStatus: "Y" })).toBeNull();
   });
 });
 
@@ -246,10 +278,17 @@ describe("OrderCard", () => {
     expect(text(card)).toContain("8 товарів");
     expect(text(card)).toContain("64 999 ₴");
 
-    // Виконане замовлення: стан — рядком у шапці, оплата — біля суми, шляху кроками немає.
+    // Стан — рядком у шапці; нижче повний шлях, у виконаного замовлення всі етапи пройдено.
     expect(text(card.querySelector('[data-slot="order-headline"]')!)).toBe("Стан: Виконано");
-    expect(text(card.querySelector('[data-slot="order-payment"]')!)).toBe("Оплата: Оплачено");
-    expect(within(card).queryByRole("list", { name: "Стан замовлення" })).toBeNull();
+    const path = within(card).getByRole("list", { name: "Стан замовлення" });
+    expect(within(path).getAllByRole("listitem").map(text)).toEqual([
+      "Оформлення: пройдено",
+      "Оплата: пройдено",
+      "Комплектування: пройдено",
+      "Відправлення: пройдено",
+    ]);
+    // Оплату окремо біля суми не дублюємо: вона є етапом шляху.
+    expect(card.querySelector('[data-slot="order-payment"]')).toBeNull();
 
     expect(within(card).getByRole("link", { name: "Стан замовлення #1001" })).toHaveAttribute(
       "href",
