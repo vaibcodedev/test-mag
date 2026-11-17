@@ -6,7 +6,14 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import {
+  COMPARE_CATEGORIES,
+  compareCategoryOf,
+  parseSpecs,
+  specKeysOf,
+} from "../app/lib/compare/spec-schema.ts";
+import {
   buildProduct,
+  CATEGORIES,
   colorValues,
   COLOR_OPTION,
   combinations,
@@ -16,6 +23,7 @@ import {
   PRODUCT_COUNT,
   PRODUCTS,
   productsInCollection,
+  STORAGE_OPTION,
   validateCatalog,
   variantKey,
 } from "./seed-catalog.ts";
@@ -29,6 +37,7 @@ import {
   validateMedia,
   variantMediaAlt,
 } from "./seed-media.ts";
+import { SPECS, specsMetafieldValue } from "./seed-specs.ts";
 
 const collection = (handle: string) => {
   const found = COLLECTIONS.find((item) => item.handle === handle);
@@ -305,6 +314,52 @@ test("у справжньому маніфесті тестові зображе
   const strip = mediaToStrip(item, IMAGE_MANIFEST, current);
   assert.equal(strip.length, plan.filter((media) => media.testOnly).length);
   assert.ok(strip.length > 0);
+});
+
+test("кожен пристрій із п'яти категорій має характеристики, аксесуари — ні", () => {
+  for (const item of PRODUCTS) {
+    const category = compareCategoryOf(item.productType);
+    if (category) assert.ok(SPECS[item.handle], `${item.handle}: немає характеристик`);
+    else
+      assert.equal(SPECS[item.handle], undefined, `${item.handle}: аксесуар із характеристиками`);
+    assert.equal(specsMetafieldValue(item.handle) !== undefined, category !== null, item.handle);
+  }
+  const handles = new Set(PRODUCTS.map((item) => item.handle));
+  for (const handle of Object.keys(SPECS)) assert.ok(handles.has(handle), `зайвий запис ${handle}`);
+  assert.deepEqual(
+    COMPARE_CATEGORIES.map((category) => category.productType).sort(),
+    (["iphone", "mac", "ipad", "watch", "airpods"] as const)
+      .map((key) => CATEGORIES[key].productType)
+      .sort(),
+  );
+});
+
+test("характеристики мають лише ключі своєї категорії, без порожніх і задовгих значень", () => {
+  for (const item of PRODUCTS) {
+    const category = compareCategoryOf(item.productType);
+    const specs = SPECS[item.handle];
+    if (!category || !specs) continue;
+    const keys = specKeysOf(category);
+    for (const [key, value] of Object.entries(specs)) {
+      assert.ok(keys.includes(key), `${item.handle}: ключа ${key} немає у схемі ${category.key}`);
+      assert.equal(typeof value, "string", `${item.handle}.${key}`);
+      assert.equal(value, value.trim(), `${item.handle}.${key}: пробіли по краях`);
+      assert.ok(value.length > 0, `${item.handle}.${key}: порожнє значення`);
+      assert.ok(value.length <= 64, `${item.handle}.${key}: ${value.length} символів`);
+      assert.doesNotMatch(value, /\d\.\d+ ?(″|мм|см|г|кг|год|ніт)/, `${item.handle}.${key}: кома`);
+    }
+    const filled = Object.keys(specs).length / keys.length;
+    assert.ok(filled >= 0.6, `${item.handle}: заповнено ${Math.round(filled * 100)}% рядків`);
+    assert.deepEqual(parseSpecs(specsMetafieldValue(item.handle)), specs, item.handle);
+  }
+});
+
+test("пам'ять у характеристиках збігається з опцією «Пам'ять» товару", () => {
+  for (const item of PRODUCTS) {
+    const storage = item.options.find((option) => option.name === STORAGE_OPTION);
+    if (!storage || !SPECS[item.handle]) continue;
+    assert.equal(SPECS[item.handle]?.storage, storage.values.join(", "), item.handle);
+  }
 });
 
 test("перелік джерел містить кожне зображення й попередження про фото Apple", () => {
