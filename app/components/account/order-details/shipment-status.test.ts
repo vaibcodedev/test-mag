@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { addressLines, cancelReasonLabel, shipmentStatus, trackingHref } from "./shipment-status";
+import {
+  addressLines,
+  cancelReasonLabel,
+  formatPhone,
+  shipmentStatus,
+  trackingHref,
+} from "./shipment-status";
 
 describe("shipmentStatus", () => {
   it("бере останню подію перевізника, а без неї — стан відправлення", () => {
@@ -69,5 +75,14 @@ describe("addressLines", () => {
     ]);
     expect(addressLines(null)).toEqual([]);
     expect(addressLines({ name: "  " })).toEqual([]);
+  });
+});
+
+describe("formatPhone", () => {
+  it("розбиває український номер на групи, інші й порожнє значення лишає як є", () => {
+    expect(formatPhone("+380671234567")).toBe("+380 67 123 45 67");
+    expect(formatPhone("+48601234567")).toBe("+48601234567");
+    expect(formatPhone(null)).toBe("");
+    expect(formatPhone("  ")).toBe("");
   });
 });

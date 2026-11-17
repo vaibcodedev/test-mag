@@ -82,3 +82,10 @@ export function addressLines(address: OrderAddress | null | undefined): string[]
     HOME_COUNTRY.test(country) ? "" : country,
   ].filter(Boolean);
 }
+
+/** Телефон одержувача для показу: `+380671234567` → `+380 67 123 45 67`; інші номери — як є. */
+export function formatPhone(value: string | null | undefined): string {
+  const phone = (value ?? "").trim();
+  const match = phone.match(/^\+380(\d{2})(\d{3})(\d{2})(\d{2})$/);
+  return match ? `+380 ${match[1]} ${match[2]} ${match[3]} ${match[4]}` : phone;
+}

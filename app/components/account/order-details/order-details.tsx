@@ -21,7 +21,6 @@ import { Card, CardTitle } from "~/components/ui/card";
 import { ItemMedia } from "~/components/ui/item";
 import { ShopImage } from "~/components/ui/shop-image";
 import { useReorder } from "~/hooks/use-reorder";
-import { formatPhone } from "~/lib/account/phone";
 import type { ReorderOutcome } from "~/lib/account/reorder";
 import type { StoreInfo } from "~/lib/content/site";
 import { calendarDate, formatDate, formatPrice, type Money } from "~/lib/format";
@@ -35,7 +34,13 @@ import type {
   OrderShipment,
 } from "./order-details.types";
 import { orderTotalRows, type OrderTotalRow } from "./order-totals";
-import { addressLines, cancelReasonLabel, shipmentStatus, trackingHref } from "./shipment-status";
+import {
+  addressLines,
+  cancelReasonLabel,
+  formatPhone,
+  shipmentStatus,
+  trackingHref,
+} from "./shipment-status";
 
 export type OrderDetailsProps = {
   order: OrderDetailsData;
