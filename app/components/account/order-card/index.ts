@@ -8,6 +8,12 @@ export {
   type OrderItemsPreview,
 } from "./order-items";
 export {
+  OrderStatusBadges,
+  StatusBadge,
+  type OrderStatusBadgesProps,
+  type StatusBadgeProps,
+} from "./order-status-badges";
+export {
   fulfillmentStatus,
   orderStatuses,
   paymentStatus,
