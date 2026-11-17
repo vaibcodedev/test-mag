@@ -270,6 +270,54 @@ export function activeValueCount(
     .length;
 }
 
+/** Чи це значення «Немає в наявності» фільтра доступності. */
+function isUnavailableValue(value: CollectionFilterValue): boolean {
+  try {
+    const input: unknown = JSON.parse(value.input);
+    return (
+      typeof input === "object" &&
+      input !== null &&
+      "available" in input &&
+      input.available === false
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Лишає у фільтрі доступності тільки «Є в наявності».
+ *
+ * Shopify вважає «немає в наявності» кожен товар, у якого розпродано хоча б один варіант.
+ * Тож AirPods Max без одного кольору потрапляв і в «є», і в «немає», а його картка чесно
+ * показувала «В наявності» й кнопку «Купити» — фільтр виглядав зламаним. Покупцеві потрібне
+ * одне: сховати те, чого купити не можна. Увімкнене з адреси значення лишається, щоб його
+ * можна було зняти.
+ */
+export function onlyAvailableOption(
+  filters: readonly CollectionFilter[],
+  activeFilters: readonly ProductFilter[],
+): CollectionFilter[] {
+  return filters.map((filter) => {
+    const values = filter.values.filter(
+      (value) => !isUnavailableValue(value) || isFilterInputActive([...activeFilters], value.input),
+    );
+    return values.length === filter.values.length ? filter : { ...filter, values };
+  });
+}
+
+/** Група з одним прапорцем «Є в наявності» — це перемикач, а не порожній вибір. */
+function isAvailabilityFilter(filter: CollectionFilter): boolean {
+  return filter.values.some((value) => {
+    try {
+      const input: unknown = JSON.parse(value.input);
+      return typeof input === "object" && input !== null && "available" in input;
+    } catch {
+      return false;
+    }
+  });
+}
+
 /**
  * Прибирає групи, які нічого не звужують: список з одним значенням («Тип: Смартфони»
  * в колекції iPhone). Група з увімкненим значенням лишається, щоб його можна було зняти.
@@ -282,6 +330,7 @@ export function dropSingleValueFilters(
     (filter) =>
       filter.type !== "LIST" ||
       filter.values.length > 1 ||
+      isAvailabilityFilter(filter) ||
       activeValueCount(filter, activeFilters) > 0,
   );
 }

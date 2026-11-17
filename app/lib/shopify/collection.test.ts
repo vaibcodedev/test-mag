@@ -19,6 +19,7 @@ import {
   sortSelectValue,
   swatchColor,
   dropSingleValueFilters,
+  onlyAvailableOption,
   toStorefrontSort,
   truncateText,
   withPriceFilter,
@@ -392,5 +393,51 @@ describe("dropSingleValueFilters", () => {
     const filters = [list("type", ["Смартфони"])];
 
     expect(dropSingleValueFilters(filters, [{ productType: "Смартфони" }])).toHaveLength(1);
+  });
+});
+
+describe("onlyAvailableOption", () => {
+  const availability: CollectionFilter = {
+    id: "filter.v.availability",
+    label: "Доступність",
+    type: "LIST",
+    values: [
+      { id: "in", label: "Є в наявності", count: 5, input: JSON.stringify({ available: true }) },
+      {
+        id: "out",
+        label: "Немає в наявності",
+        count: 1,
+        input: JSON.stringify({ available: false }),
+      },
+    ],
+  };
+
+  it("лишає тільки «Є в наявності»: «немає» в Shopify означає «розпродано хоч один варіант»", () => {
+    const [filter] = onlyAvailableOption([availability], []);
+
+    expect(filter?.values.map((value) => value.label)).toEqual(["Є в наявності"]);
+  });
+
+  it("увімкнене з адреси «Немає в наявності» лишається, щоб його можна було зняти", () => {
+    const [filter] = onlyAvailableOption([availability], [{ available: false }]);
+
+    expect(filter?.values).toHaveLength(2);
+  });
+
+  it("група з одним прапорцем доступності не зникає як «список з одним значенням»", () => {
+    const filters = onlyAvailableOption([availability], []);
+
+    expect(dropSingleValueFilters(filters, [])).toHaveLength(1);
+  });
+
+  it("інших фільтрів не чіпає", () => {
+    const memory: CollectionFilter = {
+      id: "memory",
+      label: "Пам'ять",
+      type: "LIST",
+      values: [{ id: "256", label: "256 ГБ", count: 2, input: JSON.stringify({ tag: "256" }) }],
+    };
+
+    expect(onlyAvailableOption([memory], [])[0]).toBe(memory);
   });
 });
