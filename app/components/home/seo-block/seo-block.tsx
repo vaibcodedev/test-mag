@@ -102,15 +102,23 @@ export function SeoBlock({
           {/*
             Згорнутий текст не ховається, а обрізається по шостому рядку: висота й проміжки
             задані в одиницях lh. Клас data-closed:block скасовує базовий data-closed:hidden.
+            Висоту змінює вкладений блок, а не сам CollapsibleContent: Radix на час вимірювання
+            вимикає переходи свого елемента. interpolate-size дозволяє браузеру анімувати
+            перехід до max-content; де властивості ще немає, текст розкривається одразу.
           */}
           <CollapsibleContent
             forceMount
             data-slot="seo-text"
-            className="max-w-4xl space-y-[1lh] overflow-hidden text-body text-ink-2 data-closed:block data-closed:max-h-[6lh]"
+            className="max-w-4xl data-closed:block"
           >
-            {paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+            <div
+              data-slot="seo-text-clip"
+              className="max-h-max space-y-[1lh] overflow-hidden text-body text-ink-2 transition-[max-height] duration-500 ease-soft [interpolate-size:allow-keywords] [[data-state=closed]>&]:max-h-[6lh]"
+            >
+              {paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
           </CollapsibleContent>
           <CollapsibleTrigger asChild>
             <Button variant="link" className="min-h-11">

@@ -64,8 +64,12 @@ describe("Faq", () => {
       expect(panel).toHaveAttribute("data-state", "closed");
       expect(panel).not.toHaveAttribute("hidden");
       expect(row).toHaveAttribute("data-state", "closed");
-      // Закриту відповідь ховає сам AccordionContent (forceMount у базі).
-      expect(panel).toHaveClass("data-closed:hidden");
+      // Закриту відповідь згортає сам AccordionContent: рядок сітки 0fr і невидимість.
+      // Згортає вкладений блок-сітка: рядок 0fr і невидимість, поки батько закритий.
+      expect(panel?.querySelector('[data-slot="accordion-collapse"]')).toHaveClass(
+        "[[data-state=closed]>&]:grid-rows-[0fr]",
+        "[[data-state=closed]>&]:invisible",
+      );
       expect(panel.parentElement).toBe(row);
     }
   });

@@ -224,7 +224,7 @@ describe("Alert, Item, Empty, Pagination", () => {
 });
 
 describe("Accordion forceMount", () => {
-  it("відповідь лишається в DOM, а закритий блок схований на самому корені", async () => {
+  it("відповідь лишається в DOM, а закритий блок згорнутий і невидимий на самому корені", async () => {
     render(
       <Accordion type="multiple">
         <AccordionItem value="a">
@@ -236,7 +236,11 @@ describe("Accordion forceMount", () => {
     const content = screen.getByText("12 місяців").closest('[data-slot="accordion-content"]');
 
     expect(content).toHaveAttribute("data-state", "closed");
-    expect(content).toHaveClass("data-closed:hidden");
+    // Згортає вкладений блок-сітка: рядок 0fr і невидимість, поки батько закритий.
+    expect(content?.querySelector('[data-slot="accordion-collapse"]')).toHaveClass(
+      "[[data-state=closed]>&]:grid-rows-[0fr]",
+      "[[data-state=closed]>&]:invisible",
+    );
 
     await userEvent.click(screen.getByRole("button", { name: "Чи є гарантія?" }));
 

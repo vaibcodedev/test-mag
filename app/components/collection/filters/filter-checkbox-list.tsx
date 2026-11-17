@@ -88,20 +88,40 @@ export function FilterCheckboxList({ filter, activeFilters, labelId }: FilterChe
 
   // Одне-два зайві значення не варті кнопки: вона сама займає рядок.
   const collapsible = options.length > VISIBLE_OPTIONS + 2;
-  const visible =
-    collapsible && !expanded
-      ? options.filter((option, index) => index < VISIBLE_OPTIONS || option.checked)
-      : options;
-  const hidden = options.length - visible.length;
+  // Завжди на видноті: перші шість і всі ввімкнені. Решта — у блоці, що розгортається.
+  const pinned = collapsible
+    ? options.filter((option, index) => index < VISIBLE_OPTIONS || option.checked)
+    : options;
+  const rest = collapsible ? options.filter((option) => !pinned.includes(option)) : [];
+  const hidden = rest.length;
 
   return (
     <FieldSet aria-labelledby={labelId}>
-      <FieldGroup id={listId} data-slot="checkbox-group">
-        {visible.map((option) => (
+      <FieldGroup data-slot="checkbox-group">
+        {pinned.map((option) => (
           <FilterCheckbox key={option.value.id} filter={filter} option={option} />
         ))}
       </FieldGroup>
-      {collapsible && (expanded || hidden > 0) ? (
+      {hidden > 0 ? (
+        // Висоту веде сітка (рядок 0fr ↔ 1fr), як в акордеоні: значення розгортаються плавно.
+        // Згорнуті — невидимі й приховані від читачів екрана, тож у фокус не потрапляють.
+        <div
+          id={listId}
+          data-slot="filter-more"
+          data-state={expanded ? "open" : "closed"}
+          aria-hidden={expanded ? undefined : true}
+          className="grid transition-[grid-template-rows,visibility] duration-300 ease-in-out data-[state=closed]:invisible data-[state=closed]:grid-rows-[0fr] data-[state=open]:grid-rows-[1fr]"
+        >
+          <div className="-m-1 min-h-0 overflow-hidden p-1">
+            <FieldGroup data-slot="checkbox-group">
+              {rest.map((option) => (
+                <FilterCheckbox key={option.value.id} filter={filter} option={option} />
+              ))}
+            </FieldGroup>
+          </div>
+        </div>
+      ) : null}
+      {hidden > 0 ? (
         <Button
           type="button"
           variant="link"

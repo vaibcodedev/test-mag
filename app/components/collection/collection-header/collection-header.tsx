@@ -33,7 +33,7 @@ export function CollectionHeader({
       <Breadcrumbs items={crumbs} className="-my-2" />
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h1 data-vt-detail className="w-fit text-h2 wrap-anywhere text-ink">
+          <h1 data-vt-detail="text" className="w-fit text-h2 wrap-anywhere text-ink">
             {title}
           </h1>
           {count ? (

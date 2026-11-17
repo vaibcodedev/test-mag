@@ -77,7 +77,7 @@ export function CollectionCard({
                   className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"
                 >
                   {/* Назва переїжджає в заголовок сторінки колекції. */}
-                  <span data-vt-target className="inline-block">
+                  <span data-vt-target="text" className="inline-block">
                     {collection.title}
                   </span>
                 </NavLink>

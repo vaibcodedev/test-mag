@@ -30,7 +30,6 @@ export function ActiveFilters({ chips, clearHref, className, ...props }: ActiveF
           <li key={chip.key} className="min-w-0">
             <Button asChild variant="surface" size="sm" className="h-11 max-w-full font-medium">
               <Link
-                viewTransition
                 to={chip.href}
                 preventScrollReset
                 aria-label={`Прибрати фільтр «${chip.label}»`}
@@ -43,7 +42,7 @@ export function ActiveFilters({ chips, clearHref, className, ...props }: ActiveF
         ))}
       </ul>
       <Button asChild variant="link" size="sm" className="min-h-11 px-2">
-        <Link viewTransition to={clearHref} preventScrollReset>
+        <Link to={clearHref} preventScrollReset>
           Скинути все
         </Link>
       </Button>

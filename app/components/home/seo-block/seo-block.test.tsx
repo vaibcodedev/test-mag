@@ -53,7 +53,12 @@ describe("SeoBlock", () => {
     const { container } = render(block);
     const text = container.querySelector('[data-slot="seo-text"]');
 
-    expect(text).toHaveClass("overflow-hidden", "data-closed:max-h-[6lh]", "data-closed:block");
+    // Обрізає вкладений блок: саме на ньому висота змінюється плавно.
+    expect(text?.querySelector('[data-slot="seo-text-clip"]')).toHaveClass(
+      "overflow-hidden",
+      "[[data-state=closed]>&]:max-h-[6lh]",
+    );
+    expect(text).toHaveClass("data-closed:block");
     expect(text).not.toHaveClass("data-closed:hidden");
     expect(text).not.toHaveAttribute("hidden");
     expect(text).not.toHaveAttribute("aria-hidden");

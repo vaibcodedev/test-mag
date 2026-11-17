@@ -57,11 +57,18 @@ export function AccordionTrigger({
   );
 }
 
+/** Стан беремо з батьківського AccordionContent: вкладений акордеон чи шухляда не заважають. */
+const COLLAPSE =
+  "grid grid-rows-[1fr] transition-[grid-template-rows,visibility] duration-300 ease-in-out [[data-state=closed]>&]:invisible [[data-state=closed]>&]:grid-rows-[0fr]";
+
 /**
  * Вміст секції; className іде на внутрішній блок із полями.
  * Із `forceMount` вміст лишається в DOM і в закритому стані (текст бачать пошукові роботи
- * та пошук на сторінці). Radix такий блок сам не ховає, тому закритий корінь отримує
- * `data-closed:hidden`; анімації згортання в цьому режимі немає.
+ * та пошук на сторінці, поля форми лишаються у формі). Radix такий блок сам не ховає й
+ * не анімує, тому висоту веде сітка: рядок 0fr ↔ 1fr плавно згортає й розгортає вміст,
+ * а `invisible` у закритому стані прибирає його з фокуса й від читачів екрана.
+ * Сітка стоїть на вкладеному блоці, а не на самому Content: Radix на час вимірювання
+ * висоти вимикає переходи свого елемента, і вміст розкривався б миттєво.
  */
 export function AccordionContent({
   className,
@@ -75,12 +82,23 @@ export function AccordionContent({
       data-force-mount={forceMount ? "true" : undefined}
       forceMount={forceMount}
       className={cn(
-        "overflow-hidden text-body text-ink-2 data-open:animate-accordion-down",
-        forceMount ? "data-closed:hidden" : "data-closed:animate-accordion-up",
+        "text-body text-ink-2",
+        !forceMount &&
+          "overflow-hidden data-open:animate-accordion-down data-closed:animate-accordion-up",
       )}
       {...props}
     >
-      <div className={cn("pb-4", className)}>{children}</div>
+      {forceMount ? (
+        <div data-slot="accordion-collapse" className={COLLAPSE}>
+          {/* Рамка згортання обрізає вміст; поля з від'ємним відступом лишають місце
+              кільцям фокуса й бігункам повзунка, що виступають за край. */}
+          <div className="-m-1 min-h-0 overflow-hidden p-1">
+            <div className={cn("pb-4", className)}>{children}</div>
+          </div>
+        </div>
+      ) : (
+        <div className={cn("pb-4", className)}>{children}</div>
+      )}
     </AccordionPrimitive.Content>
   );
 }

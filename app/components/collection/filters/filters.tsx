@@ -95,7 +95,7 @@ export function Filters({
                 </span>
               </AccordionTrigger>
               {/* forceMount: поля згорнутої групи лишаються у формі, інакше її фільтри зникли б з адреси. */}
-              <AccordionContent forceMount className="in-data-[state=closed]:hidden">
+              <AccordionContent forceMount>
                 {filter.type === "PRICE_RANGE" ? (
                   <FilterPrice
                     activeFilters={activeFilters}
