@@ -87,6 +87,16 @@
 
   --animate-ticker: ticker var(--ticker-duration, 40s) linear infinite;
   --animate-pulse-dot: pulse-dot 2s var(--ease-out-soft) infinite;
+  /* Проявлення лише прозорістю. На відміну від animate-in, тут немає transform: із ним браузер
+     малює елемент окремим шаром, а після анімації знімає шар — і фото на дробовій позиції
+     помітно зсувається. */
+  --animate-fade: fade 300ms var(--ease-out-soft) both;
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
 
   @keyframes ticker {
     to {

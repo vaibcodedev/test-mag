@@ -1,6 +1,7 @@
 import { ImageOff } from "lucide-react";
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -77,15 +78,18 @@ export function ProductGallery({ media, images, title, className, ...props }: Pr
   const firstId = items[0]?.id;
   const active = items[selectedIndex];
 
-  /** Перше фото вже змінювалося через вибір варіанта: відтоді воно проявляється плавно. */
-  const initialFirstId = useRef(firstId);
+  /**
+   * Перше фото вже змінювалося через вибір варіанта: відтоді воно проявляється плавно.
+   * Прапорець ставимо під час рендера, а не в ефекті: інакше нове фото спершу з'являлося б
+   * одразу, а наступним кадром монтувалося наново й проявлялося вдруге.
+   */
+  const [initialFirstId] = useState(firstId);
   const [variantChanged, setVariantChanged] = useState(false);
-  useEffect(() => {
-    if (firstId !== initialFirstId.current) setVariantChanged(true);
-  }, [firstId]);
+  if (!variantChanged && firstId !== initialFirstId) setVariantChanged(true);
 
   // Вибрали інший варіант — його фото стало першим: повертаємо галерею на початок.
-  useEffect(() => {
+  // useLayoutEffect: до першого кадру з новим порядком слайдів, щоб не було проміжного.
+  useLayoutEffect(() => {
     api?.scrollTo(0, true);
   }, [api, firstId]);
 
@@ -187,7 +191,8 @@ export function ProductGallery({ media, images, title, className, ...props }: Pr
                   key={index === 0 && variantChanged ? `lead:${firstId}` : item.id}
                   className={cn(
                     "size-full",
-                    index === 0 && variantChanged && "animate-in duration-300 fade-in-0",
+                    // animate-fade — лише прозорість: без transform фото не зсувається наприкінці.
+                    index === 0 && variantChanged && "animate-fade motion-reduce:animate-none",
                   )}
                 >
                   <GallerySlide
