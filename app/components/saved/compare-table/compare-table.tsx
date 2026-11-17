@@ -41,11 +41,16 @@ const PRODUCT_CELL = "w-40 min-w-40 px-3 align-top md:w-60 md:min-w-60 md:px-4";
 const PINNED_TEXT = "sticky inset-s-3 inline-block md:inset-s-4";
 /**
  * Рядок із назвою, ціною та «Купити» лишається під шапкою сайту, поки гортаємо характеристики.
- * Лише від lg: там таблиця вміщується без горизонтальної прокрутки, а прокрутка всередині
- * обгортки вимикає прилипання до вікна. Межу малює тінь: border у sticky-клітинці зникає.
+ * Лише від xl: там таблиця вміщується без горизонтальної прокрутки, а прокрутка всередині
+ * обгортки вимикає прилипання до вікна.
  */
-const STICKY_CELL =
-  "bg-surface lg:sticky lg:top-(--header-height) lg:z-20 lg:shadow-[0_1px_0_var(--line)]";
+const STICKY_CELL = cn(
+  "bg-surface xl:sticky xl:top-(--header-height) xl:z-20",
+  // Край липкої смуги: тонка лінія й коротка тінь під нею. Малює псевдоелемент — тінь і межа
+  // самої клітинки в таблиці зі спільними межами не видно.
+  "xl:after:pointer-events-none xl:after:absolute xl:after:inset-x-0 xl:after:top-full xl:after:h-3",
+  "xl:after:border-t xl:after:border-line xl:after:bg-linear-to-b xl:after:from-ink/8 xl:after:to-transparent",
+);
 
 export type CompareTableProps = Omit<ComponentProps<"div">, "children"> & {
   /** Категорія задає групи й рядки характеристик. */
@@ -116,7 +121,7 @@ export function CompareTable({
 
       <Table
         scrollLabel={`Таблиця порівняння: ${category.title}`}
-        containerClassName="w-fit max-w-full rounded-xl bg-surface lg:overflow-visible"
+        containerClassName="w-fit max-w-full rounded-xl bg-surface xl:overflow-visible xl:focus-visible:shadow-none"
         className="w-auto md:[&_tbody_tr:last-child>*:first-child]:rounded-es-xl"
       >
         <TableCaption className="sr-only">
@@ -162,13 +167,13 @@ export function CompareTable({
               </TableHead>
             ))}
             {freeSlots > 0 ? (
-              <TableHead rowSpan={2} className={cn(PRODUCT_CELL, "rounded-se-xl py-4")}>
+              <TableHead className={cn(PRODUCT_CELL, "rounded-se-xl pt-4 pb-0")}>
                 {/* Вільне місце в таблиці веде до каталогу цієї ж категорії. */}
                 <Link
                   to={collectionHref}
                   prefetch="intent"
                   data-slot="compare-add"
-                  className="flex h-full min-h-44 flex-col items-center justify-center gap-3 rounded-md border border-dashed border-line p-4 text-center text-small font-semibold text-ink-2 focus-ring transition-colors duration-150 hover:border-blue hover:text-blue"
+                  className="flex aspect-square flex-col items-center justify-center gap-3 rounded-md border border-dashed border-line p-4 text-center text-small font-semibold text-ink-2 focus-ring transition-colors duration-150 hover:border-blue hover:text-blue"
                 >
                   <span className="flex size-11 items-center justify-center rounded-pill bg-page text-ink">
                     <Plus strokeWidth={2} aria-hidden="true" className="size-5" />
@@ -183,21 +188,24 @@ export function CompareTable({
             ) : null}
           </TableRow>
 
-          {/* Назва, ціна й «Купити»: від lg рядок прилипає під шапкою сайту. */}
+          {/* Назва, ціна й «Купити»: від xl рядок прилипає під шапкою сайту. */}
           <TableRow data-slot="compare-summary" className="border-b-0">
-            <TableHead className={cn(LABEL_CELL, STICKY_CELL, "lg:z-30")}>
+            <TableHead className={cn(LABEL_CELL, STICKY_CELL, "xl:z-30")}>
               <span className="sr-only">Товар</span>
             </TableHead>
             {products.map((product) => (
-              <TableHead key={product.handle} className={cn(PRODUCT_CELL, STICKY_CELL, "pb-4")}>
-                <div className="flex h-full flex-col gap-2 text-start">
+              <TableHead
+                key={product.handle}
+                className={cn(PRODUCT_CELL, STICKY_CELL, "pt-2 pb-4")}
+              >
+                <div className="flex h-full flex-col gap-1 text-start">
                   {/* Назва товару лишається звичайним ink-посиланням, як у картці товару. */}
                   <Link
                     to={`/products/${product.handle}`}
                     prefetch="intent"
                     className="inline-flex min-h-11 items-center rounded-sm text-card-title text-ink focus-ring hover:text-blue"
                   >
-                    <span className="line-clamp-2">{product.title}</span>
+                    <span className="line-clamp-1">{product.title}</span>
                   </Link>
                   <Price
                     price={product.price}
@@ -230,6 +238,7 @@ export function CompareTable({
                 </div>
               </TableHead>
             ))}
+            {freeSlots > 0 ? <TableHead className={cn(PRODUCT_CELL, STICKY_CELL)} /> : null}
           </TableRow>
         </TableHeader>
 
