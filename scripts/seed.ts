@@ -23,6 +23,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
+import { SPECS_METAFIELD } from "../app/lib/compare/spec-schema.ts";
 import {
   isSampleProduct,
   SAMPLE_COLLECTION_HANDLES,
@@ -54,6 +55,7 @@ import {
   variantMediaAlt,
   type MediaItem,
 } from "./seed-media.ts";
+import { specsMetafieldValue } from "./seed-specs.ts";
 
 const API_VERSION = "2026-10";
 const COLLECTION_SOURCE_TITLE = "Правило каталогу";
@@ -635,6 +637,8 @@ function productMetafields(seed: ProductSeed): { key: string; type: string; valu
       value: String(seed.used.batteryHealth),
     });
   }
+  const specs = specsMetafieldValue(seed.handle);
+  if (specs) fields.push({ key: SPECS_METAFIELD.key, type: "json", value: specs });
   return fields;
 }
 

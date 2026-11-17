@@ -13,6 +13,7 @@ import { REVIEWS_DEMO, REVIEWS_DEMO_RATING } from "../app/components/home/review
 import { DEMO_USPS } from "../app/components/home/usp-strip/usp-strip.demo.ts";
 import { FALLBACK_BLOG, getFallbackArticleBody } from "../app/lib/content/articles.ts";
 import { getFallbackPage, SERVICE_PAGES, type ContentSection } from "../app/lib/content/pages.ts";
+import { SPECS_METAFIELD } from "../app/lib/compare/spec-schema.ts";
 import { CATALOG_LINKS, STORE_INFO } from "../app/lib/content/site.ts";
 import {
   CATALOG_COLLECTION_CONTENT,
@@ -91,6 +92,13 @@ export const PRODUCT_METAFIELD_DEFINITIONS: MetafieldDefinitionSeed[] = [
       { name: "min", value: "0" },
       { name: "max", value: "100" },
     ],
+  },
+  {
+    key: SPECS_METAFIELD.key,
+    name: "Характеристики",
+    description:
+      "Технічні характеристики для порівняння: JSON «ключ рядка → значення». Ключі задає схема сайту.",
+    type: "json",
   },
 ];
 
