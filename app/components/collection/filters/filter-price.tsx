@@ -1,7 +1,7 @@
 import { formatMoney, parseCollectionParams, type ProductFilter } from "@shopify/hydrogen";
-import { useEffect, useId, useRef, useState, type ChangeEvent, type Ref } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type Ref } from "react";
 
-import { Field, FieldLabel } from "~/components/ui/field";
+import { Field } from "~/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
 import { Slider } from "~/components/ui/slider";
 import { formatInteger, LOCALE } from "~/lib/format";
@@ -153,7 +153,7 @@ export function FilterPrice({ activeFilters, currencyCode, ceiling, labelId }: F
           name={PRICE_MIN_PARAM}
           defaultValue={min}
           label={`Мінімальна ціна, ${currencyCode}`}
-          placeholder="від 0"
+          placeholder="0"
           symbol={symbol}
           onChange={submitAfterTyping}
         />
@@ -162,7 +162,8 @@ export function FilterPrice({ activeFilters, currencyCode, ceiling, labelId }: F
           name={PRICE_MAX_PARAM}
           defaultValue={max}
           label={`Максимальна ціна, ${currencyCode}`}
-          placeholder={top > 0 ? `до ${formatInteger(top)}` : "до"}
+          // Лише число: «до 200 000» у вузьке поле бічної панелі не вміщається.
+          placeholder={top > 0 ? formatInteger(top) : ""}
           symbol={symbol}
           onChange={submitAfterTyping}
         />
@@ -192,17 +193,12 @@ function PriceInput({
   symbol,
   onChange,
 }: PriceInputProps) {
-  const id = useId();
-
   return (
     <Field>
-      <FieldLabel htmlFor={id} className="sr-only">
-        {label}
-      </FieldLabel>
       <InputGroup>
         <InputGroupInput
           ref={inputRef}
-          id={id}
+          aria-label={label}
           type="number"
           inputMode="decimal"
           name={name}
@@ -211,9 +207,9 @@ function PriceInput({
           min="0"
           step="any"
           onChange={onChange}
-          className="ps-3 pe-1 tabular-nums"
+          className="ps-2.5 pe-0 tabular-nums lg:text-small"
         />
-        <InputGroupAddon align="end" aria-hidden="true" className="pe-3">
+        <InputGroupAddon align="end" aria-hidden="true" className="ps-1 pe-2.5">
           {symbol}
         </InputGroupAddon>
       </InputGroup>
