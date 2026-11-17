@@ -11,6 +11,7 @@ import {
   parsePageArgs,
   priceCeiling,
   toStorefrontSort,
+  dropSingleValueFilters,
   withPriceFilter,
   type CollectionFilter,
 } from "./collection";
@@ -99,7 +100,7 @@ export async function loadCollectionPage({
       image: collection.image,
     },
     products: products.nodes.map(toProductCard),
-    filters: withPriceFilter(available, ceiling),
+    filters: withPriceFilter(dropSingleValueFilters(available, browse.filters), ceiling),
     pageInfo: products.pageInfo,
     /** null — товарів більше, ніж ми рахуємо (або лічильник не відповів): «із M» не показуємо. */
     totalCount: !counted || counted.pageInfo.hasNextPage ? null : counted.nodes.length,

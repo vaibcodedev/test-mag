@@ -270,6 +270,22 @@ export function activeValueCount(
     .length;
 }
 
+/**
+ * Прибирає групи, які нічого не звужують: список з одним значенням («Тип: Смартфони»
+ * в колекції iPhone). Група з увімкненим значенням лишається, щоб його можна було зняти.
+ */
+export function dropSingleValueFilters(
+  filters: readonly CollectionFilter[],
+  activeFilters: readonly ProductFilter[],
+): CollectionFilter[] {
+  return filters.filter(
+    (filter) =>
+      filter.type !== "LIST" ||
+      filter.values.length > 1 ||
+      activeValueCount(filter, activeFilters) > 0,
+  );
+}
+
 /** Крок повзунка: дрібніший для дешевих каталогів, більший для дорогих. */
 export function priceStep(ceiling: number): number {
   if (ceiling <= 100) return 1;

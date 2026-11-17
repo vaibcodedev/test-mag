@@ -189,7 +189,7 @@ describe("loadCollectionPage", () => {
     expect(data.filters.map((filter) => filter.type)).toEqual(["PRICE_RANGE"]);
   });
 
-  it("фільтри магазину віддає як є", async () => {
+  it("фільтри магазину віддає як є, крім груп з одним значенням", async () => {
     const filters = [
       {
         id: "filter.v.price",
@@ -218,6 +218,29 @@ describe("loadCollectionPage", () => {
             count: 2,
             input: '{"variantOption":{"name":"Колір","value":"Чорний"}}',
             swatch: { color: "#000000", image: null },
+          },
+          {
+            id: "white",
+            label: "Білий",
+            count: 1,
+            input: '{"variantOption":{"name":"Колір","value":"Білий"}}',
+            swatch: { color: "#ffffff", image: null },
+          },
+        ],
+      },
+      // Група з одним значенням нічого не звужує: у відповідь не потрапляє.
+      {
+        id: "filter.p.product_type",
+        label: "Тип",
+        type: "LIST",
+        presentation: "TEXT",
+        values: [
+          {
+            id: "phones",
+            label: "Смартфони",
+            count: 3,
+            input: '{"productType":"Смартфони"}',
+            swatch: null,
           },
         ],
       },

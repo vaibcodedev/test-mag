@@ -6,6 +6,8 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { DEMO_FILTERS, DEMO_PRICE_CEILING } from "~/components/collection/collection.fixtures";
 
+import type { CollectionFilter } from "~/lib/shopify/collection";
+
 import { Filters, type FiltersProps } from "./filters";
 
 // Повзунок Radix міряє себе через ResizeObserver, якого немає в jsdom.
@@ -276,6 +278,44 @@ describe("Filters", () => {
 
     expect(screen.getByRole("checkbox", { name: /256 ГБ/ })).not.toBeChecked();
     expect(submitted).toHaveLength(0);
+  });
+
+  it("довгий список показує перші шість значень і ввімкнені, решту — за кнопкою", async () => {
+    const colors: CollectionFilter = {
+      id: "filter.v.option.колір",
+      label: "Колір",
+      type: "LIST",
+      values: Array.from({ length: 12 }, (_, index) => ({
+        id: `color-${index}`,
+        label: `Колір ${index + 1}`,
+        count: 1,
+        input: JSON.stringify({ variantOption: { name: "Колір", value: `Колір ${index + 1}` } }),
+      })),
+    };
+    const active = [{ variantOption: { name: "Колір", value: "Колір 11" } }];
+    renderFilters({ filters: [colors], activeFilters: active });
+
+    const group = screen.getByRole("group", { name: /Колір/ });
+    // Шість перших і одне ввімкнене з кінця списку: вибране не ховається.
+    expect(within(group).getAllByRole("checkbox")).toHaveLength(7);
+    expect(within(group).getByRole("checkbox", { name: /Колір 11,/ })).toBeChecked();
+
+    const more = within(group).getByRole("button", { name: "Показати ще 5" });
+    expect(more).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(more);
+
+    expect(within(group).getAllByRole("checkbox")).toHaveLength(12);
+    const less = within(group).getByRole("button", { name: "Згорнути" });
+    expect(less).toHaveAttribute("aria-expanded", "true");
+
+    await userEvent.click(less);
+    expect(within(group).getAllByRole("checkbox")).toHaveLength(7);
+  });
+
+  it("короткий список кнопки «Показати ще» не має", () => {
+    renderFilters();
+
+    expect(screen.queryByRole("button", { name: /Показати ще/ })).toBeNull();
   });
 
   it("без фільтрів нічого не рендерить", () => {

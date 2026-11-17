@@ -1,6 +1,7 @@
 import type { ProductFilter } from "@shopify/hydrogen";
 import { useId, useRef, useState, type ChangeEvent } from "react";
 
+import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "~/components/ui/field";
 import { isExclusiveFilter, type CollectionFilter } from "~/lib/shopify/collection";
@@ -72,18 +73,47 @@ function FilterCheckbox({ filter, option }: { filter: CollectionFilter; option: 
   );
 }
 
-/** Група прапорців: пам'ять, стан, наявність. */
+/** Скільки значень видно одразу; решта ховається за «Показати ще». */
+export const VISIBLE_OPTIONS = 6;
+
+/**
+ * Група прапорців: пам'ять, стан, наявність. Довгий список (кольори) показує перші шість
+ * значень і всі ввімкнені: вибране не має ховатися за кнопкою.
+ */
 export function FilterCheckboxList({ filter, activeFilters, labelId }: FilterCheckboxListProps) {
+  const [expanded, setExpanded] = useState(false);
+  const listId = useId();
   const options = filterOptions(filter, activeFilters);
   if (options.length === 0) return null;
 
+  // Одне-два зайві значення не варті кнопки: вона сама займає рядок.
+  const collapsible = options.length > VISIBLE_OPTIONS + 2;
+  const visible =
+    collapsible && !expanded
+      ? options.filter((option, index) => index < VISIBLE_OPTIONS || option.checked)
+      : options;
+  const hidden = options.length - visible.length;
+
   return (
     <FieldSet aria-labelledby={labelId}>
-      <FieldGroup data-slot="checkbox-group">
-        {options.map((option) => (
+      <FieldGroup id={listId} data-slot="checkbox-group">
+        {visible.map((option) => (
           <FilterCheckbox key={option.value.id} filter={filter} option={option} />
         ))}
       </FieldGroup>
+      {collapsible && (expanded || hidden > 0) ? (
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          aria-expanded={expanded}
+          aria-controls={listId}
+          onClick={() => setExpanded((current) => !current)}
+          className="min-h-11 w-fit"
+        >
+          {expanded ? "Згорнути" : `Показати ще ${hidden}`}
+        </Button>
+      ) : null}
     </FieldSet>
   );
 }

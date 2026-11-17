@@ -18,6 +18,7 @@ import {
   SORT_OPTIONS,
   sortSelectValue,
   swatchColor,
+  dropSingleValueFilters,
   toStorefrontSort,
   truncateText,
   withPriceFilter,
@@ -361,5 +362,35 @@ describe("SEO", () => {
   it("обрізає по межі слова", () => {
     expect(truncateText("один два три чотири", 12)).toBe("один два…");
     expect(truncateText("  коротко  ", 20)).toBe("коротко");
+  });
+});
+
+describe("dropSingleValueFilters", () => {
+  const list = (id: string, labels: string[]): CollectionFilter => ({
+    id,
+    label: id,
+    type: "LIST",
+    values: labels.map((label) => ({
+      id: `${id}.${label}`,
+      label,
+      count: 1,
+      input: JSON.stringify({ productType: label }),
+    })),
+  });
+  const price: CollectionFilter = { id: "price", label: "Ціна", type: "PRICE_RANGE", values: [] };
+
+  it("прибирає список з одним значенням, а ціну й справжній вибір лишає", () => {
+    const filters = [price, list("type", ["Смартфони"]), list("memory", ["128 ГБ", "256 ГБ"])];
+
+    expect(dropSingleValueFilters(filters, []).map((filter) => filter.id)).toEqual([
+      "price",
+      "memory",
+    ]);
+  });
+
+  it("лишає групу з одним значенням, якщо воно ввімкнене: його має бути видно, щоб зняти", () => {
+    const filters = [list("type", ["Смартфони"])];
+
+    expect(dropSingleValueFilters(filters, [{ productType: "Смартфони" }])).toHaveLength(1);
   });
 });
