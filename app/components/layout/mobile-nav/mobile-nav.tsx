@@ -1,4 +1,4 @@
-import { MapPin, Menu, Phone, Scale, Send, User, UserRoundCheck } from "lucide-react";
+import { MapPin, Menu, Phone, Scale, Send, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
@@ -108,11 +108,7 @@ export function MobileNav({ categories, store = STORE_INFO, signedIn = false }: 
                   <Item asChild size="sm">
                     <Link viewTransition to="/account" onClick={close}>
                       <ItemMedia>
-                        {signedIn ? (
-                          <UserRoundCheck aria-hidden="true" strokeWidth={2} />
-                        ) : (
-                          <User aria-hidden="true" strokeWidth={2} />
-                        )}
+                        <User aria-hidden="true" strokeWidth={2} />
                       </ItemMedia>
                       <ItemContent>
                         <ItemTitle>{signedIn ? "Мій кабінет" : "Увійти до кабінету"}</ItemTitle>

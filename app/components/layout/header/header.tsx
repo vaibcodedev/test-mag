@@ -1,4 +1,4 @@
-import { Heart, Scale, Search, ShoppingCart, User, UserRoundCheck } from "lucide-react";
+import { Heart, Scale, Search, ShoppingCart, User } from "lucide-react";
 import { Link } from "react-router";
 
 import { preloadCartDrawer } from "~/components/cart/cart-drawer";
@@ -27,7 +27,7 @@ export function Header({
   signedIn = false,
 }: {
   categories: readonly MegaMenuCategory[];
-  /** Покупець увійшов у кабінет: значок кабінету стає заповненим кружком із позначкою. */
+  /** Покупець увійшов у кабінет: на значку кабінету з'являється синя крапка. */
   signedIn?: boolean;
 }) {
   const totalQuantity = useCart((state) => state.data.totalQuantity);
@@ -85,15 +85,18 @@ export function Header({
               data-signed-in={signedIn || undefined}
               aria-label={signedIn ? "Кабінет: ви увійшли" : "Увійти до кабінету"}
             >
-              {signedIn ? (
-                // Гість бачить контур, покупець після входу — заповнений кружок із галочкою:
-                // стан видно і за формою, а не лише за кольором.
-                <span className="flex size-8 items-center justify-center rounded-pill bg-ink text-surface">
-                  <UserRoundCheck aria-hidden="true" strokeWidth={2} className="size-4.5" />
-                </span>
-              ) : (
+              {/* Значок той самий для всіх. Після входу в кутку з'являється синя крапка —
+                  як лічильники на «Обраному» й «Порівнянні». */}
+              <span className="relative">
                 <User aria-hidden="true" strokeWidth={2} className="size-6" />
-              )}
+                {signedIn ? (
+                  <span
+                    aria-hidden="true"
+                    data-slot="account-signed-in"
+                    className="absolute -end-0.5 -top-0.5 size-2.5 rounded-pill bg-blue ring-2 ring-surface"
+                  />
+                ) : null}
+              </span>
             </Link>
           </Button>
           <Button asChild variant="primary" className="ms-1 px-4 text-small">
