@@ -19,7 +19,7 @@ import { Separator } from "~/components/ui/separator";
 import { useAddToCart } from "~/hooks/use-add-to-cart";
 import { toggleCompare, useIsCompared } from "~/hooks/use-compare";
 import { compareCategoryOf } from "~/lib/compare/spec-schema";
-import { viewTransitionStyle } from "~/lib/view-transition";
+import { useTransitionDetail } from "~/lib/view-transition";
 import { toggleWishlist, useIsWishlisted } from "~/hooks/use-wishlist";
 import { ProductProvider } from "~/lib/product";
 import {
@@ -44,6 +44,7 @@ function ProductPageContent({ product, related }: ProductPageProps) {
   const { addToCart, addingHandle } = useAddToCart();
   const wishlisted = useIsWishlisted(product.handle);
   const compared = useIsCompared(product.handle);
+  const transitionDetail = useTransitionDetail("product", product.handle);
   const compareCategory = compareCategoryOf(product.productType)?.key ?? null;
 
   // Елементи зберігаються у стані, щоб спостерігач помітив появу й зникнення кнопки.
@@ -68,7 +69,7 @@ function ProductPageContent({ product, related }: ProductPageProps) {
       tabIndex={-1}
       className="relative flex flex-1 flex-col gap-section pt-2 outline-none"
       // Галерея (data-vt-detail) бере звідси назву переходу: у неї розкривається картка товару.
-      style={viewTransitionStyle("product", product.handle)}
+      {...transitionDetail}
     >
       <div className="flex flex-col gap-4">
         <Container className="flex flex-col gap-2">

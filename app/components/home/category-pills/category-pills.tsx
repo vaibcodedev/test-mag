@@ -65,7 +65,7 @@ export function CategoryPills({ categories, className, ...props }: CategoryPills
                         </span>
                       </ItemMedia>
                     ) : null}
-                    <span data-vt-target className="inline-block">
+                    <span data-vt-target="text" className="inline-block">
                       {category.title}
                     </span>
                   </NavLink>

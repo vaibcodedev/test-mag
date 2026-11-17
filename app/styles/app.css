@@ -284,14 +284,24 @@
      прокрутку Radix блокує обробниками подій, а не overflow. */
   /* Поки відкрите модальне вікно чи шухляда, сторінку не можна прокрутити нічим:
      ні колесом, ні клавіатурою, ні перетягуванням смуги. Жолоб смуги (scrollbar-gutter)
-     лишається зарезервованим, тому верстка не зсувається. */
-  html:has(body[data-scroll-locked]) {
+     лишається зарезервованим, тому верстка не зсувається.
+     Випадні списки й меню (Select, DropdownMenu, Popover) сторінку не закривають, тож смуга
+     прокрутки при них лишається на місці: колесо й дотик Radix і так блокує обробниками. */
+  html:has(body[data-scroll-locked]):has(
+      [data-slot="sheet-content"],
+      [data-slot="dialog-content"],
+      [data-slot="alert-dialog-content"]
+    ) {
     overflow-y: hidden;
   }
 
+  /* Radix ставить body overflow: hidden. Через overflow-y на html це значення не переходить
+     на вікно, і body сам стає областю прокрутки: липка шапка тоді «відклеюється» й зникає
+     разом із прокрученою сторінкою. Блокування тримаємо на html (правило вище). */
   html body[data-scroll-locked] {
     margin-right: 0 !important;
     padding-right: 0 !important;
+    overflow: visible !important;
   }
 
   body {
@@ -354,21 +364,28 @@
   mix-blend-mode: normal;
 }
 
-/* Картка розкривається в сторінку. Назва береться з --vt-name і вмикається лише в картки,
-   з якої пішли (data-vt-source), поки її посилання має клас transitioning від NavLink:
-   назви на сторінці мають бути унікальні, а той самий товар буває в кількох секціях. */
+/* Картка розкривається в сторінку. Назва береться з --vt-name і вмикається лише в парі:
+   у картки, з якої пішли (data-vt-source), поки її NavLink має клас transitioning, і на
+   сторінці, поки її <main> позначений data-vt-active (див. ~/lib/view-transition).
+   Назви на сторінці мають бути унікальні, а той самий товар буває в кількох секціях. */
 [data-vt-source]:has(a.transitioning) [data-vt-target],
-[data-vt-detail] {
+[data-vt-active] [data-vt-detail] {
   view-transition-name: var(--vt-name, none);
   view-transition-class: card-expand;
 }
+/* Назва, що переїжджає в заголовок: знімок тексту не розтягуємо, як фото. */
+[data-vt-source]:has(a.transitioning) [data-vt-target="text"],
+[data-vt-active] [data-vt-detail="text"] {
+  view-transition-class: title-expand;
+}
 
 /* Переїзд від картки до місця на сторінці: довший і з м'яким гальмуванням. */
-::view-transition-group(.card-expand) {
+::view-transition-group(.card-expand),
+::view-transition-group(.title-expand) {
   animation-duration: 420ms;
   animation-timing-function: var(--ease-out-soft);
 }
-/* Знімки розтягуються на всю рамку, що рухається: фото не «стрибає» через різні пропорції. */
+/* Знімки фото розтягуються на всю рамку, що рухається: фото не «стрибає» через різні пропорції. */
 ::view-transition-old(.card-expand),
 ::view-transition-new(.card-expand) {
   height: 100%;

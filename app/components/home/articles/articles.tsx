@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 
 import { Section, SectionHeader, type SectionProps } from "~/components/layout/section";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "~/components/ui/card";
 import { ShopImage } from "~/components/ui/shop-image";
 import { calendarDate, formatDate } from "~/lib/format";
+import { TransitionSource } from "~/lib/view-transition";
 
 /** У секції показуємо рівно три статті. */
 const VISIBLE_ARTICLES = 3;
@@ -64,58 +65,64 @@ export function Articles({ id = "articles", content, articles, ...props }: Artic
           return (
             <li key={article.handle} className="min-w-0">
               <Card asChild interactive padding="none" className="h-full overflow-hidden">
-                <article>
-                  <AspectRatio ratio={16 / 10} className="overflow-hidden bg-photo">
-                    {article.image ? (
-                      <ShopImage
-                        src={article.image.url}
-                        alt={article.image.altText ?? ""}
-                        width={article.image.width ?? IMAGE_FALLBACK_WIDTH}
-                        height={article.image.height ?? IMAGE_FALLBACK_HEIGHT}
-                        sizes={IMAGE_SIZES}
-                        className="size-full lift-photo object-cover"
-                      />
-                    ) : null}
-                  </AspectRatio>
+                <TransitionSource href={`/blogs/blog/${article.handle}`}>
+                  <article>
+                    <AspectRatio
+                      data-vt-target
+                      ratio={16 / 10}
+                      className="overflow-hidden bg-photo"
+                    >
+                      {article.image ? (
+                        <ShopImage
+                          src={article.image.url}
+                          alt={article.image.altText ?? ""}
+                          width={article.image.width ?? IMAGE_FALLBACK_WIDTH}
+                          height={article.image.height ?? IMAGE_FALLBACK_HEIGHT}
+                          sizes={IMAGE_SIZES}
+                          className="size-full lift-photo object-cover"
+                        />
+                      ) : null}
+                    </AspectRatio>
 
-                  <CardContent className="flex flex-1 flex-col gap-3 p-6">
-                    {published ? (
-                      <time
-                        dateTime={published.dateTime}
-                        className="text-small text-muted-foreground"
-                      >
-                        {formatDate(published.date)}
-                      </time>
-                    ) : null}
-                    <CardTitle asChild>
-                      <h3 className="text-h3 wrap-break-word">
-                        <Link
-                          viewTransition
-                          to={`/blogs/blog/${article.handle}`}
-                          prefetch="intent"
-                          className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"
+                    <CardContent className="flex flex-1 flex-col gap-3 p-6">
+                      {published ? (
+                        <time
+                          dateTime={published.dateTime}
+                          className="text-small text-muted-foreground"
                         >
-                          {article.title}
-                        </Link>
-                      </h3>
-                    </CardTitle>
-                    <CardDescription className="line-clamp-3 text-body">
-                      {article.excerpt}
-                    </CardDescription>
-                    {/* Уся картка — посилання із заголовка; це лише видима підказка. */}
-                    <CardFooter>
-                      <Button asChild variant="link" className="min-h-11">
-                        <span aria-hidden="true">
-                          {content.readMore}
-                          <ArrowRight
-                            strokeWidth={2}
-                            className="transition-transform group-hover:translate-x-1"
-                          />
-                        </span>
-                      </Button>
-                    </CardFooter>
-                  </CardContent>
-                </article>
+                          {formatDate(published.date)}
+                        </time>
+                      ) : null}
+                      <CardTitle asChild>
+                        <h3 className="text-h3 wrap-break-word">
+                          <NavLink
+                            viewTransition
+                            to={`/blogs/blog/${article.handle}`}
+                            prefetch="intent"
+                            className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:shadow-focus"
+                          >
+                            {article.title}
+                          </NavLink>
+                        </h3>
+                      </CardTitle>
+                      <CardDescription className="line-clamp-3 text-body">
+                        {article.excerpt}
+                      </CardDescription>
+                      {/* Уся картка — посилання із заголовка; це лише видима підказка. */}
+                      <CardFooter>
+                        <Button asChild variant="link" className="min-h-11">
+                          <span aria-hidden="true">
+                            {content.readMore}
+                            <ArrowRight
+                              strokeWidth={2}
+                              className="transition-transform group-hover:translate-x-1"
+                            />
+                          </span>
+                        </Button>
+                      </CardFooter>
+                    </CardContent>
+                  </article>
+                </TransitionSource>
               </Card>
             </li>
           );

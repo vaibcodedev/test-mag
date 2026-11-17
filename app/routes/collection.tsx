@@ -1,5 +1,5 @@
 import { CollectionProvider } from "@shopify/hydrogen/react";
-import { viewTransitionStyle } from "~/lib/view-transition";
+import { useTransitionDetail } from "~/lib/view-transition";
 import { useNavigate, useSearchParams } from "react-router";
 
 import { CollectionPage } from "~/components/collection/collection-page";
@@ -56,6 +56,7 @@ export default function CollectionRoute({ loaderData }: Route.ComponentProps) {
   const [searchParams] = useSearchParams();
   const nonce = useNonce();
   const { collection, products, origin, dataSearch } = loaderData;
+  const transitionDetail = useTransitionDetail("collection", collection.handle);
   const crumbs = collectionCrumbs(collection);
 
   return (
@@ -80,7 +81,7 @@ export default function CollectionRoute({ loaderData }: Route.ComponentProps) {
         tabIndex={-1}
         className="flex-1 pt-2 pb-12 outline-none md:pb-16"
         // Заголовок сторінки (data-vt-detail) бере звідси назву переходу з картки колекції.
-        style={viewTransitionStyle("collection", collection.handle)}
+        {...transitionDetail}
       >
         {/* key: нова колекція починає з чистого стану довантаження та згорнутих груп. */}
         <CollectionPage key={collection.handle} data={loaderData} crumbs={crumbs} />

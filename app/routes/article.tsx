@@ -1,5 +1,5 @@
 import { ArticleView } from "~/components/content/article-view";
-import { viewTransitionStyle } from "~/lib/view-transition";
+import { useTransitionDetail } from "~/lib/view-transition";
 import { JsonLd } from "~/components/seo/json-ld";
 import { useNonce } from "~/lib/csp";
 import { articleJsonLd } from "~/lib/seo/article-json-ld";
@@ -47,6 +47,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 export default function Article({ loaderData }: Route.ComponentProps) {
   const { blog, article, related, path, origin, breadcrumbs } = loaderData;
   const nonce = useNonce();
+  const transitionDetail = useTransitionDetail("article", article.handle);
 
   return (
     <main
@@ -54,7 +55,7 @@ export default function Article({ loaderData }: Route.ComponentProps) {
       tabIndex={-1}
       className="flex-1 pt-4 outline-none"
       // Головне фото статті (data-vt-detail) бере звідси назву переходу з картки статті.
-      style={viewTransitionStyle("article", article.handle)}
+      {...transitionDetail}
     >
       <ArticleView breadcrumbs={breadcrumbs} blog={blog} article={article} related={related} />
 

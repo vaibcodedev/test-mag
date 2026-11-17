@@ -65,7 +65,7 @@ export function CategoryBentoTile({
               )}
             >
               {/* Назва переїжджає в заголовок сторінки колекції. */}
-              <span data-vt-target className="inline-block">
+              <span data-vt-target="text" className="inline-block">
                 {category.title}
               </span>
             </NavLink>

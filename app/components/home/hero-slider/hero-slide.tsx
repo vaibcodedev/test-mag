@@ -1,6 +1,6 @@
 import { LayoutGrid, Scale, ShoppingCart, Truck } from "lucide-react";
 import { useState, type MouseEvent } from "react";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 
 import { ColorSwatches } from "~/components/product/color-swatches";
 import { DEFAULT_INSTALLMENT_MONTHS } from "~/components/product/installment-chip";
@@ -12,6 +12,7 @@ import { ShopImage } from "~/components/ui/shop-image";
 import { toast } from "~/components/ui/sonner";
 import { addToCompare, compareFullMessage } from "~/hooks/use-compare";
 import { formatPrice, installmentPayment } from "~/lib/format";
+import { TransitionSource } from "~/lib/view-transition";
 
 import type { HomeBanner } from "./hero-slider.types";
 
@@ -92,139 +93,144 @@ export function HeroSlide({ banner, index, count, priority = false }: HeroSlideP
   };
 
   return (
-    <CarouselItem
-      aria-label={`Слайд ${index + 1} з ${count}`}
-      aria-hidden={active ? undefined : true}
-      inert={!active}
-      className="flex"
-    >
-      <div
-        data-slot="hero-slide"
-        data-active={active}
-        className="flex min-w-0 flex-1 flex-col gap-5"
+    <TransitionSource href={href}>
+      <CarouselItem
+        aria-label={`Слайд ${index + 1} з ${count}`}
+        aria-hidden={active ? undefined : true}
+        inert={!active}
+        className="flex"
       >
-        {banner.label ? (
-          <p className="inline-flex items-center gap-2 text-small font-semibold text-lime">
-            <span aria-hidden="true" className="size-2 shrink-0 rounded-pill bg-lime" />
-            {banner.label}
-          </p>
-        ) : null}
+        <div
+          data-slot="hero-slide"
+          data-active={active}
+          className="flex min-w-0 flex-1 flex-col gap-5"
+        >
+          {banner.label ? (
+            <p className="inline-flex items-center gap-2 text-small font-semibold text-lime">
+              <span aria-hidden="true" className="size-2 shrink-0 rounded-pill bg-lime" />
+              {banner.label}
+            </p>
+          ) : null}
 
-        <h2 className="text-display text-balance text-surface">
-          <BannerTitle title={banner.title} accent={banner.accent} />
-        </h2>
+          <h2 className="text-display text-balance text-surface">
+            <BannerTitle title={banner.title} accent={banner.accent} />
+          </h2>
 
-        <div className="grid flex-1 gap-6 @2xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <div className="flex min-w-0 flex-col items-start gap-5">
-            {banner.subtitle ? (
-              <p className="max-w-md text-body text-on-ink-muted">{banner.subtitle}</p>
-            ) : null}
+          <div className="grid flex-1 gap-6 @2xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <div className="flex min-w-0 flex-col items-start gap-5">
+              {banner.subtitle ? (
+                <p className="max-w-md text-body text-on-ink-muted">{banner.subtitle}</p>
+              ) : null}
 
-            {banner.specs?.length ? (
-              <ul aria-label="Характеристики" className="flex flex-wrap gap-2">
-                {banner.specs.map((spec) => (
-                  <li key={spec}>
-                    <Badge variant="chip-on-dark">{spec}</Badge>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
+              {banner.specs?.length ? (
+                <ul aria-label="Характеристики" className="flex flex-wrap gap-2">
+                  {banner.specs.map((spec) => (
+                    <li key={spec}>
+                      <Badge variant="chip-on-dark">{spec}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
 
-            {!selectable && colors.length > 0 ? (
-              <div className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1">
-                <p aria-hidden="true" className="text-small text-on-ink-muted">
-                  Кольори
-                </p>
-                <ColorSwatches colors={colors} label={`Кольори ${banner.title}`} onDark />
-              </div>
-            ) : null}
-
-            {color ? (
-              <div className="flex flex-wrap items-center gap-x-3">
-                <ColorSwatches
-                  colors={colors}
-                  value={color.name}
-                  onChange={setColorName}
-                  label={`Колір ${banner.title}`}
-                  onDark
-                  className="-ms-2"
-                />
-                <p className="text-small text-on-ink-muted">{color.name}</p>
-              </div>
-            ) : null}
-
-            <div className="mt-auto flex flex-col gap-5 pt-1">
-              {banner.price ? (
-                <div className="flex flex-col gap-1">
-                  <Price
-                    price={banner.price}
-                    size="hero"
-                    from={banner.priceFrom ?? true}
-                    onDark
-                    showSavings={false}
-                  />
-                  {payment ? (
-                    <p className="text-small text-on-ink-muted tabular-nums">
-                      або {formatPrice(payment)} × {months} міс.
-                    </p>
-                  ) : null}
+              {!selectable && colors.length > 0 ? (
+                <div className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1">
+                  <p aria-hidden="true" className="text-small text-on-ink-muted">
+                    Кольори
+                  </p>
+                  <ColorSwatches colors={colors} label={`Кольори ${banner.title}`} onDark />
                 </div>
               ) : null}
 
-              <div className="flex flex-wrap gap-3">
-                <Button asChild variant="lime" size="lg">
-                  <Link viewTransition to={href} prefetch="intent">
-                    <ShoppingCart aria-hidden="true" strokeWidth={2} />
-                    Купити
-                    <span className="sr-only">: {banner.title}</span>
-                  </Link>
-                </Button>
-                {comparable ? (
-                  <Button asChild variant="on-dark" size="lg">
-                    {/* Посилання веде на /compare; перед переходом товар банера потрапляє у список. */}
-                    <Link viewTransition to="/compare" onClick={compareBanner}>
-                      <Scale aria-hidden="true" strokeWidth={2} />
-                      Порівняти
+              {color ? (
+                <div className="flex flex-wrap items-center gap-x-3">
+                  <ColorSwatches
+                    colors={colors}
+                    value={color.name}
+                    onChange={setColorName}
+                    label={`Колір ${banner.title}`}
+                    onDark
+                    className="-ms-2"
+                  />
+                  <p className="text-small text-on-ink-muted">{color.name}</p>
+                </div>
+              ) : null}
+
+              <div className="mt-auto flex flex-col gap-5 pt-1">
+                {banner.price ? (
+                  <div className="flex flex-col gap-1">
+                    <Price
+                      price={banner.price}
+                      size="hero"
+                      from={banner.priceFrom ?? true}
+                      onDark
+                      showSavings={false}
+                    />
+                    {payment ? (
+                      <p className="text-small text-on-ink-muted tabular-nums">
+                        або {formatPrice(payment)} × {months} міс.
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                <div className="flex flex-wrap gap-3">
+                  <Button asChild variant="lime" size="lg">
+                    <NavLink viewTransition to={href} prefetch="intent">
+                      <ShoppingCart aria-hidden="true" strokeWidth={2} />
+                      Купити
                       <span className="sr-only">: {banner.title}</span>
-                    </Link>
+                    </NavLink>
                   </Button>
-                ) : banner.compareHref ? (
-                  <Button asChild variant="on-dark" size="lg">
-                    <Link viewTransition to={banner.compareHref} prefetch="intent">
-                      <LayoutGrid aria-hidden="true" strokeWidth={2} />
-                      Усі моделі
-                      <span className="sr-only">: {banner.title}</span>
-                    </Link>
-                  </Button>
+                  {comparable ? (
+                    <Button asChild variant="on-dark" size="lg">
+                      {/* Посилання веде на /compare; перед переходом товар банера потрапляє у список. */}
+                      <Link viewTransition to="/compare" onClick={compareBanner}>
+                        <Scale aria-hidden="true" strokeWidth={2} />
+                        Порівняти
+                        <span className="sr-only">: {banner.title}</span>
+                      </Link>
+                    </Button>
+                  ) : banner.compareHref ? (
+                    <Button asChild variant="on-dark" size="lg">
+                      <Link viewTransition to={banner.compareHref} prefetch="intent">
+                        <LayoutGrid aria-hidden="true" strokeWidth={2} />
+                        Усі моделі
+                        <span className="sr-only">: {banner.title}</span>
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
+
+                {banner.delivery && !image ? <DeliveryPlate text={banner.delivery} /> : null}
+              </div>
+            </div>
+
+            {image ? (
+              <div
+                data-vt-target
+                className="relative order-first min-h-56 overflow-hidden rounded-lg bg-on-ink-10 @2xl:order-none @2xl:min-h-80"
+              >
+                <ShopImage
+                  src={image.url}
+                  alt={image.altText ?? ""}
+                  width={image.width ?? IMAGE_FALLBACK_SIZE}
+                  height={image.height ?? IMAGE_FALLBACK_SIZE}
+                  sizes={IMAGE_SIZES}
+                  priority={priority}
+                  className="absolute inset-0 size-full object-cover"
+                />
+                {banner.delivery ? (
+                  <DeliveryPlate
+                    text={banner.delivery}
+                    onPhoto
+                    className="absolute start-3 bottom-3"
+                  />
                 ) : null}
               </div>
-
-              {banner.delivery && !image ? <DeliveryPlate text={banner.delivery} /> : null}
-            </div>
+            ) : null}
           </div>
-
-          {image ? (
-            <div className="relative order-first min-h-56 overflow-hidden rounded-lg bg-on-ink-10 @2xl:order-none @2xl:min-h-80">
-              <ShopImage
-                src={image.url}
-                alt={image.altText ?? ""}
-                width={image.width ?? IMAGE_FALLBACK_SIZE}
-                height={image.height ?? IMAGE_FALLBACK_SIZE}
-                sizes={IMAGE_SIZES}
-                priority={priority}
-                className="absolute inset-0 size-full object-cover"
-              />
-              {banner.delivery ? (
-                <DeliveryPlate
-                  text={banner.delivery}
-                  onPhoto
-                  className="absolute start-3 bottom-3"
-                />
-              ) : null}
-            </div>
-          ) : null}
         </div>
-      </div>
-    </CarouselItem>
+      </CarouselItem>
+    </TransitionSource>
   );
 }

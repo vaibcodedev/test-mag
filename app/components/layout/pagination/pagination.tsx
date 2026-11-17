@@ -95,7 +95,6 @@ export function Pagination({
       {showMore && nextHref ? (
         <Button asChild variant="surface" size="lg">
           <Link
-            viewTransition
             to={nextHref}
             preventScrollReset
             aria-busy={loading || undefined}
