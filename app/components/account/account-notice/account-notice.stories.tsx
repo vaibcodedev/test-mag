@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { CircleAlert, LogIn } from "lucide-react";
+import { CircleAlert, UserRoundX } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 
@@ -10,24 +10,27 @@ const meta = {
   component: AccountNotice,
   parameters: { surface: "page" },
   args: {
-    icon: <LogIn strokeWidth={2} />,
-    title: "Увійдіть до кабінету",
-    description: "Тут зберігаються ваші замовлення та контактні дані.",
-    actions: <Button>Увійти</Button>,
+    icon: <CircleAlert strokeWidth={2} />,
+    title: "Не вдалося завантажити кабінет",
+    description: "Спробуйте ще раз за хвилину.",
+    actions: (
+      <>
+        <Button>Спробувати ще раз</Button>
+        <Button variant="secondary">Вийти з кабінету</Button>
+      </>
+    ),
   },
 } satisfies Meta<typeof AccountNotice>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const SignIn: Story = {};
+export const Default: Story = {};
 
-export const WithAlert: Story = {
+export const WithoutActions: Story = {
   args: {
-    icon: <CircleAlert strokeWidth={2} />,
-    title: "Не вдалося завантажити кабінет",
-    description: "Спробуйте ще раз за хвилину.",
-    alert: "Немає зв'язку з магазином. Перевірте інтернет і повторіть.",
-    actions: <Button variant="secondary">Спробувати ще раз</Button>,
+    icon: <UserRoundX strokeWidth={2} />,
+    title: "Вхід запрацює після підключення магазину",
+    actions: undefined,
   },
 };

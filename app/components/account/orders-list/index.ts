@@ -1,6 +1,1 @@
-export {
-  orderStatusLabel,
-  OrdersList,
-  type AccountOrder,
-  type OrdersListProps,
-} from "./orders-list";
+export { OrdersList, type OrdersListProps } from "./orders-list";

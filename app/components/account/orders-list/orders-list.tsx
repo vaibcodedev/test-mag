@@ -2,8 +2,7 @@ import { Package } from "lucide-react";
 import { useId, type ComponentProps } from "react";
 import { Link } from "react-router";
 
-import { PublishedDate } from "~/components/content/published-date";
-import { Badge } from "~/components/ui/badge";
+import { OrderCard, type AccountOrder } from "~/components/account/order-card";
 import { Button } from "~/components/ui/button";
 import {
   Empty,
@@ -14,36 +13,15 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemTitle,
-} from "~/components/ui/item";
-import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
 } from "~/components/ui/pagination";
-import { Price } from "~/components/ui/price";
-import type { Money } from "~/lib/format";
+import { Spinner } from "~/components/ui/spinner";
+import { CATALOG_LINKS, type NavLink } from "~/lib/content/site";
 import { cn } from "~/lib/utils";
-
-export type AccountOrder = {
-  id: string;
-  /** Номер замовлення, як у листі: «#1001». */
-  name: string;
-  /** Дата оформлення в ISO 8601. */
-  processedAt: string;
-  /** Стан оплати з Customer Account API: PAID, PENDING … */
-  financialStatus?: string | null;
-  /** Сторінка стану замовлення в Shopify. */
-  statusPageUrl: string;
-  totalPrice: Money;
-};
 
 export type OrdersListProps = Omit<ComponentProps<"section">, "children"> & {
   orders: readonly AccountOrder[];
@@ -52,31 +30,57 @@ export type OrdersListProps = Omit<ComponentProps<"section">, "children"> & {
   olderHref?: string | null;
   /** Триває перехід між сторінками списку. */
   busy?: boolean;
+  /** Категорії-підказки для покупця без замовлень. */
+  catalogLinks?: readonly NavLink[];
 };
 
-const FINANCIAL_STATUS: Record<string, string> = {
-  AUTHORIZED: "Кошти зарезервовано",
-  EXPIRED: "Термін оплати минув",
-  PAID: "Оплачено",
-  PARTIALLY_PAID: "Оплачено частково",
-  PARTIALLY_REFUNDED: "Частину коштів повернено",
-  PENDING: "Очікує оплати",
-  REFUNDED: "Кошти повернено",
-  VOIDED: "Оплату скасовано",
-};
+/** Скільки категорій показуємо в порожньому стані: решта є в каталозі. */
+const EMPTY_CATEGORY_COUNT = 5;
 
-/** Стан оплати українською; невідомий код не показуємо, щоб не лишати англійський текст. */
-export function orderStatusLabel(status: string | null | undefined): string | null {
-  if (!status || !Object.hasOwn(FINANCIAL_STATUS, status)) return null;
-  return FINANCIAL_STATUS[status] ?? null;
+function NoOrders({ catalogLinks }: { catalogLinks: readonly NavLink[] }) {
+  return (
+    <Empty size="panel" titleSize="h3">
+      <EmptyHeader>
+        <EmptyMedia>
+          <Package strokeWidth={2} />
+        </EmptyMedia>
+        <EmptyTitle as="h3">Замовлень поки немає</EmptyTitle>
+        <EmptyDescription>
+          Щойно оформите покупку, вона з&apos;явиться тут: зі складом, сумою та станом оплати й
+          доставки. А поки — оберіть, з чого почати.
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <nav aria-label="Категорії каталогу" className="w-full">
+          <ul role="list" className="flex flex-wrap gap-2">
+            {catalogLinks.slice(0, EMPTY_CATEGORY_COUNT).map((link) => (
+              <li key={link.to}>
+                <Button asChild variant="secondary" size="sm" className="rounded-pill">
+                  <Link viewTransition to={link.to} prefetch="intent">
+                    {link.title}
+                  </Link>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <Button asChild>
+          <Link viewTransition to="/collections" prefetch="intent">
+            Увесь каталог
+          </Link>
+        </Button>
+      </EmptyContent>
+    </Empty>
+  );
 }
 
-/** Замовлення покупця: номер, дата, стан оплати, сума та перехід між сторінками списку. */
+/** Замовлення покупця картками та перехід між сторінками списку. */
 export function OrdersList({
   orders,
   newerHref,
   olderHref,
   busy = false,
+  catalogLinks = CATALOG_LINKS,
   className,
   ...props
 }: OrdersListProps) {
@@ -89,76 +93,46 @@ export function OrdersList({
       className={cn("flex min-w-0 flex-col gap-4", className)}
       {...props}
     >
-      <h2 id={titleId} className="text-h3 text-ink">
-        Замовлення
-      </h2>
+      <div className="flex min-h-8 items-center gap-3">
+        <h2 id={titleId} className="text-h3 text-ink">
+          Мої замовлення
+        </h2>
+        {/* Спокійний стан завантаження: список тьмяніє на місці, без стрибків верстки. */}
+        {busy ? <Spinner aria-label="Завантажуємо замовлення" className="text-ink-2" /> : null}
+      </div>
 
       {orders.length === 0 ? (
-        <Empty size="sm">
-          <EmptyHeader>
-            <EmptyMedia>
-              <Package strokeWidth={2} />
-            </EmptyMedia>
-            <EmptyTitle as="h3">Замовлень поки немає</EmptyTitle>
-            <EmptyDescription>
-              Ви ще нічого не замовляли. Щойно оформите покупку, вона з&apos;явиться тут разом зі
-              статусом і сумою.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Button asChild>
-              <Link viewTransition to="/collections" prefetch="intent">
-                Перейти до каталогу
-              </Link>
-            </Button>
-          </EmptyContent>
-        </Empty>
+        <NoOrders catalogLinks={catalogLinks} />
       ) : (
-        <ItemGroup
-          asChild
-          className={cn("transition-opacity duration-150", busy ? "opacity-50" : null)}
+        <ul
+          role="list"
+          aria-busy={busy}
+          className={cn(
+            "flex flex-col gap-3 transition-opacity duration-150 motion-reduce:transition-none",
+            busy ? "pointer-events-none opacity-50" : null,
+          )}
         >
-          <ul role="list" aria-busy={busy}>
-            {orders.map((order) => {
-              const status = orderStatusLabel(order.financialStatus);
-
-              return (
-                <li key={order.id}>
-                  <Item variant="outline" className="gap-y-2 py-3">
-                    <ItemContent>
-                      <ItemTitle>
-                        <Button asChild variant="link" className="min-h-11">
-                          <a href={order.statusPageUrl}>Замовлення {order.name}</a>
-                        </Button>
-                      </ItemTitle>
-                      <ItemDescription>
-                        <PublishedDate value={order.processedAt} />
-                      </ItemDescription>
-                    </ItemContent>
-                    <ItemActions className="gap-4">
-                      {status ? <Badge variant="outline">{status}</Badge> : null}
-                      <Price price={order.totalPrice} />
-                    </ItemActions>
-                  </Item>
-                </li>
-              );
-            })}
-          </ul>
-        </ItemGroup>
+          {orders.map((order) => (
+            <li key={order.id}>
+              <OrderCard order={order} />
+            </li>
+          ))}
+        </ul>
       )}
 
       {newerHref || olderHref ? (
         <Pagination aria-label="Сторінки замовлень">
           <PaginationContent className="w-full justify-between">
+            {/* Без viewTransition: зміни всередині сторінки на сайті миттєві. */}
             {newerHref ? (
               <PaginationItem>
                 <PaginationPrevious
                   asChild
                   showText="always"
-                  text="Новіші замовлення"
+                  text="Новіші"
                   aria-label="Новіші замовлення"
                 >
-                  <Link viewTransition to={newerHref} preventScrollReset />
+                  <Link to={newerHref} preventScrollReset />
                 </PaginationPrevious>
               </PaginationItem>
             ) : null}
@@ -167,10 +141,10 @@ export function OrdersList({
                 <PaginationNext
                   asChild
                   showText="always"
-                  text="Старіші замовлення"
+                  text="Старіші"
                   aria-label="Старіші замовлення"
                 >
-                  <Link viewTransition to={olderHref} preventScrollReset />
+                  <Link to={olderHref} preventScrollReset />
                 </PaginationNext>
               </PaginationItem>
             ) : null}
