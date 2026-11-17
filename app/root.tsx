@@ -96,8 +96,9 @@ export const middleware: Route.MiddlewareFunction[] = [
       sessionManager,
       storefrontClient,
       routeTemplates,
+      // З кабінетом кошик обслуговують обробники, прив'язані до сесії покупця.
       handlers: customerAccount
-        ? [cartHandlers, predictiveSearchHandlers, customerAccount.handlers]
+        ? [customerAccount.cartHandlers, predictiveSearchHandlers, customerAccount.handlers]
         : [cartHandlers, predictiveSearchHandlers],
     });
 
@@ -127,11 +128,21 @@ export const middleware: Route.MiddlewareFunction[] = [
 export async function loader({ context, request }: Route.LoaderArgs) {
   const env = context.get(envContext);
   const storefrontClient = context.get(storefrontClientContext);
+  const customerAccount = context.get(customerAccountContext);
   const [cartResult, layout, catalog, signedIn] = await Promise.all([
-    cartHandlers.get({ storefrontClient, request }),
+    // Обробникам кошика з прив'язкою до покупця потрібна сесія: з неї вони дізнаються,
+    // чи позначати посилання на оформлення як «покупець увійшов».
+    customerAccount
+      ? customerAccount.cartHandlers.get({
+          storefrontClient,
+          request,
+          sessionManager: customerAccount.sessionManager,
+          requestContext: customerAccount.requestContext,
+        })
+      : cartHandlers.get({ storefrontClient, request }),
     loadRootLayout(storefrontClient),
     loadCatalog(storefrontClient),
-    isSignedIn(context.get(customerAccountContext)),
+    isSignedIn(customerAccount),
   ]);
 
   return {

@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 import { reactRouter } from "@react-router/dev/vite";
 import { localHttps } from "@shopify/hydrogen/vite";
 import { oxygen } from "@shopify/mini-oxygen/vite";
@@ -12,6 +14,21 @@ export default defineConfig({
   plugins: [localHttps(httpsOptions), tailwindcss(), ...oxygenPlugins, reactRouter()],
   resolve: {
     tsconfigPaths: true,
+    alias: [
+      {
+        // У режимі розробки Vite бере для `@shopify/hydrogen` збірку `development`, а в
+        // `@shopify/hydrogen/customer-account` такої збірки в exports немає — він завжди
+        // звичайний. Виходять дві копії коду кошика, і зв'язок кошика з кабінетом
+        // (createCustomerAccountServerHandlers({ cartServerHandlers })) падає з помилкою
+        // «cartServerHandlers must be created by createCartServerHandlers with the
+        // customerSession option». Тож і корінь пакета беремо зі звичайної збірки:
+        // експорти в обох однакові, у продакшн-збірці так є і без цього.
+        find: /^@shopify\/hydrogen$/,
+        replacement: fileURLToPath(
+          new URL("./node_modules/@shopify/hydrogen/dist/core/index.mjs", import.meta.url),
+        ),
+      },
+    ],
   },
   build: {
     // Allow a strict Content-Security-Policy
