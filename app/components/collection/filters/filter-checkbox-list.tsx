@@ -103,14 +103,15 @@ export function FilterCheckboxList({ filter, activeFilters, labelId }: FilterChe
         ))}
       </FieldGroup>
       {hidden > 0 ? (
-        // Висоту веде сітка (рядок 0fr ↔ 1fr), як в акордеоні: значення розгортаються плавно.
+        // Висоту веде сітка (рядок 0fr ↔ 1fr), як в акордеоні. Крива ease-out і 200 мс: список
+        // рушає одразу після натискання, без повільного розгону, який читається як затримка.
         // Згорнуті — невидимі й приховані від читачів екрана, тож у фокус не потрапляють.
         <div
           id={listId}
           data-slot="filter-more"
           data-state={expanded ? "open" : "closed"}
           aria-hidden={expanded ? undefined : true}
-          className="grid transition-[grid-template-rows,visibility] duration-300 ease-in-out data-[state=closed]:invisible data-[state=closed]:grid-rows-[0fr] data-[state=open]:grid-rows-[1fr]"
+          className="grid transition-[grid-template-rows,visibility] duration-200 ease-out data-[state=closed]:invisible data-[state=closed]:grid-rows-[0fr] data-[state=open]:grid-rows-[1fr] motion-reduce:transition-none"
         >
           <div className="relative -m-1 min-h-0 overflow-hidden p-1">
             <FieldGroup data-slot="checkbox-group">
