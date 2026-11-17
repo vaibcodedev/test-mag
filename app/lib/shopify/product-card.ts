@@ -78,7 +78,23 @@ export function toCardPricing(
     Number.parseFloat(maxVariantPrice.amount) > Number.parseFloat(minVariantPrice.amount);
 
   if (priceFrom || !variant) {
-    return { variantId: null, price: minVariantPrice, compareAtPrice: null, priceFrom };
+    // Найдешевший варіант зі знижкою: «від 62 999 ₴» показуємо разом зі старою ціною саме
+    // цього варіанта. Якщо найдешевший — інший варіант, старої ціни не вигадуємо.
+    const cheapest =
+      variant &&
+      Number.parseFloat(variant.price.amount) === Number.parseFloat(minVariantPrice.amount)
+        ? variant
+        : null;
+    const compareAt = cheapest?.compareAtPrice;
+    return {
+      variantId: null,
+      price: minVariantPrice,
+      compareAtPrice:
+        compareAt && Number.parseFloat(compareAt.amount) > Number.parseFloat(minVariantPrice.amount)
+          ? compareAt
+          : null,
+      priceFrom,
+    };
   }
 
   const compareAt = variant.compareAtPrice;

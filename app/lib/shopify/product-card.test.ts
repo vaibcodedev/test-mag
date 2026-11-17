@@ -177,6 +177,36 @@ describe("toCardPricing", () => {
     });
   });
 
+  it("«від» зі знижкою: стара ціна найдешевшого варіанта лишається на картці", () => {
+    expect(
+      toCardPricing({
+        priceRange: { minVariantPrice: money("62999.0"), maxVariantPrice: money("82999.0") },
+        selectedOrFirstAvailableVariant: variant({
+          price: money("62999.0"),
+          compareAtPrice: money("66999.0"),
+        }),
+      }),
+    ).toEqual({
+      variantId: null,
+      price: money("62999.0"),
+      compareAtPrice: money("66999.0"),
+      priceFrom: true,
+    });
+  });
+
+  it("«від» без знижки на найдешевшому варіанті: чужої старої ціни не показує", () => {
+    const pricing = toCardPricing({
+      priceRange: { minVariantPrice: money("900.0"), maxVariantPrice: money("1400.0") },
+      // Знижка лише на дорожчому варіанті — до ціни «від 900» вона не стосується.
+      selectedOrFirstAvailableVariant: variant({
+        price: money("1200.0"),
+        compareAtPrice: money("1400.0"),
+      }),
+    });
+
+    expect(pricing).toMatchObject({ price: money("900.0"), compareAtPrice: null, priceFrom: true });
+  });
+
   it("варіанти з різними цінами: «від» + найменша ціна, і купити можна лише на сторінці товару", () => {
     expect(
       toCardPricing({
