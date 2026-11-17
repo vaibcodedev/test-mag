@@ -161,6 +161,8 @@ export function CollectionPage({ data, crumbs }: CollectionPageProps) {
             <ProductGrid
               products={products}
               columns="sidebar"
+              // Нова вибірка після фільтра чи сортування м'яко проявляється на місці заглушок.
+              className="animate-in duration-300 fade-in-0"
               pending={pending}
               loadingMore={loading ? Math.min(remaining, COLLECTION_PAGE_SIZE) : 0}
               onAddToCart={addToCart}

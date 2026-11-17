@@ -56,6 +56,7 @@ describe("SeoBlock", () => {
     // Обрізає вкладений блок: саме на ньому висота змінюється плавно.
     expect(text?.querySelector('[data-slot="seo-text-clip"]')).toHaveClass(
       "overflow-hidden",
+      "transition-[max-height]",
       "[[data-state=closed]>&]:max-h-[6lh]",
     );
     expect(text).toHaveClass("data-closed:block");

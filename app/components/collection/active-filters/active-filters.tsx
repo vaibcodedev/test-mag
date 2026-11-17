@@ -27,7 +27,7 @@ export function ActiveFilters({ chips, clearHref, className, ...props }: ActiveF
     >
       <ul role="list" className="contents">
         {chips.map((chip) => (
-          <li key={chip.key} className="min-w-0">
+          <li key={chip.key} className="min-w-0 animate-in duration-200 fade-in-0 zoom-in-95">
             <Button asChild variant="surface" size="sm" className="h-11 max-w-full font-medium">
               <Link
                 to={chip.href}

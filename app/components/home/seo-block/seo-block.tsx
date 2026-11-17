@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "react-router";
 
 import { Section, SectionHeader } from "~/components/layout/section";
@@ -79,6 +79,17 @@ export function SeoBlock({
   popularQueries,
 }: SeoBlockProps) {
   const [open, setOpen] = useState(false);
+  const textRef = useRef<HTMLDivElement>(null);
+  /** Повна висота тексту в px: межа, до якої плавно росте max-height розгорнутого блоку. */
+  const [fullHeight, setFullHeight] = useState<number | null>(null);
+  useEffect(() => {
+    const text = textRef.current;
+    if (!text || typeof ResizeObserver === "undefined") return;
+    // Висота змінюється з шириною вікна й шрифтом: стежимо, а не міряємо один раз.
+    const observer = new ResizeObserver(() => setFullHeight(Math.ceil(text.offsetHeight)));
+    observer.observe(text);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <Section id={SECTION_ID}>
@@ -103,8 +114,9 @@ export function SeoBlock({
             Згорнутий текст не ховається, а обрізається по шостому рядку: висота й проміжки
             задані в одиницях lh. Клас data-closed:block скасовує базовий data-closed:hidden.
             Висоту змінює вкладений блок, а не сам CollapsibleContent: Radix на час вимірювання
-            вимикає переходи свого елемента. interpolate-size дозволяє браузеру анімувати
-            перехід до max-content; де властивості ще немає, текст розкривається одразу.
+            вимикає переходи свого елемента. Браузер не вміє плавно перейти до «висоти за
+            вмістом», тому повну висоту тексту міряємо й передаємо змінною --seo-open:
+            max-height плавно змінюється між шістьма рядками та цим числом.
           */}
           <CollapsibleContent
             forceMount
@@ -113,11 +125,16 @@ export function SeoBlock({
           >
             <div
               data-slot="seo-text-clip"
-              className="max-h-max space-y-[1lh] overflow-hidden text-body text-ink-2 transition-[max-height] duration-500 ease-soft [interpolate-size:allow-keywords] [[data-state=closed]>&]:max-h-[6lh]"
+              style={
+                fullHeight ? ({ "--seo-open": `${fullHeight}px` } as CSSProperties) : undefined
+              }
+              className="max-h-(--seo-open) overflow-hidden text-body text-ink-2 transition-[max-height] duration-500 ease-in-out [[data-state=closed]>&]:max-h-[6lh]"
             >
-              {paragraphs.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
+              <div ref={textRef} className="space-y-[1lh]">
+                {paragraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
             </div>
           </CollapsibleContent>
           <CollapsibleTrigger asChild>

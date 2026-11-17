@@ -54,7 +54,11 @@ export function TabsContent({ className, ...props }: ComponentProps<typeof TabsP
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
-      className={cn("rounded-sm focus-ring", className)}
+      // Вміст щойно вибраної вкладки м'яко проявляється, а не з'являється ривком.
+      className={cn(
+        "rounded-sm focus-ring data-[state=active]:animate-in data-[state=active]:duration-200 data-[state=active]:fade-in-0",
+        className,
+      )}
       {...props}
     />
   );
