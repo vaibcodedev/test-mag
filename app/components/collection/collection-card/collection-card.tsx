@@ -89,7 +89,7 @@ export function CollectionCard({
           </div>
           <span
             aria-hidden="true"
-            className="flex size-10 shrink-0 items-center justify-center rounded-pill bg-page text-ink transition-[background-color,color,transform] group-focus-within:-rotate-45 group-focus-within:bg-blue group-focus-within:text-surface group-hover:-rotate-45 group-hover:bg-blue group-hover:text-surface"
+            className="flex size-10 shrink-0 items-center justify-center rounded-pill bg-page text-ink transition-[background-color,color,transform] group-focus-within:-rotate-45 group-focus-within:bg-blue group-focus-within:text-on-accent group-hover:-rotate-45 group-hover:bg-blue group-hover:text-on-accent"
           >
             <ArrowRight strokeWidth={2} className="size-5" />
           </span>

@@ -50,7 +50,7 @@ export function AvatarBadge({ className, ...props }: ComponentProps<"span">) {
     <span
       data-slot="avatar-badge"
       className={cn(
-        "absolute end-0 bottom-0 z-10 inline-flex size-4 items-center justify-center rounded-pill border-2 border-surface bg-blue text-surface select-none group-data-[size=sm]/avatar:size-3 [&>svg]:size-2.5 group-data-[size=sm]/avatar:[&>svg]:hidden",
+        "absolute end-0 bottom-0 z-10 inline-flex size-4 items-center justify-center rounded-pill border-2 border-surface bg-blue text-on-accent select-none group-data-[size=sm]/avatar:size-3 [&>svg]:size-2.5 group-data-[size=sm]/avatar:[&>svg]:hidden",
         className,
       )}
       {...props}

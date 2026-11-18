@@ -119,7 +119,7 @@ export function NavigationSection() {
           <NavigationMenu className="flex-none">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-blue text-surface hover:bg-blue-hover data-open:bg-blue-hover [&_svg]:text-surface">
+                <NavigationMenuTrigger className="bg-blue text-on-accent hover:bg-blue-hover data-open:bg-blue-hover [&_svg]:text-on-accent">
                   <LayoutGrid aria-hidden="true" strokeWidth={2} />
                   Каталог
                 </NavigationMenuTrigger>

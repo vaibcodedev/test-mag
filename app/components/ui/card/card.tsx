@@ -79,7 +79,7 @@ export function CardDescription({ className, ...props }: ComponentProps<"div">) 
     <div
       data-slot="card-description"
       className={cn(
-        "text-small text-ink-2 group-data-[tone=blue]/card:text-surface group-data-[tone=ink]/card:text-on-ink-muted group-data-[tone=on-ink]/card:text-on-ink-muted",
+        "text-small text-ink-2 group-data-[tone=blue]/card:text-on-accent group-data-[tone=ink]/card:text-on-ink-muted group-data-[tone=on-ink]/card:text-on-ink-muted",
         className,
       )}
       {...props}

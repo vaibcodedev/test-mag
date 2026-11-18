@@ -19,7 +19,7 @@ export const cardVariants = cva("group/card relative flex min-w-0 flex-col", {
       /** Картка всередині ink-секції: білий 10%, світлий текст (відгуки). */
       "on-ink": "bg-on-ink-10 text-surface",
       /** Акцентна плитка-дія. */
-      blue: "bg-blue text-surface",
+      blue: "bg-blue text-on-accent",
     },
     padding: {
       /** Без полів: фото на всю ширину, поля задають частини картки. */

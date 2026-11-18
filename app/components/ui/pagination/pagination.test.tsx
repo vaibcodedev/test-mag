@@ -62,7 +62,7 @@ describe("Pagination", () => {
     const idle = screen.getByRole("link", { name: "Сторінка 1" });
 
     expect(current).toHaveAttribute("aria-current", "page");
-    expect(current).toHaveClass("bg-blue", "text-surface", "size-11");
+    expect(current).toHaveClass("bg-blue", "text-on-accent", "size-11");
     expect(current).toHaveTextContent("2");
     expect(idle).not.toHaveAttribute("aria-current");
     expect(idle).toHaveClass("bg-surface", "text-ink");

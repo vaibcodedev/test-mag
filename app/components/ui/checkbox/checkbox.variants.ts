@@ -12,9 +12,9 @@ export const checkboxBoxVariants = cva(
     variants: {
       control: {
         radix:
-          "peer relative cursor-pointer outline-none after:absolute after:-inset-2.5 hover:border-blue focus-visible:shadow-focus-offset disabled:cursor-not-allowed disabled:opacity-45 aria-invalid:border-danger data-checked:border-blue data-checked:bg-blue data-checked:text-surface",
+          "peer relative cursor-pointer outline-none after:absolute after:-inset-2.5 hover:border-blue focus-visible:shadow-focus-offset disabled:cursor-not-allowed disabled:opacity-45 aria-invalid:border-danger data-checked:border-blue data-checked:bg-blue data-checked:text-on-accent",
         native:
-          "text-surface group-hover/option:border-blue peer-checked:border-blue peer-checked:bg-blue peer-focus-visible:shadow-focus-offset [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100",
+          "text-on-accent group-hover/option:border-blue peer-checked:border-blue peer-checked:bg-blue peer-focus-visible:shadow-focus-offset [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100",
       },
     },
     defaultVariants: { control: "radix" },

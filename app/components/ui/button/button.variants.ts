@@ -6,9 +6,10 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         /** Усі дії на світлому тлі. */
-        primary: "bg-blue text-surface focus-ring-offset hover:bg-blue-hover active:bg-blue-active",
+        primary:
+          "bg-blue text-on-accent focus-ring-offset hover:bg-blue-hover active:bg-blue-active",
         /** Тільки на ink. */
-        lime: "bg-lime text-ink focus-ring-on-ink hover:bg-lime-hover active:bg-lime-active",
+        lime: "bg-lime text-on-accent focus-ring-on-ink hover:bg-lime-hover active:bg-lime-active",
         ink: "bg-ink text-surface focus-ring-offset hover:bg-ink-hover active:bg-ink",
         secondary: "bg-page text-ink focus-ring hover:bg-page-hover active:bg-page-active",
         /** Друга дія на сірому тлі сторінки: біла кнопка. */

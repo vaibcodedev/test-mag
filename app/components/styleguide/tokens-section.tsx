@@ -211,7 +211,7 @@ export function TokensSection() {
               <span className="rounded-md bg-page px-4 py-3 text-small shadow-focus">
                 На світлому
               </span>
-              <span className="rounded-md bg-blue px-4 py-3 text-small text-surface shadow-focus-offset">
+              <span className="rounded-md bg-blue px-4 py-3 text-small text-on-accent shadow-focus-offset">
                 На blue
               </span>
             </div>

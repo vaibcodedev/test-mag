@@ -37,7 +37,8 @@ export function projectToMap(latitude: number, longitude: number): { left: strin
 }
 
 const ROAD = "fill-none [stroke-linecap:round] [stroke-linejoin:round]";
-const LABEL = "fill-on-ink-muted text-caption [paint-order:stroke] stroke-ink [stroke-width:4px]";
+const LABEL =
+  "fill-on-ink-muted text-caption [paint-order:stroke] stroke-ink-bg [stroke-width:4px]";
 
 /**
  * Статична схема району шоуруму в кольорах теми: без iframe і без JS-карт.
@@ -102,7 +103,7 @@ export function ShowroomMap({ store, className, ...props }: ShowroomMapProps) {
           style={{ left: position.left, top: position.top }}
         >
           <span className="absolute inset-0 animate-pulse-dot rounded-pill bg-lime motion-reduce:hidden" />
-          <span className="absolute inset-0 rounded-pill border-2 border-ink bg-lime" />
+          <span className="absolute inset-0 rounded-pill border-2 border-ink-bg bg-lime" />
         </span>
 
         <Card

@@ -6,18 +6,18 @@ export const badgeVariants = cva(
     variants: {
       variant: {
         /** «Новинка». */
-        new: "bg-blue text-surface",
+        new: "bg-blue text-on-accent",
         /** «Хіт». */
         hit: "bg-ink text-surface",
         /** «Топ». */
         top: "bg-ink text-surface",
         /** Тільки знижки: «−8%». */
-        sale: "bg-sale text-surface tabular-nums",
+        sale: "bg-sale text-on-accent tabular-nums",
         /** Стан уживаного пристрою. */
         grade: "bg-page text-ink",
         outline: "border border-line bg-surface text-ink-2",
         /** Лічильник: товари в кошику, вибрані фільтри. */
-        count: "h-5 min-w-5 rounded-pill bg-blue px-1.5 text-surface tabular-nums",
+        count: "h-5 min-w-5 rounded-pill bg-blue px-1.5 text-on-accent tabular-nums",
         /** Лічильник на синій кнопці: біла пігулка, синє число. */
         "count-on-blue": "h-5 min-w-5 rounded-pill bg-surface px-1.5 text-blue tabular-nums",
         /** Чип з умовою чи характеристикою на білій картці: «4 800 ₴ × 25 міс.», «256 ГБ». */

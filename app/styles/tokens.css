@@ -5,37 +5,61 @@
 */
 
 :root {
-  /* ── Кольори: правило 60 / 30 / 10 ─────────────────────────────────────── */
-  --page: #f3f4f8; /* тло сторінки, чипи, пігулки */
-  --surface: #ffffff; /* картки, плитки, секції */
-  --photo: #fafafc; /* тло під фото товарів */
-  --line: #e7e8ee; /* межі, розділювачі, поля */
-  --ink: #0b0b14; /* текст, темні секції */
-  --ink-2: #3e4250; /* вторинний текст */
+  /* ── Кольори: темна схема з одним бурштиновим акцентом ─────────────────── */
+  --page: #121212; /* тло сторінки */
+  --chip: #303033; /* чипи, пігулки, вторинні кнопки на картках (клас bg-page) */
+  --surface: #232325; /* картки, плитки, поля */
+  --surface-text: #ffffff; /* текст на темних секціях (клас text-surface) */
+  --photo: #e4e4e8; /* тло під фото товарів: світла «студійна» підкладка */
+  --line: #2c2c2c; /* межі, розділювачі */
+  --ink: #f5f5f5; /* основний текст */
+  --ink-bg: #0a0a0a; /* найтемніші поверхні: смуга вгорі, підвал, бейджі (клас bg-ink) */
+  --ink-panel: #1b1b1c; /* великі темні секції: трохи світліші за тло сторінки */
+  --ink-panel-light: #262627; /* світліший кут градієнта такої секції */
+  --ink-2: #b8b8b8; /* вторинний текст */
   /* У макеті токен називається --muted. Тут він --muted-ink, бо shadcn займає
-     ім'я --muted під тло (= --page), а --muted-foreground посилається сюди. */
-  --muted-ink: #5e6272; /* підписи */
-  --blue: #2e4bff; /* усі дії: кнопки, кошик, вкладки, посилання, «Новинка» */
-  --lime: #c6ff3d; /* ТІЛЬКИ на ink: CTA й цифри на темному */
-  --sale: #d6146a; /* ТІЛЬКИ знижки: −%, нова ціна, «Економія» */
-  --success: #0b7a45; /* наявність */
-  --star: #e59a00; /* рейтинг */
-  --danger: #d12f2f; /* помилки форм */
+     ім'я --muted під тло, а --muted-foreground посилається сюди. */
+  --muted-ink: #9c9c9c; /* підписи */
+  /* Один акцент на всю схему: дія, підсвітка і знижки. Імена blue / lime / sale лишилися
+     від світлої схеми, щоб не перейменовувати класи в компонентах. */
+  --blue: #f5a623; /* усі дії: кнопки, кошик, вкладки, посилання, «Новинка» */
+  --lime: #f5a623; /* підсвітка на темних секціях: CTA й цифри */
+  --sale: #f5a623; /* знижки: −%, нова ціна, «Економія» */
+  --on-accent: #141414; /* текст та іконки на акцентному тлі (клас text-on-accent) */
+  --success: #5bd08a; /* наявність */
+  --star: #f5a623; /* рейтинг */
+  --danger: #ff7a7a; /* помилки форм */
 
-  /* Похідні стани. Окремих hex немає: усе рахується від базових токенів. */
-  --blue-hover: color-mix(in oklab, var(--blue) 88%, var(--ink));
-  --blue-active: color-mix(in oklab, var(--blue) 76%, var(--ink));
-  --lime-hover: color-mix(in oklab, var(--lime) 88%, var(--surface));
-  --lime-active: color-mix(in oklab, var(--lime) 86%, var(--ink));
-  --ink-hover: color-mix(in oklab, var(--ink) 86%, var(--surface));
-  --page-hover: color-mix(in oklab, var(--page) 94%, var(--ink));
-  --page-active: color-mix(in oklab, var(--page) 88%, var(--ink));
-  /* Білий поверх ink: кнопка on-dark, IconTile dark, межі на темному. */
-  --on-ink-10: color-mix(in oklab, var(--surface) 10%, transparent);
-  --on-ink-12: color-mix(in oklab, var(--surface) 12%, transparent);
-  --on-ink-20: color-mix(in oklab, var(--surface) 20%, transparent);
-  --on-ink-muted: color-mix(in oklab, var(--surface) 68%, var(--ink));
-  --scrim: color-mix(in oklab, var(--ink) 55%, transparent);
+  /* Похідні стани. На темному наведення освітлює, натискання затемнює. */
+  --blue-hover: color-mix(in oklab, var(--blue) 86%, white);
+  --blue-active: color-mix(in oklab, var(--blue) 84%, black);
+  --lime-hover: color-mix(in oklab, var(--lime) 86%, white);
+  --lime-active: color-mix(in oklab, var(--lime) 84%, black);
+  --ink-hover: color-mix(in oklab, var(--ink-bg) 84%, white);
+  --page-hover: color-mix(in oklab, var(--chip) 90%, white);
+  --page-active: color-mix(in oklab, var(--chip) 80%, white);
+  /* Білий поверх темного: кнопка on-dark, IconTile dark, межі на темному. */
+  --on-ink-10: color-mix(in oklab, white 10%, transparent);
+  --on-ink-12: color-mix(in oklab, white 12%, transparent);
+  --on-ink-20: color-mix(in oklab, white 20%, transparent);
+  --on-ink-muted: #b0b0b0;
+  --scrim: color-mix(in oklab, black 62%, transparent);
+  /* Картка: тонкий світлий контур і м'яке світло зверху, щоб не зливалася з тлом. */
+  --card-edge: inset 0 0 0 1px color-mix(in oklab, white 8%, transparent);
+  --card-sheen: linear-gradient(
+    180deg,
+    color-mix(in oklab, white 5.5%, transparent),
+    transparent 55%
+  );
+  /* Велика темна секція: нейтральний градієнт і ледь помітне тепле світло в куті. */
+  --panel-sheen:
+    radial-gradient(
+      70% 90% at 100% 0%,
+      color-mix(in oklab, var(--blue) 9%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(160deg, var(--ink-panel-light), var(--ink-panel) 65%);
+  --photo-sheen: linear-gradient(160deg, #f4f4f6, #d3d3d9);
 
   /* ── Шрифти ────────────────────────────────────────────────────────────── */
   --font-display-family: "Unbounded Variable", "Unbounded", system-ui, sans-serif;
@@ -77,11 +101,10 @@
 
   /* ── Тіні: лише фокус і hover-підйом карток ────────────────────────────── */
   --focus-ring: 0 0 0 3px var(--blue);
-  /* Для елементів, залитих blue: біла прокладка, щоб кільце не зливалося. */
-  --focus-ring-offset: 0 0 0 2px var(--surface), 0 0 0 5px var(--blue);
-  /* На ink blue-кільце має слабкий контраст, тому там воно lime. */
+  /* Для елементів, залитих акцентом: темна прокладка, щоб кільце не зливалося. */
+  --focus-ring-offset: 0 0 0 2px var(--page), 0 0 0 5px var(--blue);
   --focus-ring-on-ink: 0 0 0 3px var(--lime);
-  --lift-shadow: 0 16px 32px -16px color-mix(in oklab, var(--ink) 28%, transparent);
+  --lift-shadow: var(--card-edge), 0 18px 36px -16px color-mix(in oklab, black 70%, transparent);
 
   /* ── Смуга прокрутки ───────────────────────────────────────────────────── */
   --scrollbar-thumb: color-mix(in oklab, var(--ink-2) 45%, var(--page));
@@ -89,7 +112,7 @@
   --scrollbar-track: var(--page);
   /* Усередині темних секцій і панелей. */
   --scrollbar-thumb-on-ink: var(--on-ink-20);
-  --scrollbar-track-on-ink: var(--ink);
+  --scrollbar-track-on-ink: var(--ink-bg);
 
   /* ── Рух ───────────────────────────────────────────────────────────────── */
   --ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -105,12 +128,12 @@
   --popover: var(--surface);
   --popover-foreground: var(--ink);
   --primary: var(--blue);
-  --primary-foreground: var(--surface);
-  --secondary: var(--page);
+  --primary-foreground: var(--on-accent);
+  --secondary: var(--chip);
   --secondary-foreground: var(--ink);
-  --muted: var(--page);
+  --muted: var(--chip);
   --muted-foreground: var(--muted-ink);
-  --accent: var(--page);
+  --accent: var(--chip);
   --accent-foreground: var(--ink);
   --destructive: var(--danger);
   --border: var(--line);

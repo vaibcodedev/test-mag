@@ -11,7 +11,7 @@ export const fieldClassName =
  * помилку — danger-рамка 2px.
  */
 export const fieldOnDarkClassName =
-  "border-2 border-surface hover:border-surface focus-visible:border-surface focus-visible:shadow-focus-on-ink aria-invalid:border-danger aria-invalid:focus-visible:border-danger aria-invalid:focus-visible:shadow-focus-on-ink";
+  "border-2 border-ink-2 hover:border-ink-2 focus-visible:border-ink-2 focus-visible:shadow-focus-on-ink aria-invalid:border-danger aria-invalid:focus-visible:border-danger aria-invalid:focus-visible:shadow-focus-on-ink";
 
 export type InputProps = ComponentProps<"input"> & {
   /** Поле стоїть на ink (розсилка, темні секції). */

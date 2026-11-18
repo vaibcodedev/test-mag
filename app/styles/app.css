@@ -33,6 +33,14 @@
   --color-on-ink-20: var(--on-ink-20);
   --color-on-ink-muted: var(--on-ink-muted);
   --color-scrim: var(--scrim);
+  --color-on-accent: var(--on-accent);
+  --color-ink-bg: var(--ink-bg);
+  /* У темній схемі одне ім'я означає різне для тла й для тексту: bg-ink — найтемніша
+     поверхня, а text-ink — світлий текст; bg-page — чип на картці, а не тло сторінки;
+     text-surface — білий текст на темному, а bg-surface — картка. */
+  --background-color-ink: var(--ink-bg);
+  --background-color-page: var(--chip);
+  --text-color-surface: var(--surface-text);
 
   /* Кольори shadcn (посилаються на токени через tokens.css) */
   --color-background: var(--background);
@@ -327,7 +335,7 @@
 
   ::selection {
     background: var(--blue);
-    color: var(--surface);
+    color: var(--on-accent);
   }
 
   /* Увесь рух вимикається за prefers-reduced-motion. */
@@ -409,5 +417,40 @@
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+  }
+}
+
+/* ── Темна схема: поверхні ────────────────────────────────────────────────────
+   Картки трохи світліші за тло, з тонким контуром і м'яким світлом зверху — інакше
+   вони зливаються зі сторінкою. Великі темні секції нейтральні, без кольорових заливок:
+   акцент лишається тільки на діях, цінах і бейджах. */
+@layer utilities {
+  /* Картку впізнаємо за data-padding + data-tone: їх ставить лише Card, а data-slot із asChild
+     переходить до дочірнього елемента. :where — нульова специфічність: тінь наведення
+     (.lift:hover) лишається сильнішою. */
+  :where([data-padding][data-tone="surface"]) {
+    box-shadow: var(--card-edge);
+    background-image: var(--card-sheen);
+  }
+
+  :where([data-padding][data-tone="ink"]) {
+    box-shadow: var(--card-edge);
+  }
+
+  /* Тут специфічність потрібна: колір і градієнт мають перекрити клас bg-ink. */
+  [data-padding][data-tone="ink"] {
+    background-color: var(--ink-panel);
+    background-image: var(--panel-sheen);
+  }
+
+  /* Фото товарів зняті на білому. На темній картці білий прямокутник сліпить, тому
+     підкладка — м'який студійний сірий, а фото лягає множенням: білий розчиняється. */
+  .bg-photo {
+    background-image: var(--photo-sheen);
+    color: #0b0b14;
+  }
+
+  .bg-photo img {
+    mix-blend-mode: multiply;
   }
 }

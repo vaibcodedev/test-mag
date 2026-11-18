@@ -266,7 +266,7 @@ describe("Field та Input на ink", () => {
       "group-data-[on-dark=true]/field:text-on-ink-muted",
     );
     expect(screen.getByRole("textbox", { name: "Email" })).toHaveClass(
-      "border-surface",
+      "border-ink-2",
       "focus-visible:shadow-focus-on-ink",
     );
   });
@@ -274,7 +274,7 @@ describe("Field та Input на ink", () => {
   it("без onDark поле лишається звичайним", () => {
     render(<Input aria-label="Телефон" />);
 
-    expect(screen.getByRole("textbox", { name: "Телефон" })).not.toHaveClass("border-surface");
+    expect(screen.getByRole("textbox", { name: "Телефон" })).not.toHaveClass("border-ink-2");
   });
 });
 

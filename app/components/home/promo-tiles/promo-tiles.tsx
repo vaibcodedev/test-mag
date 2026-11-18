@@ -141,7 +141,7 @@ function TradeInTile({ tile }: { tile: PromoTradeInTile }) {
               asChild
               variant="icon"
               shape="round"
-              className="bg-surface text-blue transition-transform group-focus-within:-rotate-45 group-hover:-rotate-45"
+              className="bg-ink text-blue transition-transform group-focus-within:-rotate-45 group-hover:-rotate-45"
             >
               <span aria-hidden="true">
                 <ArrowUpRight strokeWidth={2} />

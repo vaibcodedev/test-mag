@@ -25,7 +25,7 @@ export function MegaMenu({ categories }: { categories: readonly MegaMenuCategory
     <NavigationMenu data-slot="mega-menu" className="flex-none">
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="bg-blue text-surface focus-ring-offset hover:bg-blue-hover data-open:bg-blue-hover [&_svg]:text-surface">
+          <NavigationMenuTrigger className="bg-blue text-on-accent focus-ring-offset hover:bg-blue-hover data-open:bg-blue-hover [&_svg]:text-on-accent">
             <LayoutGrid aria-hidden="true" strokeWidth={2} />
             Каталог
           </NavigationMenuTrigger>

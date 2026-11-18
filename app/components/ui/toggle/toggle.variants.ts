@@ -14,7 +14,7 @@ export const toggleVariants = cva(
     variants: {
       variant: {
         /** Пігулка з текстом: пам'ять, колір, стан у виборі варіанта товару. */
-        pill: "h-11 min-w-11 rounded-pill border px-4 data-[state=on]:border-blue data-[state=on]:bg-blue data-[state=on]:text-surface",
+        pill: "h-11 min-w-11 rounded-pill border px-4 data-[state=on]:border-blue data-[state=on]:bg-blue data-[state=on]:text-on-accent",
         /** Кругла кнопка-іконка 44px: «в обране», «до порівняння». */
         icon: "size-11 rounded-pill data-[state=on]:[&_svg]:fill-current",
         /** Крапка кольору 28px у цілі 44px; увімкнена — з кільцем. Колір задає проп swatch. */

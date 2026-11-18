@@ -45,7 +45,7 @@ export function Toaster(props: ToasterProps) {
         classNames: {
           toast: "!shadow-none !text-small !font-semibold !gap-3",
           description: "!text-on-ink-muted !font-medium",
-          actionButton: "!bg-lime !text-ink !rounded-md !font-semibold !h-11 !px-4",
+          actionButton: "!bg-lime !text-on-accent !rounded-md !font-semibold !h-11 !px-4",
         },
       }}
       {...props}

@@ -20,7 +20,7 @@ export const tabsTriggerVariants = cva(
     variants: {
       variant: {
         pills:
-          "rounded-pill bg-surface px-5 text-ink focus-ring-offset hover:bg-page-hover data-active:bg-blue data-active:text-surface data-active:hover:bg-blue-hover",
+          "rounded-pill bg-surface px-5 text-ink focus-ring-offset hover:bg-page-hover data-active:bg-blue data-active:text-on-accent data-active:hover:bg-blue-hover",
         line: "rounded-sm px-1 text-ink-2 focus-ring after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-transparent hover:text-ink data-active:text-blue data-active:after:bg-blue",
       },
     },

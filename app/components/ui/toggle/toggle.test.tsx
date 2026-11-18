@@ -34,7 +34,7 @@ describe("Toggle", () => {
       "h-11",
       "rounded-pill",
       "data-[state=on]:bg-blue",
-      "data-[state=on]:text-surface",
+      "data-[state=on]:text-on-accent",
     );
   });
 
